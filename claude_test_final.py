@@ -27,6 +27,7 @@ import argparse
 import datetime
 import numpy as np
 from collections import defaultdict
+from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
 
 from stable_baselines3 import PPO
 from torch.utils.tensorboard import SummaryWriter
@@ -80,7 +81,7 @@ def run_episode(model, env, deterministic: bool = True) -> dict:
     Run one full episode with the trained model.
     Returns a flat dict of the best step (lowest valid util).
     """
-    obs, _ = env.reset()
+    obs = env.reset()
     done = False
 
     # Track per-step data
@@ -88,31 +89,54 @@ def run_episode(model, env, deterministic: bool = True) -> dict:
 
     while not done:
         action, _ = model.predict(obs, deterministic=deterministic)
-        obs, reward, terminated, truncated, info = env.step(action)
-        done = terminated or truncated
+        obs, reward, dones, infos = env.step(action)
+        
+        # Unpack vectorized step arrays (index 0 for a single parallel env)
+        done = dones[0]
+        info = infos[0]
+        step_reward = reward[0]
+        
+        rt = info.get("reward_terms", {})
+
         steps.append({
-            "step":         len(steps) + 1,
-            "util":         info["utilization"],
-            "mass":         info["mass"],
-            "cost":         info["cost"],
-            "co2":          info["co2"],
-            "chi_lt":       info["chi_lt"],
-            "h":            info["h"],
-            "b":            info["b"],
-            "tf":           info["tf"],
-            "tw":           info["tw"],
-            "fy":           info["fy"],
+            "step": len(steps) + 1,
+
+            "util": info["utilization"],
+            "mass": info["mass"],
+            "cost": info["cost"],
+            "co2": info["co2"],
+            "chi_lt": info["chi_lt"],
+
+            "h": info["h"],
+            "b": info["b"],
+            "tf": info["tf"],
+            "tw": info["tw"],
+
+            "fy": info["fy"],
             "section_type": info["section_type"],
-            "span":         info["span"],
-            "load":         info["load"],
-            "storey":       info["storey"],
-            "reward":       reward,
+
+            "span": info["span"],
+            "load": info["load"],
+            "storey": info["storey"],
+
+            "reward": step_reward,
+
+            # --- Reward Components ---
+            "economy_reward":      rt.get("economy_reward", 0.0),
+            "utilization_reward":  rt.get("utilization_reward", 0.0),
+            "co2_lca_reward":rt.get("co2_lca_reward", 0.0),
+            "improvement_reward":  rt.get("improvement_reward", 0.0),
+            "hss_demand_bonus": rt.get("hss_demand_bonus", 0.0),
+            "novelty_reward":      rt.get("novelty_reward", 0.0),
+            "feasibility_penalty": rt.get("feasibility_penalty", 0.0),
+            "underutil_penalty":   rt.get("underutil_penalty", 0.0),
+            
             "section_class": info["ec3"].get("section_class", 0) if info.get("ec3") else 0,
-            "Mrd":          info["ec3"].get("Mrd", 0) if info.get("ec3") else 0,
-            "Med":          info["ec3"].get("Med", 0) if info.get("ec3") else 0,
-            "lambda_lt":    info["ec3"].get("lambda_lt", 0) if info.get("ec3") else 0,
-            "defl_util":    info["ec3"].get("deflection_util", 0) if info.get("ec3") else 0,
-            "moment_util":  info["ec3"].get("moment_util", 0) if info.get("ec3") else 0,
+            "Mrd":           info["ec3"].get("Mrd", 0) if info.get("ec3") else 0,
+            "Med":           info["ec3"].get("Med", 0) if info.get("ec3") else 0,
+            "lambda_lt":     info["ec3"].get("lambda_lt", 0) if info.get("ec3") else 0,
+            "defl_util":     info["ec3"].get("deflection_util", 0) if info.get("ec3") else 0,
+            "moment_util":   info["ec3"].get("moment_util", 0) if info.get("ec3") else 0,
         })
 
     if not steps:
@@ -121,9 +145,9 @@ def run_episode(model, env, deterministic: bool = True) -> dict:
     # Best step = closest util to 0.95 among feasible steps
     feasible = [
         s for s in steps
-        if s["util"] <= 1.05
-        and s["section_class"] < 4
-        and s["section_class"] > 0
+        if 0.90 <= s["util"] <= 1.05
+        and 0 < s["section_class"] < 4
+        
     ]
 
     if feasible:
@@ -135,6 +159,20 @@ def run_episode(model, env, deterministic: bool = True) -> dict:
     best["n_steps"] = len(steps)
     best["had_feasible"] = len(feasible) > 0
     best["ep_reward"]    = sum(s["reward"] for s in steps)
+    
+    reward_keys = [
+        "economy_reward",
+        "utilization_reward",
+        "co2_lca_reward",
+        "improvement_reward",
+        "hss_demand_bonus",
+        "novelty_reward",
+        "feasibility_penalty",
+        "underutil_penalty",
+    ]
+
+    for k in reward_keys:
+        best[f"ep_{k}"] = sum(s.get(k, 0.0) for s in steps)
 
     return best
 
@@ -155,33 +193,56 @@ def run_grid(model, args) -> list[dict]:
     total = len(spans) * len(loads)
     print(f"\n  Running {total}-point span×load grid...")
 
+
+    vecnorm_path = args.model.replace("best_model.zip", "vecnormalize.pkl").replace(
+                   "final_model.zip", "vecnormalize.pkl")
+    
     for span in spans:
         for load in loads:
-            env = HighRiseGenerativeEnv(
-                use_storey_load_scaling=False,   # fixed grid, no scaling
+            raw_env = HighRiseGenerativeEnv(
+                use_storey_load_scaling=True,   # fixed grid, no scaling
                 sls_load_factor=args.sls_factor,
                 ltb_restraint_factor=args.ltb_factor,
             )
             # Force fixed demand
-            obs, _ = env.reset(seed=42)
-            env.span  = float(span)
-            env.load  = float(load)
-            env.storey = 20
+            obs, _ = raw_env.reset(seed=42)
+            raw_env.span  = float(span)
+            raw_env.load  = float(load)
+            raw_env.storey = 20
+            
+            # Wrap it into a DummyVecEnv matching the random evaluation pipeline
+            venv = DummyVecEnv([lambda: raw_env])
+            if os.path.exists(vecnorm_path):
+                eval_env = VecNormalize.load(vecnorm_path, venv)
+                eval_env.training = False
+                eval_env.norm_reward = False
+                eval_env.clip_obs = 10.0
+            else:
+                eval_env = venv
+            
+            obs = raw_env._get_obs()
+                
+            # Normalize the manually altered observation vector
+            obs = eval_env.normalize_obs(obs)
+            obs = np.expand_dims(obs, axis=0) if obs.ndim == 1 else obs
 
             done = False
             steps = []
             while not done:
-                action, _ = model.predict(env._get_obs(), deterministic=True)
-                obs, reward, terminated, truncated, info = env.step(action)
-                done = terminated or truncated
+                action, _ = model.predict(obs, deterministic=True)
+                obs, reward, dones, infos = eval_env.step(action)
+                
+                done = dones[0]
+                info = infos[0]
+                
                 if info.get("ec3"):
                     steps.append(info)
 
             if steps:
                 feasible = [
                     s for s in steps
-                    if s["utilization"] <= 1.05
-                    and s.get("ec3", {}).get("section_class", 4) < 4
+                    if 0.90 <= s["utilization"] <= 1.05
+                    and 0 < s.get("ec3", {}).get("section_class", 4) < 4
                 ]
                 best = (
                     min(feasible, key=lambda s: abs(s["utilization"] - 0.95))
@@ -206,7 +267,7 @@ def run_grid(model, args) -> list[dict]:
                     "feasible":    len(feasible) > 0,
                     "n_steps":     len(steps),
                 })
-            env.close()
+            eval_env.close()
 
     print(f"  Grid complete: {len(results)} / {total} converged")
     return results
@@ -260,7 +321,7 @@ def validate(args):
     print("=" * 64)
     
     
-    env = HighRiseGenerativeEnv(
+    raw_env = HighRiseGenerativeEnv(
         use_storey_load_scaling=True,
         sls_load_factor=args.sls_factor,
         ltb_restraint_factor=args.ltb_factor,
@@ -271,15 +332,18 @@ def validate(args):
     print(f"\n  Model loaded: {args.model}")
 
     # Load VecNormalize stats if present (normalises observations)
-    from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
+    env = DummyVecEnv([lambda: raw_env])
     vecnorm_path = args.model.replace("best_model.zip","vecnormalize.pkl").replace(
                    "final_model.zip","vecnormalize.pkl")
     _vecnorm = None
     if os.path.exists(vecnorm_path):
         print(f"  VecNormalize stats loaded: {vecnorm_path}")
-        _vecnorm = VecNormalize.load(vecnorm_path, DummyVecEnv([lambda: env]))
+        _vecnorm = VecNormalize.load(vecnorm_path, env)
         _vecnorm.training = False
         _vecnorm.norm_reward = False
+        _vecnorm.clip_obs = 10.0
+    else:
+        print("  WARNING: vecnormalize.pkl not found! Evaluating on raw inputs.")
 
     # ── Random episode validation ─────────────────────────────
     print(f"\n  Running {args.episodes} random validation episodes...")
@@ -288,16 +352,17 @@ def validate(args):
 
     random_results = []
     for ep in range(args.episodes):
-        env.reset(seed=args.seed + ep)
-        result = run_episode(model, env, deterministic=True)
+        # Access original un-wrapped environment method to seed setup configs securely
+        raw_env.reset(seed=args.seed + ep)
+        result = run_episode(model, _vecnorm, deterministic=True)
         if result:
             random_results.append(result)
 
         if (ep + 1) % 50 == 0:
             done = ep + 1
             feasible_so_far = sum(1 for r in random_results if r.get("had_feasible"))
-            # print(f"  [{done}/{args.episodes}]  "
-            #       f"feasible rate: {feasible_so_far/done:.1%}")
+            print(f"  [{done}/{args.episodes}]  "
+                  f"feasible rate: {feasible_so_far/done:.1%}")
 
     env.close()
 
@@ -312,11 +377,17 @@ def validate(args):
     chi_lt_stats = compute_stats(feasible_results, "chi_lt")
     reward_stats = compute_stats(random_results,   "ep_reward")
 
+    economy_stats = compute_stats(random_results, "ep_economy_reward")
+    util_reward_stats = compute_stats(random_results, "ep_utilization_reward")
+    co2_lca_reward_stats = compute_stats(random_results, "ep_co2_lca_reward")
+    improvement_reward_stats = compute_stats(random_results, "ep_improvement_reward")
+    hss_demand_bonus_stats = compute_stats(random_results, "ep_hss_demand_bonus")
+    underutil_stats = compute_stats(random_results, "ep_underutil_penalty")
+    feasibility_penalty_stats = compute_stats(random_results, "ep_feasibility_penalty")
+    
     # Target band: 0.90 ≤ util ≤ 1.05
-    in_target = sum(
-        1 for r in feasible_results
-        if 0.90 <= r.get("util", 0) <= 1.05
-    )
+    
+    in_target = sum(1 for r in feasible_results if 0.90 <= r.get("util", 0) <= 1.05)
     target_rate = in_target / max(len(feasible_results), 1)
 
     # Grade distribution
@@ -338,7 +409,13 @@ def validate(args):
     writer.add_scalar("val/co2_mean_kg",         co2_stats.get("mean", 0),   0)
     writer.add_scalar("val/chi_lt_mean",         chi_lt_stats.get("mean",0), 0)
     writer.add_scalar("val/episode_reward_mean", reward_stats.get("mean",0), 0)
-
+    writer.add_scalar("val/economy_reward_mean", economy_stats.get("mean",0),0)
+    writer.add_scalar("val/utilization_reward_mean", util_reward_stats.get("mean",0),0)
+    writer.add_scalar("val/co2_lca_reward_mean", co2_lca_reward_stats.get("mean",0),0)
+    writer.add_scalar("val/improvement_reward_mean", improvement_reward_stats.get("mean",0),0)
+    writer.add_scalar("val/hss_demand_bonus_mean", hss_demand_bonus_stats.get("mean",0),0)
+    writer.add_scalar("val/underutil_penalty_mean", underutil_stats.get("mean",0),0)
+    writer.add_scalar("val/feasibility_penalty_mean", feasibility_penalty_stats.get("mean",0),0)
     # Per-grade mass (shows how well HSS reduces mass)
     for grade, count in sorted(grade_counts.items()):
         grade_mass = [
@@ -393,6 +470,28 @@ def validate(args):
                   f"{s['p25']:>8.3f}  {s['p50']:>8.3f}  {s['p75']:>8.3f}")
 
     print(f"\n{SEP}")
+    print("  REWARD BREAKDOWN")
+    print(SEP2)
+
+    reward_rows = [
+        ("Economy Reward", economy_stats),
+        ("Utilization Reward", util_reward_stats),
+        ("CO₂ LCA Reward", co2_lca_reward_stats),
+        ("Improvement Reward", improvement_reward_stats),
+        ("HSS Demand Bonus", hss_demand_bonus_stats),
+        ("Underutil Penalty", underutil_stats),
+        ("Feasibility Penalty", feasibility_penalty_stats),
+    ]
+
+    for label, s in reward_rows:
+        if s:
+            print(
+                f"  {label:<22}"
+                f"{s['mean']:>10.2f}"
+                f"{s['std']:>10.2f}"
+            )
+    
+    print(f"\n{SEP}")
     print("  Grade Distribution (feasible episodes)")
     print(SEP2)
     total_f = max(len(feasible_results), 1)
@@ -409,7 +508,39 @@ def validate(args):
     for cls in sorted(class_counts.keys()):
         cnt = class_counts[cls]
         print(f"    Class {cls}  {cnt:>4} ({cnt/total_f:>5.1%})")
+    
+    print(f"\n{SEP}")
+    print("  SECTION GEOMETRY ANALYSIS")
+    print(SEP2)
 
+    if feasible_results:
+        print(f"  Mean h  = {np.mean([r['h'] for r in feasible_results]):.1f} mm")
+        print(f"  Mean b  = {np.mean([r['b'] for r in feasible_results]):.1f} mm")
+        print(f"  Mean tf = {np.mean([r['tf'] for r in feasible_results]):.1f} mm")
+        print(f"  Mean tw = {np.mean([r['tw'] for r in feasible_results]):.1f} mm")
+
+    print(f"\n{SEP}")
+    print("  GRADE PERFORMANCE")
+    print(SEP2)
+
+    for grade in sorted(grade_counts.keys()):
+
+        subset = [
+            r for r in feasible_results
+            if int(r["fy"]) == grade
+        ]
+
+        if not subset:
+            continue
+
+        print(
+            f"  S{grade}"
+            f" | Util={np.mean([r['util'] for r in subset]):.3f}"
+            f" | Mass={np.mean([r['mass'] for r in subset]):.1f}"
+            f" | Cost={np.mean([r['cost'] for r in subset]):.1f}"
+            f" | CO2={np.mean([r['co2'] for r in subset]):.1f}"
+            f" | n={len(subset)}"
+        )
     # ── Grid validation ───────────────────────────────────────
     grid_results = []
     if args.grid:
@@ -435,6 +566,62 @@ def validate(args):
                       f"{r['util']:<8.3f} {r['mass_kg']:<11.1f} "
                       f"{r['fy_MPa']:<10.0f} {r['section_type']:<8} "
                       f"{r['section_class']:<7} {feas_str}")
+            
+            print(f"\n{SEP}")
+            print("  GRADE TRANSITION ANALYSIS")
+            print(SEP2)
+
+            for r in sorted(grid_results,
+                            key=lambda x: (x["span_m"], x["load_kNm"])):
+
+                print(
+                    f"{r['span_m']:>2.0f}m "
+                    f"{r['load_kNm']:>3.0f}kN/m "
+                    f"-> S{int(r['fy_MPa'])}"
+                )
+            
+            print(f"\n{SEP}")
+            print("  DEMAND VS GRADE")
+            print(SEP2)
+
+            bins = defaultdict(list)
+
+            for r in grid_results:
+
+                demand = r["span_m"] * r["load_kNm"]
+
+                bins[int(r["fy_MPa"])].append(demand)
+
+            for grade in sorted(bins):
+
+                print(
+                    f"S{grade}"
+                    f" | mean demand = {np.mean(bins[grade]):.1f}"
+                    f" | max demand = {np.max(bins[grade]):.1f}"
+                    f" | n={len(bins[grade])}"
+                )
+                
+            grade_stats = defaultdict(list)
+
+            for r in grid_results:
+
+                grade_stats[int(r["fy_MPa"])].append(r)
+
+            print(f"\n{SEP}")
+            print("  GRADE EFFICIENCY")
+            print(SEP2)
+
+            for grade in sorted(grade_stats):
+
+                rows = grade_stats[grade]
+
+                print(
+                    f"S{grade}"
+                    f" | Mass={np.mean([x['mass_kg'] for x in rows]):.1f}"
+                    f" | Cost={np.mean([x['cost'] for x in rows]):.1f}"
+                    f" | CO2={np.mean([x['co2_kg'] for x in rows]):.1f}"
+                    f" | Util={np.mean([x['util'] for x in rows]):.3f}"
+                )
 
     # ── Export to CSV ─────────────────────────────────────────
     # Random episodes CSV
@@ -477,10 +664,10 @@ def validate(args):
     summary_path = os.path.join(out_dir, "validation_summary.json")
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)
-    # print(f"  Summary JSON        : {summary_path}")
-    # print(f"  TensorBoard logs    : {tb_dir}")
-    # print(f"\n  Run:  tensorboard --logdir {tb_dir}")
-    # print(f"{SEP}\n")
+    print(f"  Summary JSON        : {summary_path}")
+    print(f"  TensorBoard logs    : {tb_dir}")
+    print(f"\n  Run:  tensorboard --logdir {tb_dir}")
+    print(f"{SEP}\n")
 
     writer.flush()
     writer.close()

@@ -325,7 +325,7 @@ def train(args):
         eval_env,
         norm_obs=True,
         norm_reward=False,   # do NOT normalise eval rewards — we want true values
-        clip_obs=50.0,       # was 10.0
+        clip_obs=10.0,       
         training=False,
     )
 

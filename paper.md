@@ -1,6 +1,4 @@
-# Generative Design of High-Strength Steel (HSS) Beams via Proximal Policy Optimization: A Demand-Driven, EC3-Compliant Reinforcement Learning Framework
-
-**Project report prepared for supervisor review — basis for research publication**
+# Generative Design of High-Strength Steel (HSS) Beams via Proximal Policy Optimization PPO: A Demand-Driven, EC3-Compliant Reinforcement Learning Framework
 
 ---
 

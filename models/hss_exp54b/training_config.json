@@ -1,0 +1,20 @@
+{
+  "timesteps": 1000000,
+  "n_envs": 8,
+  "run_name": "hss_exp54b",
+  "seed": 42,
+  "ltb_factor": 0.25,
+  "sls_factor": 0.5,
+  "no_storey_scaling": false,
+  "lr": 0.0003,
+  "n_steps": 1024,
+  "batch_size": 256,
+  "n_epochs": 8,
+  "gamma": 0.99,
+  "gae_lambda": 0.95,
+  "clip_range": 0.15,
+  "ent_coef": 0.03,
+  "vf_coef": 0.5,
+  "max_grad_norm": 0.5,
+  "timestamp": "20260721_131049"
+}

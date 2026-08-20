@@ -1,0 +1,11 @@
+{
+  "label": "smoketest_ga",
+  "n_contexts": 10,
+  "feasibility_rate": 1.0,
+  "gap_mean": 0.10997635716793805,
+  "gap_median": 0.06334544003218771,
+  "gap_p90": 0.17513698404049022,
+  "gap_p95": 0.4321869438466209,
+  "wall_time_s_total": 2.0455191135406494,
+  "wall_time_s_per_context": 0.20455191135406495
+}

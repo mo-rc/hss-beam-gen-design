@@ -1,0 +1,11 @@
+{
+  "label": "smoketest_ppo_lagrangian",
+  "n_contexts": 15,
+  "feasibility_rate": 0.8666666666666667,
+  "gap_mean": 4.2473919789734405,
+  "gap_median": 3.360056807583728,
+  "gap_p90": 6.749797647607868,
+  "gap_p95": 7.6189338323863165,
+  "wall_time_s_total": 0.27525973320007324,
+  "wall_time_s_per_context": 0.018350648880004882
+}

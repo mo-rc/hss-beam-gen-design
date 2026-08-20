@@ -1,0 +1,20 @@
+{
+  "algo": "td3",
+  "reward_mode": "lagrangian",
+  "economy_metric": "cost",
+  "run_name": "smoketest_td3",
+  "seed": 42,
+  "timesteps": 8000,
+  "n_envs": 1,
+  "lr": 0.001,
+  "buffer_size": 20000,
+  "batch_size": 256,
+  "learning_starts": 1000,
+  "action_noise_sigma": 0.2,
+  "eta_util": 5.0,
+  "eta_class": 5.0,
+  "eta_geom": 2.0,
+  "lambda_max": 200.0,
+  "lagrangian_update_freq": 2000,
+  "out_dir": "./research/models"
+}

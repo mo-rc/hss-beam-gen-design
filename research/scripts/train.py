@@ -1,19 +1,16 @@
 """
 research/scripts/train.py
 ================================================================
-Unified training entry point for all reward-mode arms (legacy_shaped,
-shaped_no_bonus, feasibility_gated, lagrangian). Hyperparameters default
+Unified training entry point for all reward-mode arms (shaped,
+feasibility_gated, lagrangian). Hyperparameters default
 to the exp54b `training_config.json` values so results are comparable
 across arms -- ONLY reward_mode (and, for lagrangian, the dual-ascent
 settings) differs between runs, per the paper's ablation methodology.
 
 USAGE
 ------
-  # Arm A (reproduces exp54b exactly, for reference/regression):
-  python research/scripts/train.py --reward_mode legacy_shaped --run_name arm_A_legacy --seed 42
-
-  # Arm A' (R1 ablation -- the circularity test):
-  python research/scripts/train.py --reward_mode shaped_no_bonus --run_name arm_Ap_no_bonus --seed 42
+  # Arm "shaped" (weighted-sum reward, NO grade-specific term):
+  python research/scripts/train.py --reward_mode shaped --run_name arm_shaped --seed 42
 
   # Arm C (feasibility-gated, safe-RL style):
   python research/scripts/train.py --reward_mode feasibility_gated --run_name arm_C_gated --seed 42

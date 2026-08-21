@@ -16,21 +16,26 @@ was written to produce that behaviour, so observing it proves nothing.
 This module keeps 100% of the EC3 structural mechanics and the cost/CO2
 LCA model UNCHANGED (they are physically grounded — Fy affects Mrd, mass,
 cost and CO2 through real code equations, not reward shaping) and replaces
-ONLY the objective/constraint layer, exposing four switchable reward modes
-so the paper can report a genuine ablation rather than a single result:
+the objective/constraint layer entirely, exposing three switchable reward
+modes. The `hss_demand_bonus` term from exp54b (which explicitly rewarded
+fy >= 500 in the target utilisation band) has been REMOVED from this
+codebase, not merely switched off -- pre-Experiment-1 audit decision: for
+a paper whose central claim concerns whether demand-appropriate grade
+selection is genuinely learned, keeping a togglable "circular reward"
+option in the code (even off by default) is an unnecessary liability --
+a reviewer reading the source finds it either way. This codebase now
+contains no reward term that references a specific grade or grade
+threshold anywhere. If grade-appropriate selection is observed under any
+of the three modes below, it is a consequence of Fy's genuine effect on
+EC3 capacity, mass, cost and CO2, and nothing else.
 
-    "legacy_shaped"    Exact reproduction of the exp54b reward (all 8 terms,
-                        including hss_demand_bonus). This is the ARM A
-                        baseline the new arms are compared against — kept
-                        byte-faithful to the original so the comparison is
-                        valid (only the reward changes, nothing else).
-
-    "shaped_no_bonus"  Identical to legacy_shaped with hss_demand_bonus
-                        forced to zero. This is the R1 ablation: if grade-
-                        appropriate selection survives this, it is evidence
-                        the behaviour emerges from EC3 economics (cost/CO2/
-                        mass genuinely depend on fy), not from an explicit
-                        grade-reward term.
+    "shaped"            Weighted-sum reward shaping (economy + utilisation-
+                        target Gaussian + feasibility penalty terms),
+                        structurally similar to typical RL-for-design
+                        reward engineering in prior work, but with NO
+                        grade-specific term of any kind. This is the
+                        reward-shaping baseline arm the constrained modes
+                        below are compared against.
 
     "feasibility_gated" Safe-RL-style formulation. Reward = -economy(design)
                         only when the design is feasible (util<=1.0, section
@@ -50,6 +55,7 @@ so the paper can report a genuine ablation rather than a single result:
                         environment exposes `set_lagrange_multipliers()`
                         and reports raw violations in `info` for that
                         purpose; it does not update multipliers itself.
+                        This is the paper's primary proposed method.
 
 FORMAL PROBLEM STATEMENT (for the paper's Methods section)
 ------------------------------------------------------------
@@ -59,10 +65,12 @@ FORMAL PROBLEM STATEMENT (for the paper's Methods section)
     subject to  g3: deflection - limit     <= 0   (SLS, folded into g1's util
                                                     via governing-check exactly
                                                     as in the base EC3 model)
-    subject to  g4: geometry_penalty       == 0   (b<=h proportion sanity;
-                                                    not a code clause, kept
-                                                    separate from g1-g3 in
-                                                    reporting)
+    subject to  g3: geometry_penalty       <= 0   (one-sided: zero when
+                                                    b<=h, positive when
+                                                    b>h; proportion sanity,
+                                                    not an EC3 code clause,
+                                                    reported separately
+                                                    from g1/g2 as g3_geom)
     Economy(design) in {normalised mass, normalised cost, normalised CO2},
     selectable via `economy_metric`; the other two are always reported in
     `info` as secondary metrics, never optimised directly, avoiding the
@@ -117,7 +125,7 @@ import gymnasium as gym
 from gymnasium import spaces
 
 
-REWARD_MODES = ("legacy_shaped", "shaped_no_bonus", "feasibility_gated", "lagrangian")
+REWARD_MODES = ("shaped", "feasibility_gated", "lagrangian")
 ECONOMY_METRICS = ("mass", "cost", "co2")
 
 
@@ -135,6 +143,10 @@ class HSSBeamEnv(gym.Env):
         ltb_restraint_factor: float = 0.40,
         # --- Lagrangian-mode initial multipliers (updated externally) ------
         lagrange_init: dict | None = None,
+        # --- MDP-formulation parameters, exposed for ablation (Comment #13:
+        # "why is 40 steps appropriate?" / "one-shot vs multi-step") --------
+        max_steps: int = 40,
+        grade_softmax_temperature: float = 0.15,
     ):
         super().__init__()
         assert reward_mode in REWARD_MODES, f"reward_mode must be one of {REWARD_MODES}"
@@ -168,7 +180,8 @@ class HSSBeamEnv(gym.Env):
         self.STOREY_MIN, self.STOREY_MAX = 1, 70
 
         self.norm = {"mass": 4_000.0, "cost": 8_000.0, "co2": 10_000.0, "util": 1.5}
-        self.max_steps = 40
+        self.max_steps = max_steps
+        self.grade_softmax_temperature = grade_softmax_temperature
         self.curr_step = 0
         self.success_counter = 0
 
@@ -177,7 +190,10 @@ class HSSBeamEnv(gym.Env):
         self.memory_similarity_threshold = 0.08
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(6,), dtype=np.float32)
-        self.observation_space = spaces.Box(low=0.0, high=1.0, shape=(25,), dtype=np.float32)
+        # 26, not 25: see _get_obs() -- episode progress was added as an
+        # explicit observation feature during the pre-Experiment-1 audit to
+        # restore the Markov property (see docstring note below).
+        self.observation_space = spaces.Box(low=0.0, high=1.0, shape=(26,), dtype=np.float32)
 
         # ---- Lagrange multipliers (lagrangian mode only) ------------------
         # Keys mirror the constraint names in _constraint_violations().
@@ -277,6 +293,24 @@ class HSSBeamEnv(gym.Env):
     # OBSERVATION (unchanged from exp54b)
     # ================================================================
     def _get_obs(self) -> np.ndarray:
+        """
+        NOTE (pre-Experiment-1 audit, MDP-formulation check -- see
+        supervisor Comment #13 "is the state truly Markov?"): the design-
+        update step size is deliberately annealed over the episode
+        (`_update_design`'s `step_scale`, a function of `self.curr_step`),
+        which is standard and defensible for a within-episode coarse-to-
+        fine refinement schedule. However, the ORIGINAL 25-feature
+        observation never exposed `curr_step` (or any proxy for it), which
+        means the transition dynamics P(s'|s,a) depended on information the
+        policy could not observe -- the same (observation, action) pair
+        could produce different next-states depending on which step of the
+        episode it was. That is a genuine POMDP, not an MDP, regardless of
+        network capacity or training budget. Fixed by adding normalised
+        `episode_progress` (curr_step/max_steps) as an explicit observation
+        feature below, which restores the Markov property by construction:
+        every quantity `_update_design` and `_ec3_analysis` depend on is
+        now either part of the observation or a fixed environment constant.
+        """
         eps = self.epsilon
         section_flag = 0.0 if self.section_type == "rolled" else 1.0
         flange_slenderness = (self.b / max(self.tf, 1e-6)) / (14.0 * eps)
@@ -313,6 +347,7 @@ class HSSBeamEnv(gym.Env):
             np.clip((util_delta + 1.0) / 2.0, 0.0, 1.0),
             np.clip((mass_delta / 250.0 + 1.0) / 2.0, 0.0, 1.0),
             Med_norm,
+            np.clip(self.curr_step / self.max_steps, 0.0, 1.0),  # episode_progress -- see docstring above
         ], dtype=np.float32)
 
     # ================================================================
@@ -379,7 +414,8 @@ class HSSBeamEnv(gym.Env):
         self.tw = float(np.clip(self.tw + action[3] * 2.5 * step_scale, *self.design_limits["tw"]))
 
         grade_logits = np.array(
-            [-((action[4] - c) ** 2) / 0.15 for c in self._grade_centres], dtype=np.float64
+            [-((action[4] - c) ** 2) / self.grade_softmax_temperature for c in self._grade_centres],
+            dtype=np.float64
         )
         grade_logits -= grade_logits.max()
         grade_probs = np.exp(grade_logits)
@@ -420,24 +456,33 @@ class HSSBeamEnv(gym.Env):
         return float(value)
 
     # ================================================================
-    # REWARD — dispatches to one of four modes
+    # REWARD — dispatches to one of three modes
     # ================================================================
     def _compute_reward(self, util, mass, cost, co2, chi_lt, penalty, class_loss,
                           novelty, debug_ec3, violations):
-        if self.reward_mode == "legacy_shaped":
-            return self._reward_legacy_shaped(util, mass, cost, co2, penalty, class_loss, novelty, debug_ec3)
-        if self.reward_mode == "shaped_no_bonus":
-            return self._reward_legacy_shaped(util, mass, cost, co2, penalty, class_loss, novelty,
-                                                debug_ec3, zero_hss_bonus=True)
+        if self.reward_mode == "shaped":
+            return self._reward_shaped(util, mass, cost, co2, penalty, class_loss, novelty)
         if self.reward_mode == "feasibility_gated":
             return self._reward_feasibility_gated(util, mass, cost, co2, violations)
         if self.reward_mode == "lagrangian":
             return self._reward_lagrangian(util, mass, cost, co2, violations)
         raise ValueError(self.reward_mode)
 
-    # ---- ARM A: exact legacy reward (byte-faithful to exp54b), + R1 ablation switch
-    def _reward_legacy_shaped(self, util, mass, cost, co2, penalty, class_loss, novelty,
-                                debug_ec3, zero_hss_bonus: bool = False):
+    # ---- ARM "shaped": weighted-sum reward shaping, NO grade-specific term ----
+    def _reward_shaped(self, util, mass, cost, co2, penalty, class_loss, novelty):
+        """
+        Reward-shaping baseline. Structurally similar to the exp54b reward
+        (economy + CO2-efficiency + utilisation-target Gaussian + feasibility
+        penalties + mass-improvement shaping + optional novelty), but the
+        `hss_demand_bonus` term has been REMOVED ENTIRELY -- not gated by a
+        flag, not present in any code path. No term in this function, or
+        anywhere else in this file, references a specific grade, a grade
+        threshold, or the string "500"/"S500"/etc. Every grade-dependent
+        number the agent experiences comes from `_calculate_cost_co2`'s
+        market-rate cost/CO2 tables and `_ec3_analysis`'s Fy-dependent
+        capacity calculation -- both physically/economically grounded,
+        neither reward-engineered.
+        """
         mass_n, cost_n = mass / self.norm["mass"], cost / self.norm["cost"]
         economy_reward = -5.0 * mass_n - 5.0 * cost_n
 
@@ -457,15 +502,6 @@ class HSSBeamEnv(gym.Env):
 
         underutil_penalty = 80.0 * (0.90 - util) ** 2 if util < 0.90 else 0.0
 
-        if (not zero_hss_bonus) and 0.88 <= util <= 1.05 and class_loss == 0 and self.fy >= 500:
-            Med_kNm = max(debug_ec3.get("Med", 0.0), 0.0)
-            demand_factor = np.clip(Med_kNm / 1500.0, 0.0, 1.0)
-            k_grade = np.clip((self.fy - 460.0) / (690.0 - 460.0), 0.0, 1.0)
-            util_factor = np.exp(-((util - 0.96) ** 2) / (2.0 * 0.08 ** 2))
-            hss_demand_bonus = 10.0 * demand_factor * k_grade * util_factor
-        else:
-            hss_demand_bonus = 0.0
-
         eps = self.epsilon
         util_violation = max(util - 1.0, 0.0)
         feasibility_penalty = 60.0 * util_violation + 30.0 * class_loss + 4.0 * penalty
@@ -484,12 +520,12 @@ class HSSBeamEnv(gym.Env):
         improvement_reward = 1.5 * mass_improvement
         novelty_reward = 0.15 * np.tanh(novelty) if self.include_novelty else 0.0
 
-        reward = (economy_reward + co2_lca_reward + util_score + hss_demand_bonus
+        reward = (economy_reward + co2_lca_reward + util_score
                   + improvement_reward + novelty_reward - feasibility_penalty - underutil_penalty)
 
         return reward, {
             "economy_reward": economy_reward, "co2_lca_reward": co2_lca_reward,
-            "utilization_reward": util_score, "hss_demand_bonus": hss_demand_bonus,
+            "utilization_reward": util_score,
             "improvement_reward": improvement_reward, "novelty_reward": novelty_reward,
             "feasibility_penalty": feasibility_penalty, "underutil_penalty": underutil_penalty,
         }
@@ -602,7 +638,20 @@ class HSSBeamEnv(gym.Env):
             Mcr = max(np.sqrt(Mcr**2 + Mcr_zg) - C1*C2*zg*(np.pi**2*self.E*Iz/L_cr**2), 1e-3)
 
         lambda_lt = np.sqrt(W_ref * fy / (Mcr + 1e-9))
-        alpha_lt = (0.34 if h/b > 2.0 else 0.21) if self.section_type == "rolled" else 0.49
+        # EN1993-1-1 Table 6.5 (LTB buckling curve selection), all four cases:
+        #   rolled, h/b<=2 -> curve a (0.21) | rolled, h/b>2 -> curve b (0.34)
+        #   welded, h/b<=2 -> curve c (0.49) | welded, h/b>2 -> curve d (0.76)
+        # FIX (pre-Experiment-1 audit, independent EC3 verification): the
+        # previous version used alpha_lt=0.49 for ALL welded sections
+        # regardless of h/b, omitting curve d (0.76) for welded h/b>2.
+        # Confirmed by research/tests/ec3_independent_verification.py:
+        # this produced a 14% chi_LT error / 12% utilization error on a
+        # deep welded S690 test case -- large enough to flip a feasibility
+        # determination. See that file for the full verification table.
+        if self.section_type == "rolled":
+            alpha_lt = 0.34 if h/b > 2.0 else 0.21
+        else:
+            alpha_lt = 0.76 if h/b > 2.0 else 0.49
         phi_lt = 0.5 * (1.0 + alpha_lt * (lambda_lt - 0.2) + lambda_lt**2)
         chi_lt = float(np.clip(1.0 / (phi_lt + np.sqrt(np.maximum(phi_lt**2 - lambda_lt**2, 1e-9))), 0.0, 1.0))
         Mrd = chi_lt * Mrd_basic

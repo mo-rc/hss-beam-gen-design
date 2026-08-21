@@ -167,6 +167,154 @@ def ga_design(span_mm, load_kNm, storey, economy_metric="cost",
     )
 
 
+def ga_design_fixed_grade(span_mm, load_kNm, storey, grade, section_type, economy_metric="cost",
+                            pop_size=60, n_generations=80, seed=0, tournament_k=3,
+                            crossover_alpha=0.3, mutation_rate=0.25, mutation_sigma_frac=0.10,
+                            elitism=2):
+    """Same GA, but grade and section_type are FIXED (only the 4 continuous
+    geometry genes evolve). Used exclusively by
+    research/tests/validate_ground_truth.py to cross-check whether the
+    brute-force grid search in generate_ec3_pretrain_dataset.py actually
+    found the (grade, type)-conditional optimum it claims to -- i.e. is the
+    thing everything else calls 'ground truth' actually trustworthy."""
+    rng = np.random.default_rng(seed)
+    env = _make_probe_env(economy_metric)
+    grade_idx = int(np.argmin(np.abs(GRADES - grade)))
+    type_idx = SECTION_TYPES.index(section_type)
+
+    def random_genome_fixed():
+        g = _random_genome(rng)
+        g[4], g[5] = grade_idx, type_idx
+        return g
+
+    pop = [random_genome_fixed() for _ in range(pop_size)]
+    best_genome, best_fitness, best_meta = None, -np.inf, None
+
+    for gen in range(n_generations):
+        scored = []
+        for g in pop:
+            fit, meta = _evaluate(g, env, span_mm, load_kNm, storey)
+            scored.append((fit, g, meta))
+            if fit > best_fitness:
+                best_fitness, best_genome, best_meta = fit, g.copy(), meta
+
+        scored.sort(key=lambda t: t[0], reverse=True)
+        new_pop = [scored[i][1].copy() for i in range(elitism)]
+
+        def tournament():
+            idxs = rng.integers(0, pop_size, size=tournament_k)
+            best_idx = max(idxs, key=lambda i: scored[i][0])
+            return scored[best_idx][1]
+
+        while len(new_pop) < pop_size:
+            p1, p2 = tournament(), tournament()
+            child = np.empty(6)
+            for i in range(4):
+                lo, hi = min(p1[i], p2[i]), max(p1[i], p2[i])
+                span = hi - lo
+                child[i] = rng.uniform(lo - crossover_alpha * span, hi + crossover_alpha * span)
+            child[4], child[5] = grade_idx, type_idx  # fixed, never crossed/mutated
+            if rng.uniform() < mutation_rate:
+                bnd = list(BOUNDS.values())
+                for i in range(4):
+                    sigma = mutation_sigma_frac * (bnd[i][1] - bnd[i][0])
+                    child[i] += rng.normal(0, sigma)
+            new_pop.append(_clip_genome(child))
+        pop = new_pop
+
+    return dict(span_mm=span_mm, load_kNm=load_kNm, storey=storey,
+                economy_metric=economy_metric, fitness=best_fitness, **best_meta)
+
+
+def random_search_design(span_mm, load_kNm, storey, economy_metric="cost",
+                           n_evaluations=4800, seed=0):
+    """
+    Random search using the SAME number of EC3 evaluations as the GA
+    (pop_size * n_generations, by convention -- pass n_evaluations
+    explicitly to match whatever GA budget you're comparing against).
+    Directly answers the supervisor's explicit request: "Random search,
+    using the same number of environment evaluations" -- tests whether
+    GA's evolutionary structure (selection, crossover, mutation) earns its
+    keep over pure i.i.d. sampling within the same bounds and budget.
+    """
+    rng = np.random.default_rng(seed)
+    env = _make_probe_env(economy_metric)
+    t0 = time.time()
+    best_fitness, best_meta = -np.inf, None
+    for _ in range(n_evaluations):
+        g = _random_genome(rng)
+        fit, meta = _evaluate(g, env, span_mm, load_kNm, storey)
+        if fit > best_fitness:
+            best_fitness, best_meta = fit, meta
+    wall_time = time.time() - t0
+    return dict(span_mm=span_mm, load_kNm=load_kNm, storey=storey,
+                economy_metric=economy_metric, fitness=best_fitness, **best_meta,
+                n_evaluations=n_evaluations, wall_time_s=wall_time)
+
+
+def rule_based_design(span_mm, load_kNm, storey, economy_metric="cost", grade=355.0):
+    """
+    Deterministic, non-optimizing heuristic sizer, mimicking a first-pass
+    manual design: start from a standard depth-to-span rule of thumb
+    (h ~ span/24, a common serviceability-driven starting point for simply
+    supported steel beams), default to the most commonly stocked grade
+    (S355) unless told otherwise, then iteratively bump EVERY geometry
+    variable up by a fixed increment (in a fixed priority order: depth,
+    then flange thickness, then web thickness, then width) until EC3
+    compliant, stopping at the first feasible design found -- exactly the
+    "do the minimum needed, don't optimise further" behaviour a time-
+    pressured engineer doing a first pass would exhibit. This directly
+    answers the supervisor's request for a "rule-based EC3 design
+    procedure or conventional engineering sizing" baseline -- the
+    question this answers is not "can RL/GA find a good design" (they
+    obviously can) but "how much is left on the table by NOT optimising
+    at all, using only standard practice defaults".
+    """
+    env = _make_probe_env(economy_metric)
+    span_m = span_mm / 1000.0
+    h = float(np.clip(round(span_mm / 24.0 / 10) * 10, *BOUNDS["h"]))
+    b = float(np.clip(round(h / 2.2 / 10) * 10, *BOUNDS["b"]))
+    tf, tw = 10.0, 7.0
+    section_type = "rolled"
+
+    t0 = time.time()
+    n_evals = 0
+    max_iters = 200
+    for _ in range(max_iters):
+        env.h, env.b, env.tf, env.tw = h, b, tf, tw
+        env.fy, env.section_type = grade, section_type
+        env.span, env.load, env.storey = span_mm, load_kNm, storey
+        util, mass, penalty, class_loss, chi_lt, dbg = env._ec3_analysis()
+        n_evals += 1
+        if util <= 1.0 and class_loss == 0 and penalty <= 1e-6:
+            break
+        # Fixed-priority bump order: depth first (cheapest capacity per kg
+        # added, in general), then flange, then web, then width -- and if
+        # depth has hit its bound, widen before anything else.
+        if h < BOUNDS["h"][1]:
+            h = min(h + 20.0, BOUNDS["h"][1])
+        elif tf < BOUNDS["tf"][1]:
+            tf = min(tf + 1.0, BOUNDS["tf"][1])
+        elif tw < BOUNDS["tw"][1]:
+            tw = min(tw + 1.0, BOUNDS["tw"][1])
+        elif b < BOUNDS["b"][1]:
+            b = min(b + 10.0, BOUNDS["b"][1])
+        else:
+            break  # exhausted all bounds, genuinely can't reach feasibility
+    wall_time = time.time() - t0
+
+    cost, co2, _ = env._calculate_cost_co2(mass)
+    feasible = (util <= 1.0 + 1e-3) and (class_loss == 0) and (penalty <= 1e-6)
+    return dict(span_mm=span_mm, load_kNm=load_kNm, storey=storey, grade=grade,
+                section_type=section_type, economy_metric=economy_metric,
+                h=h, b=b, tf=tf, tw=tw, util=util, mass=mass, cost=cost, co2=co2,
+                feasible=feasible, n_evaluations=n_evals, wall_time_s=wall_time)
+
+
 if __name__ == "__main__":
     r = ga_design(span_mm=8000, load_kNm=60, storey=20, seed=0)
-    print(r)
+    print("GA:", r)
+    r2 = random_search_design(span_mm=8000, load_kNm=60, storey=20, n_evaluations=4800, seed=0)
+    print("Random search:", r2)
+    r3 = rule_based_design(span_mm=8000, load_kNm=60, storey=20)
+    print("Rule-based:", r3)

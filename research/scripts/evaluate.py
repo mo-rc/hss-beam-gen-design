@@ -69,6 +69,23 @@ def ground_truth_optimum(df: pd.DataFrame, economy_metric: str) -> pd.DataFrame:
     return df.loc[idx].reset_index(drop=True)
 
 
+def ground_truth_optimum_all_metrics(df: pd.DataFrame) -> dict:
+    """Ground-truth optimum for EACH of mass/cost/co2 independently, keyed
+    by (span_m, load_kNm) -> {metric: optimal_value}. Used so a policy
+    trained on ONE economy_metric can still be scored on its incidental
+    gap in the other two -- directly answers the supervisor's request for
+    a 'composite-objective gap' without reintroducing an arbitrary-weight
+    scalarisation (Comment #5's objection to weighted-sum reward design
+    applies equally to a weighted-sum GAP metric)."""
+    out = {}
+    for metric in ["mass", "cost", "co2"]:
+        opt = ground_truth_optimum(df, metric)
+        for _, r in opt.iterrows():
+            key = (r["span_m"], r["load_kNm"])
+            out.setdefault(key, {})[metric] = r[metric]
+    return out
+
+
 def grade_vs_demand_from_ground_truth(df: pd.DataFrame, economy_metric: str = "cost") -> pd.DataFrame:
     """Direct, RL-independent evidence: at the TRUE optimum, does selected
     grade correlate with demand (span*load, a proxy for design moment)?
@@ -99,7 +116,32 @@ def load_policy(model_path: str, algo: str):
 # Running one policy episode at a FORCED (span, load) context
 # ================================================================
 def run_policy_episode(env: HSSBeamEnv, policy_fn, span_m: float, load_kNm: float,
-                        storey: int = 20, max_steps: int = 40, seed: int = 0):
+                        storey: int = 20, max_steps: int = 40, seed: int = 0,
+                        return_best_feasible: bool = True):
+    """
+    Pre-Experiment-1 audit fix (supervisor Comment #14: "retain the best
+    feasible design encountered in the episode"): the termination rule
+    (3 consecutive steps in the 0.90-1.05 target band) is a TRAINING
+    convenience, not a guarantee that the episode's LAST step is the best
+    (or even a feasible) design. A policy can visit a genuinely good,
+    code-compliant design mid-episode and then continue exploring/refining
+    past it, ending on something worse or infeasible. Reporting only the
+    terminal info dict would then understate the policy's true achievable
+    performance -- and understates it in a way that has nothing to do with
+    design quality, only with where the episode happened to stop.
+
+    With return_best_feasible=True (the default, and what all evaluation
+    scripts should use for reported results), this tracks every step's
+    info dict and returns the one with the lowest economy_metric value
+    AMONG FEASIBLE steps, matching how a real generative-design tool would
+    actually be used ("show me the best candidate you found"), not "trust
+    whatever the trajectory happened to end on". If no step in the episode
+    was feasible, returns the terminal step's info (honestly infeasible).
+
+    Set return_best_feasible=False to get the raw terminal-step behaviour
+    (useful only for diagnosing termination-rule dynamics themselves, not
+    for reporting economy/feasibility results).
+    """
     obs, _ = env.reset(seed=seed)
     # Override the curriculum-sampled context with the EXACT ground-truth
     # context we want to compare against. use_storey_load_scaling is left
@@ -114,11 +156,21 @@ def run_policy_episode(env: HSSBeamEnv, policy_fn, span_m: float, load_kNm: floa
     obs = env._get_obs()
 
     info = None
+    best_info = None
+    best_economy = np.inf
     for t in range(max_steps):
         action = policy_fn(obs)
         obs, reward, terminated, truncated, info = env.step(action)
+        if return_best_feasible and info["feasible"]:
+            econ = info[env.economy_metric]
+            if econ < best_economy:
+                best_economy = econ
+                best_info = info
         if terminated or truncated:
             break
+
+    if return_best_feasible and best_info is not None:
+        return best_info
     return info
 
 
@@ -130,6 +182,7 @@ def evaluate_policy_vs_ground_truth(policy_fn, economy_metric: str, ground_truth
                                      reward_mode_for_env: str = "lagrangian"):
     df = load_ground_truth(ground_truth_csv)
     opt = ground_truth_optimum(df, economy_metric)
+    gt_all = ground_truth_optimum_all_metrics(df)
     if n_contexts is not None and n_contexts < len(opt):
         opt = opt.sample(n=n_contexts, random_state=seed).reset_index(drop=True)
 
@@ -142,12 +195,26 @@ def evaluate_policy_vs_ground_truth(policy_fn, economy_metric: str, ground_truth
         agent_economy = info[economy_metric]
         optimal_economy = r[economy_metric]
         gap = (agent_economy - optimal_economy) / optimal_economy if info["feasible"] else np.nan
+
+        # Secondary-metric gaps: how the policy does on mass/cost/co2 it was
+        # NOT directly optimising, relative to EACH metric's own ground-truth
+        # optimum (not the primary metric's optimal design) -- see
+        # ground_truth_optimum_all_metrics() docstring.
+        gt_key = (r["span_m"], r["load_kNm"])
+        secondary_gaps = {}
+        for m in ["mass", "cost", "co2"]:
+            if m == economy_metric or not info["feasible"]:
+                continue
+            gt_m = gt_all.get(gt_key, {}).get(m)
+            if gt_m:
+                secondary_gaps[f"gap_{m}"] = (info[m] - gt_m) / gt_m
+
         rows.append(dict(
             span_m=r["span_m"], load_kNm=r["load_kNm"],
             optimal_economy=optimal_economy, optimal_grade=r["grade"], optimal_type=r["section_type"],
             agent_economy=agent_economy, agent_grade=info["fy"], agent_type=info["section_type"],
             agent_util=info["utilization"], feasible=info["feasible"],
-            in_target_band=info["in_target_band"], gap=gap,
+            in_target_band=info["in_target_band"], gap=gap, **secondary_gaps,
         ))
     wall_time = time.time() - t0
     result = pd.DataFrame(rows)
@@ -187,17 +254,30 @@ def evaluate_ga_vs_ground_truth(economy_metric: str, ground_truth_csv: str,
 def summarize(result: pd.DataFrame, wall_time: float, label: str) -> dict:
     feasible_mask = result["feasible"]
     gaps = result.loc[feasible_mask, "gap"].dropna()
-    return dict(
+    summary = dict(
         label=label,
         n_contexts=len(result),
         feasibility_rate=float(feasible_mask.mean()),
         gap_mean=float(gaps.mean()) if len(gaps) else np.nan,
         gap_median=float(gaps.median()) if len(gaps) else np.nan,
+        gap_std=float(gaps.std()) if len(gaps) else np.nan,
         gap_p90=float(gaps.quantile(0.90)) if len(gaps) else np.nan,
         gap_p95=float(gaps.quantile(0.95)) if len(gaps) else np.nan,
+        gap_worst=float(gaps.max()) if len(gaps) else np.nan,
+        pct_within_1pct=float((gaps.abs() <= 0.01).mean()) if len(gaps) else np.nan,
+        pct_within_5pct=float((gaps.abs() <= 0.05).mean()) if len(gaps) else np.nan,
+        pct_within_10pct=float((gaps.abs() <= 0.10).mean()) if len(gaps) else np.nan,
         wall_time_s_total=wall_time,
         wall_time_s_per_context=wall_time / max(len(result), 1),
     )
+    # Secondary-metric gaps (see evaluate_policy_vs_ground_truth docstring),
+    # only present for RL-policy evaluations, not the GA baseline path.
+    for col in [c for c in result.columns if c.startswith("gap_") and c != "gap"]:
+        vals = result.loc[feasible_mask, col].dropna()
+        if len(vals):
+            summary[f"{col}_mean"] = float(vals.mean())
+            summary[f"{col}_median"] = float(vals.median())
+    return summary
 
 
 def main():

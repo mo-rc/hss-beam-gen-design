@@ -51,9 +51,15 @@ from research.scripts.ga_baseline import ga_design_fixed_grade
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--ground_truth_csv", default="pretrain_data/ec3_optimal_designs.csv")
+    p.add_argument("--ground_truth_csv", default="pretrain_data/ec3_optimal_designs_mass.csv",
+                    help="Post-audit default points at the objective-specific mass file "
+                         "(regenerate_ground_truth.py). Use --economy_metric to match: this "
+                         "script cross-checks whatever metric the given CSV was optimised for.")
     p.add_argument("--n_samples", type=int, default=30)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--economy_metric", default="mass", choices=["mass", "cost", "co2"],
+                    help="Must match which objective-specific ground-truth CSV --ground_truth_csv "
+                         "points at, or the improvement% comparison below is meaningless.")
     p.add_argument("--pop_size", type=int, default=120)
     p.add_argument("--n_generations", type=int, default=200)
     p.add_argument("--n_restarts", type=int, default=3,
@@ -69,38 +75,40 @@ def main():
     sample = df.sample(n=min(args.n_samples, len(df)), random_state=args.seed).reset_index(drop=True)
 
     print(f"Cross-checking {len(sample)} ground-truth rows against grade-fixed GA "
-          f"(pop={args.pop_size}, gens={args.n_generations}, restarts={args.n_restarts})...\n")
-    print(f"{'span_m':>7s} {'load':>6s} {'grade':>5s} {'type':>7s} {'grid_mass':>10s} "
-          f"{'ga_mass':>10s} {'improve%':>9s}")
+          f"(economy_metric={args.economy_metric}, pop={args.pop_size}, "
+          f"gens={args.n_generations}, restarts={args.n_restarts})...\n")
+    m = args.economy_metric
+    print(f"{'span_m':>7s} {'load':>6s} {'grade':>5s} {'type':>7s} {'grid_'+m:>10s} "
+          f"{'ga_'+m:>10s} {'improve%':>9s}")
 
     improvements = []
     refined_rows = []
     for i, r in sample.iterrows():
-        best_ga_mass = np.inf
+        best_ga_val = np.inf
         best_ga_result = None
         for restart in range(args.n_restarts):
             result = ga_design_fixed_grade(
                 span_mm=r["span_m"] * 1000.0, load_kNm=r["load_kNm"], storey=20,
-                grade=r["grade"], section_type=r["section_type"], economy_metric="mass",
+                grade=r["grade"], section_type=r["section_type"], economy_metric=m,
                 pop_size=args.pop_size, n_generations=args.n_generations,
                 seed=args.seed * 1000 + i * 10 + restart,
             )
-            if result["feasible"] and result["mass"] < best_ga_mass:
-                best_ga_mass = result["mass"]
+            if result["feasible"] and result[m] < best_ga_val:
+                best_ga_val = result[m]
                 best_ga_result = result
 
         if best_ga_result is None:
             print(f"{r['span_m']:7.2f} {r['load_kNm']:6.1f} {r['grade']:5.0f} {r['section_type']:>7s}   "
-                  f"GA found NO feasible design (grid says {r['mass']:.1f} kg -- investigate)")
+                  f"GA found NO feasible design (grid says {r[m]:.1f} -- investigate)")
             continue
 
-        improvement = (r["mass"] - best_ga_mass) / r["mass"]
+        improvement = (r[m] - best_ga_val) / r[m]
         improvements.append(improvement)
         print(f"{r['span_m']:7.2f} {r['load_kNm']:6.1f} {r['grade']:5.0f} {r['section_type']:>7s} "
-              f"{r['mass']:10.2f} {best_ga_mass:10.2f} {improvement*100:8.2f}%")
+              f"{r[m]:10.2f} {best_ga_val:10.2f} {improvement*100:8.2f}%")
 
         refined_rows.append(dict(r) | dict(
-            ga_mass=best_ga_mass, ga_h=best_ga_result["h"], ga_b=best_ga_result["b"],
+            **{f"ga_{m}": best_ga_val}, ga_h=best_ga_result["h"], ga_b=best_ga_result["b"],
             ga_tf=best_ga_result["tf"], ga_tw=best_ga_result["tw"], improvement=improvement,
         ))
 

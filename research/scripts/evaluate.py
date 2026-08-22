@@ -57,28 +57,50 @@ from research.envs.hss_env import HSSBeamEnv
 # ================================================================
 # Ground truth
 # ================================================================
-def load_ground_truth(csv_path="pretrain_data/ec3_optimal_designs.csv"):
+def load_ground_truth(csv_path: str) -> pd.DataFrame:
     return pd.read_csv(csv_path)
+
+
+def ground_truth_path_for_metric(economy_metric: str, ground_truth_dir: str = "pretrain_data") -> str:
+    """
+    Post-audit convention: ground truth is OBJECTIVE-SPECIFIC. There are
+    three files, ec3_optimal_designs_{mass,cost,co2}.csv, each produced by
+    an independent GA search optimising THAT metric directly (see
+    research/scripts/regenerate_ground_truth.py) -- not one file with
+    cost/co2 read off a mass-optimal geometry, which was the pre-audit
+    (biased) behaviour. This function is the single place that maps an
+    economy_metric to its correct ground-truth file; every evaluation
+    script should go through it rather than hardcoding a filename.
+    """
+    return os.path.join(ground_truth_dir, f"ec3_optimal_designs_{economy_metric}.csv")
 
 
 def ground_truth_optimum(df: pd.DataFrame, economy_metric: str) -> pd.DataFrame:
     """One row per (span_m, load_kNm): the best (grade, section_type, geometry)
     among all combinations tested at that context, i.e. the TRUE optimum the
-    RL agent / GA are being compared against."""
+    RL agent / GA are being compared against. `df` MUST already be the
+    metric-specific ground truth (loaded via `ground_truth_path_for_metric`),
+    not a mass-optimised file being reused for a different metric."""
     idx = df.groupby(["span_m", "load_kNm"])[economy_metric].idxmin()
     return df.loc[idx].reset_index(drop=True)
 
 
-def ground_truth_optimum_all_metrics(df: pd.DataFrame) -> dict:
+def ground_truth_optimum_all_metrics(ground_truth_dir: str = "pretrain_data") -> dict:
     """Ground-truth optimum for EACH of mass/cost/co2 independently, keyed
-    by (span_m, load_kNm) -> {metric: optimal_value}. Used so a policy
-    trained on ONE economy_metric can still be scored on its incidental
-    gap in the other two -- directly answers the supervisor's request for
-    a 'composite-objective gap' without reintroducing an arbitrary-weight
-    scalarisation (Comment #5's objection to weighted-sum reward design
-    applies equally to a weighted-sum GAP metric)."""
+    by (span_m, load_kNm) -> {metric: optimal_value}, each drawn from ITS
+    OWN objective-specific file. Used so a policy trained on ONE
+    economy_metric can still be scored on its incidental gap in the other
+    two -- directly answers the supervisor's request for a 'composite-
+    objective gap' without reintroducing an arbitrary-weight scalarisation
+    (Comment #5's objection to weighted-sum reward design applies equally
+    to a weighted-sum GAP metric), and without the pre-audit bug of
+    reading cost/co2 off a mass-optimal geometry."""
     out = {}
     for metric in ["mass", "cost", "co2"]:
+        path = ground_truth_path_for_metric(metric, ground_truth_dir)
+        if not os.path.exists(path):
+            continue
+        df = load_ground_truth(path)
         opt = ground_truth_optimum(df, metric)
         for _, r in opt.iterrows():
             key = (r["span_m"], r["load_kNm"])
@@ -177,12 +199,12 @@ def run_policy_episode(env: HSSBeamEnv, policy_fn, span_m: float, load_kNm: floa
 # ================================================================
 # Aggregate evaluation against ground truth
 # ================================================================
-def evaluate_policy_vs_ground_truth(policy_fn, economy_metric: str, ground_truth_csv: str,
+def evaluate_policy_vs_ground_truth(policy_fn, economy_metric: str, ground_truth_dir: str,
                                      n_contexts: int | None = None, seed: int = 0,
                                      reward_mode_for_env: str = "lagrangian"):
-    df = load_ground_truth(ground_truth_csv)
+    df = load_ground_truth(ground_truth_path_for_metric(economy_metric, ground_truth_dir))
     opt = ground_truth_optimum(df, economy_metric)
-    gt_all = ground_truth_optimum_all_metrics(df)
+    gt_all = ground_truth_optimum_all_metrics(ground_truth_dir)
     if n_contexts is not None and n_contexts < len(opt):
         opt = opt.sample(n=n_contexts, random_state=seed).reset_index(drop=True)
 
@@ -221,11 +243,11 @@ def evaluate_policy_vs_ground_truth(policy_fn, economy_metric: str, ground_truth
     return result, wall_time
 
 
-def evaluate_ga_vs_ground_truth(economy_metric: str, ground_truth_csv: str,
+def evaluate_ga_vs_ground_truth(economy_metric: str, ground_truth_dir: str,
                                  n_contexts: int | None = None, seed: int = 0,
                                  pop_size: int = 60, n_generations: int = 80):
     from research.scripts.ga_baseline import ga_design
-    df = load_ground_truth(ground_truth_csv)
+    df = load_ground_truth(ground_truth_path_for_metric(economy_metric, ground_truth_dir))
     opt = ground_truth_optimum(df, economy_metric)
     if n_contexts is not None and n_contexts < len(opt):
         opt = opt.sample(n=n_contexts, random_state=seed).reset_index(drop=True)
@@ -286,7 +308,9 @@ def main():
     p.add_argument("--algo", choices=["ppo", "ddpg", "td3"], default="ppo")
     p.add_argument("--ga_baseline", action="store_true")
     p.add_argument("--economy_metric", choices=["mass", "cost", "co2"], default="cost")
-    p.add_argument("--ground_truth_csv", type=str, default="pretrain_data/ec3_optimal_designs.csv")
+    p.add_argument("--ground_truth_dir", type=str, default="pretrain_data",
+                    help="Directory containing ec3_optimal_designs_{mass,cost,co2}.csv "
+                         "(objective-specific ground truth; see regenerate_ground_truth.py)")
     p.add_argument("--n_contexts", type=int, default=None)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--run_name", type=str, required=True)
@@ -299,13 +323,13 @@ def main():
 
     if args.ga_baseline:
         result, wall_time = evaluate_ga_vs_ground_truth(
-            args.economy_metric, args.ground_truth_csv, args.n_contexts, args.seed,
+            args.economy_metric, args.ground_truth_dir, args.n_contexts, args.seed,
             args.ga_pop_size, args.ga_n_generations)
     else:
         assert args.model_path, "--model_path required unless --ga_baseline"
         policy_fn = load_policy(args.model_path, args.algo)
         result, wall_time = evaluate_policy_vs_ground_truth(
-            policy_fn, args.economy_metric, args.ground_truth_csv, args.n_contexts, args.seed)
+            policy_fn, args.economy_metric, args.ground_truth_dir, args.n_contexts, args.seed)
 
     result.to_csv(args.out_csv, index=False)
     summary = summarize(result, wall_time, args.run_name)

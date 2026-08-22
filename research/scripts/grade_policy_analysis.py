@@ -18,8 +18,21 @@ truth pattern for whichever economy_metric it was trained on.
 USAGE
 ------
     python research/scripts/grade_policy_analysis.py \\
-        --ground_truth_csv pretrain_data/ec3_optimal_designs.csv \\
+        --ground_truth_dir pretrain_data \\
         --out_dir research/results/grade_policy_analysis
+
+NOTE (pre-Experiment-1 audit fix): this script previously derived the
+cost and CO2 columns for `analyze_metric("cost")` / `analyze_metric("co2")`
+from a SINGLE, mass-optimised ground-truth file -- i.e. "the cost of the
+mass-optimal design" rather than "the design that actually minimises
+cost". Since mass-optimal and cost-optimal geometries are generally
+different (fabrication cost/CO2 factors weight grade and section_type
+differently than mass alone), this biased exactly the comparison this
+script exists to produce. Now loads THREE independent, objective-specific
+files (ec3_optimal_designs_{mass,cost,co2}.csv, produced by
+research/scripts/regenerate_ground_truth.py, each from its own GA search)
+so each metric's "grades ever optimal" reflects a genuinely re-optimised
+geometry for that metric, not a relabelled mass-optimal one.
 ================================================================
 """
 
@@ -32,7 +45,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import numpy as np
 import pandas as pd
 
-from research.scripts.evaluate import load_ground_truth, ground_truth_optimum
+from research.scripts.evaluate import load_ground_truth, ground_truth_optimum, ground_truth_path_for_metric
 
 
 def analyze_metric(df: pd.DataFrame, economy_metric: str) -> dict:
@@ -71,17 +84,18 @@ def analyze_metric(df: pd.DataFrame, economy_metric: str) -> dict:
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--ground_truth_csv", type=str, default="pretrain_data/ec3_optimal_designs.csv")
+    p.add_argument("--ground_truth_dir", type=str, default="pretrain_data")
     p.add_argument("--out_dir", type=str, default="research/results/grade_policy_analysis")
     args = p.parse_args()
     os.makedirs(args.out_dir, exist_ok=True)
 
-    df = load_ground_truth(args.ground_truth_csv)
-    print(f"Loaded {len(df)} ground-truth rows, {df[['span_m','load_kNm']].drop_duplicates().shape[0]} "
-          f"unique (span, load) contexts, grades {sorted(df.grade.unique())}\n")
-
     summary_rows = []
     for metric in ["mass", "cost", "co2"]:
+        path = ground_truth_path_for_metric(metric, args.ground_truth_dir)
+        df = load_ground_truth(path)
+        print(f"Loaded {len(df)} rows from {path} "
+              f"({df[['span_m','load_kNm']].drop_duplicates().shape[0]} unique contexts)")
+
         result = analyze_metric(df, metric)
         print(f"=== economy_metric = {metric} ===")
         print(f"  grades ever optimal      : {result['grades_ever_optimal']}")

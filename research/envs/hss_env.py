@@ -471,34 +471,66 @@ class HSSBeamEnv(gym.Env):
     # ---- ARM "shaped": weighted-sum reward shaping, NO grade-specific term ----
     def _reward_shaped(self, util, mass, cost, co2, penalty, class_loss, novelty):
         """
-        Reward-shaping baseline. Structurally similar to the exp54b reward
-        (economy + CO2-efficiency + utilisation-target Gaussian + feasibility
-        penalties + mass-improvement shaping + optional novelty), but the
-        `hss_demand_bonus` term has been REMOVED ENTIRELY -- not gated by a
-        flag, not present in any code path. No term in this function, or
-        anywhere else in this file, references a specific grade, a grade
-        threshold, or the string "500"/"S500"/etc. Every grade-dependent
-        number the agent experiences comes from `_calculate_cost_co2`'s
-        market-rate cost/CO2 tables and `_ec3_analysis`'s Fy-dependent
-        capacity calculation -- both physically/economically grounded,
-        neither reward-engineered.
-        """
-        mass_n, cost_n = mass / self.norm["mass"], cost / self.norm["cost"]
-        economy_reward = -5.0 * mass_n - 5.0 * cost_n
+        Reward-shaping baseline. Same structural style as typical RL-for-
+        design reward engineering (weighted economy term + utilisation-
+        target Gaussian + feasibility penalties + mass-improvement shaping
+        + optional novelty), but with two corrections made during the
+        pre-Experiment-1 audit so this arm is a scientifically valid
+        control for the other two modes:
 
-        if 0.85 <= util <= 1.10 and class_loss == 0:
-            co2_per_Mrd = co2 / max(self.current_Mrd, 1.0)
-            co2_lca_reward = 4.0 * np.clip((8.0 - co2_per_Mrd) / 8.0, 0.0, 1.0)
-        else:
-            co2_lca_reward = 0.0
+        1. OBJECTIVE CONSISTENCY (fixed here): the previous version's
+           economy term was `-5*mass_n - 5*cost_n`, a FIXED mass+cost
+           blend that ignored `self.economy_metric` entirely -- so running
+           `reward_mode="shaped"` with `economy_metric="co2"` never
+           actually rewarded CO2 reduction as the primary objective, only
+           as a separate bounded bonus term with a different scale. That
+           broke the whole point of a 3-arm reward-formulation ablation:
+           the arms must optimise the SAME objective and differ only in
+           HOW they're incentivised to do so. Fixed: economy_reward now
+           uses `self._economy(mass, cost, co2)`, the identical objective
+           function `feasibility_gated` and `lagrangian` use, scaled to
+           the same magnitude the old two-term formula produced (~-10 at
+           norm=1). The separate `co2_lca_reward` bonus is REMOVED (not
+           renamed) -- keeping it would double-count CO2 when
+           economy_metric="co2" and inject an uncontrolled secondary
+           objective into the other two economy_metric settings.
+
+        2. FEASIBILITY-BOUNDARY CONSISTENCY (fixed here): the previous
+           utilisation-score curve gave nearly its FULL reward for any
+           util up to 1.05, i.e. it rewarded up to 5%-overstressed
+           (genuinely EC3-noncompliant, per this codebase's own
+           `feasible` definition) designs almost as if they were fully
+           compliant, creating an incentive to settle just past the
+           util<=1.0 boundary rather than at it. The curve below now
+           breaks its "full reward" zone at util<=1.0 (matching
+           `feasible`'s actual definition everywhere else in this
+           codebase), applies a blended step-down through the training-
+           termination convenience band (1.0, 1.05], and only then
+           continues the original steep quadratic penalty. This does NOT
+           change the termination rule itself (still 3 consecutive steps
+           in [0.90, 1.05], see `_check_termination` and its docstring) --
+           it only stops the REWARD from telling the agent that mild
+           infeasibility is nearly as good as compliance.
+        """
+        economy_reward = -10.0 * self._economy(mass, cost, co2)
 
         target_util, sigma = 0.96, 0.06
         base_score = 100.0 * np.exp(-((util - target_util) ** 2) / (2.0 * sigma ** 2))
-        if util <= 1.05:
+        if util <= 1.0:
             util_score = base_score
+        elif util <= 1.05:
+            # Training-termination convenience band (see _check_termination):
+            # still genuinely infeasible (util>1.0), so blend the score DOWN
+            # to a negative value by util=1.05 rather than keeping it near
+            # `base_score` -- closes the gap between what this reward
+            # rewards and what `feasible` actually means elsewhere in this
+            # codebase. Continuous at both ends: frac=0 -> base_score
+            # (matches the util<=1.0 branch); frac=1 -> -50.0 (matches the
+            # util>1.05 branch's value at util=1.05).
+            frac = (util - 1.0) / 0.05
+            util_score = base_score * (1.0 - frac) - 50.0 * frac
         else:
-            util_score = (100.0 * np.exp(-((1.05 - target_util) ** 2) / (2.0 * sigma ** 2))
-                          - 400.0 * (util - 1.05) ** 2)
+            util_score = -50.0 - 400.0 * (util - 1.05) ** 2
 
         underutil_penalty = 80.0 * (0.90 - util) ** 2 if util < 0.90 else 0.0
 
@@ -520,11 +552,11 @@ class HSSBeamEnv(gym.Env):
         improvement_reward = 1.5 * mass_improvement
         novelty_reward = 0.15 * np.tanh(novelty) if self.include_novelty else 0.0
 
-        reward = (economy_reward + co2_lca_reward + util_score
+        reward = (economy_reward + util_score
                   + improvement_reward + novelty_reward - feasibility_penalty - underutil_penalty)
 
         return reward, {
-            "economy_reward": economy_reward, "co2_lca_reward": co2_lca_reward,
+            "economy_reward": economy_reward,
             "utilization_reward": util_score,
             "improvement_reward": improvement_reward, "novelty_reward": novelty_reward,
             "feasibility_penalty": feasibility_penalty, "underutil_penalty": underutil_penalty,

@@ -47,8 +47,12 @@ USAGE
 ================================================================
 """
 
+import os
+import sys
 import time
 import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from research.envs.hss_env import HSSBeamEnv
 
@@ -232,10 +236,9 @@ def random_search_design(span_mm, load_kNm, storey, economy_metric="cost",
     Random search using the SAME number of EC3 evaluations as the GA
     (pop_size * n_generations, by convention -- pass n_evaluations
     explicitly to match whatever GA budget you're comparing against).
-    Directly answers the supervisor's explicit request: "Random search,
-    using the same number of environment evaluations" -- tests whether
-    GA's evolutionary structure (selection, crossover, mutation) earns its
-    keep over pure i.i.d. sampling within the same bounds and budget.
+    Tests whether GA's evolutionary structure (selection, crossover,
+    mutation) earns its keep over pure i.i.d. sampling within the same
+    bounds and budget -- an equal-budget control for the GA baseline.
     """
     rng = np.random.default_rng(seed)
     env = _make_probe_env(economy_metric)
@@ -263,12 +266,11 @@ def rule_based_design(span_mm, load_kNm, storey, economy_metric="cost", grade=35
     then flange thickness, then web thickness, then width) until EC3
     compliant, stopping at the first feasible design found -- exactly the
     "do the minimum needed, don't optimise further" behaviour a time-
-    pressured engineer doing a first pass would exhibit. This directly
-    answers the supervisor's request for a "rule-based EC3 design
-    procedure or conventional engineering sizing" baseline -- the
-    question this answers is not "can RL/GA find a good design" (they
-    obviously can) but "how much is left on the table by NOT optimising
-    at all, using only standard practice defaults".
+    pressured engineer doing a first pass would exhibit. This is a
+    conventional-engineering-practice baseline: the question it answers
+    is not "can RL/GA find a good design" (they obviously can) but "how
+    much is left on the table by NOT optimising at all, using only
+    standard practice defaults".
     """
     env = _make_probe_env(economy_metric)
     span_m = span_mm / 1000.0

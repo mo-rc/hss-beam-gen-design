@@ -1,41 +1,35 @@
 """
 research/envs/hss_env.py
 ================================================================
-Constrained-MDP reformulation of the HSS beam design environment.
+Constrained-MDP environment for generative design of high-strength steel
+(HSS) I-section beams to Eurocode 3 (EN 1993-1-1).
 
-WHY THIS FILE EXISTS
----------------------
-The exp54b environment (`hss_beam_rl_exp54b/env/high_rise_generative_env.py`)
-is functionally validated (97.0% feasibility, verified against a brute-force
-EC3 ground truth) but its reward is an 8-term hand-weighted scalar sum,
-including a term (`hss_demand_bonus`) that explicitly rewards selecting
-fy >= 500 in the target utilisation band. This makes "the agent learns
-demand-appropriate grade selection" an unfalsifiable claim: the reward
-was written to produce that behaviour, so observing it proves nothing.
+DESIGN PHILOSOPHY
+-------------------
+Reward-shaping approaches to RL-for-design commonly bake grade- or
+material-specific preferences directly into the reward function (e.g. an
+explicit bonus for selecting a high-strength grade under high demand).
+This makes any downstream claim about "the agent learning demand-
+appropriate material selection" unfalsifiable, since the reward was
+written to produce exactly that behaviour.
 
-This module keeps 100% of the EC3 structural mechanics and the cost/CO2
-LCA model UNCHANGED (they are physically grounded — Fy affects Mrd, mass,
-cost and CO2 through real code equations, not reward shaping) and replaces
-the objective/constraint layer entirely, exposing three switchable reward
-modes. The `hss_demand_bonus` term from exp54b (which explicitly rewarded
-fy >= 500 in the target utilisation band) has been REMOVED from this
-codebase, not merely switched off -- pre-Experiment-1 audit decision: for
-a paper whose central claim concerns whether demand-appropriate grade
-selection is genuinely learned, keeping a togglable "circular reward"
-option in the code (even off by default) is an unnecessary liability --
-a reviewer reading the source finds it either way. This codebase now
-contains no reward term that references a specific grade or grade
-threshold anywhere. If grade-appropriate selection is observed under any
-of the three modes below, it is a consequence of Fy's genuine effect on
-EC3 capacity, mass, cost and CO2, and nothing else.
+This environment avoids that failure mode structurally: EC3 mechanics and
+the cost/CO2 life-cycle-assessment model are the only place Fy (yield
+strength / grade) enters the simulation. No reward term anywhere in this
+file references a specific grade, a grade threshold, or grade identity at
+all. Three reward MODES are provided (below), differing only in how they
+are shaped/constrained toward the same underlying economic objective --
+never in what that objective is defined over. If demand-appropriate grade
+selection is observed under training, it is a consequence of Fy's genuine
+effect on EC3 capacity, mass, cost, and CO2, not of reward engineering.
 
-    "shaped"            Weighted-sum reward shaping (economy + utilisation-
-                        target Gaussian + feasibility penalty terms),
-                        structurally similar to typical RL-for-design
-                        reward engineering in prior work, but with NO
-                        grade-specific term of any kind. This is the
-                        reward-shaping baseline arm the constrained modes
-                        below are compared against.
+REWARD MODES
+-------------
+    "shaped"            Weighted-sum reward shaping (economy term +
+                        utilisation-target Gaussian + feasibility penalty
+                        terms + mass-improvement shaping), in the style
+                        of typical RL-for-design reward engineering.
+                        Reference/control arm for the ablation below.
 
     "feasibility_gated" Safe-RL-style formulation. Reward = -economy(design)
                         only when the design is feasible (util<=1.0, section
@@ -46,7 +40,7 @@ EC3 capacity, mass, cost and CO2, and nothing else.
                         PPO a usable gradient toward the target band without
                         altering the optimal policy.
 
-    "lagrangian"        True constrained-RL formulation. Reward =
+    "lagrangian"        Constrained-RL formulation. Reward =
                         -economy(design) - sum_i(lambda_i * g_i(design)),
                         where g_i are constraint-violation functions and
                         lambda_i are Lagrange multipliers updated OUTSIDE
@@ -55,66 +49,60 @@ EC3 capacity, mass, cost and CO2, and nothing else.
                         environment exposes `set_lagrange_multipliers()`
                         and reports raw violations in `info` for that
                         purpose; it does not update multipliers itself.
-                        This is the paper's primary proposed method.
+                        Primary proposed method.
 
-FORMAL PROBLEM STATEMENT (for the paper's Methods section)
-------------------------------------------------------------
+FORMAL PROBLEM STATEMENT
+--------------------------
     minimise    E_{(span,load)~D} [ Economy(design) ]
     subject to  g1: Med/Mrd - 1.0          <= 0   (EC3 flexural+shear+LTB capacity)
     subject to  g2: section_class - 3      <= 0   (EC3 Table 5.2 compactness)
-    subject to  g3: deflection - limit     <= 0   (SLS, folded into g1's util
-                                                    via governing-check exactly
-                                                    as in the base EC3 model)
     subject to  g3: geometry_penalty       <= 0   (one-sided: zero when
                                                     b<=h, positive when
                                                     b>h; proportion sanity,
                                                     not an EC3 code clause,
                                                     reported separately
                                                     from g1/g2 as g3_geom)
+    Deflection (SLS) is folded into g1 via a governing-check comparison
+    (whichever of flexural utilisation or deflection utilisation is
+    larger governs `util`), matching standard EC3 design practice of
+    checking ULS and SLS together and reporting the governing case.
+
     Economy(design) in {normalised mass, normalised cost, normalised CO2},
     selectable via `economy_metric`; the other two are always reported in
-    `info` as secondary metrics, never optimised directly, avoiding the
-    ill-posed "optimise a weighted sum of three correlated objectives"
-    framing used implicitly by the legacy reward's economy_reward term.
+    `info` as secondary metrics, never optimised directly. This avoids the
+    ill-posed problem of implicitly optimising a weighted sum of three
+    correlated-but-distinct objectives with no principled weighting.
 
-WHAT IS DELIBERATELY UNCHANGED FROM exp54b (for valid ablation methodology
--- change one thing at a time):
-    - _ec3_analysis(): identical, verified by regression test against the
-      original (see research/tests/test_ec3_regression.py).
-    - _calculate_cost_co2(): identical.
-    - Action space (6-dim continuous, same step sizes, same softmax-snapped
-      grade action), observation space (25-dim), episode length (40 steps),
-      reset() curriculum (span/load sampling, demand-aligned h_noise, 50/50
-      grade curriculum). These are environment-DYNAMICS choices, independent
-      of the reward-circularity problem, and changing them alongside the
-      reward would confound the ablation.
-    - success_counter-based early termination exists for TRAINING EFFICIENCY
-      only, and is now explicitly separated from `feasible` in `info` (see
-      "TERMINATION / FEASIBILITY SEPARATION" below) — this fixes a labelling
-      bug in the original code where util<=1.05 was reported as `feasible`,
-      which is incorrect: EC3 capacity is violated for any util>1.0.
-
-TERMINATION / FEASIBILITY SEPARATION (bug fix, applies to ALL reward modes)
-------------------------------------------------------------------------
+TERMINATION / FEASIBILITY
+-----------------------------
     info["feasible"]       : util <= 1.0 + 1e-3 (numerical tolerance only)
                               AND section_class <= 3 AND geometry_penalty==0.
                               This is the ONLY field that should ever be
-                              called "feasible" in analysis/plots.
-    info["in_target_band"] : 0.90 <= util <= 1.05 (the original success zone).
-                              Used purely to decide early termination for
-                              training efficiency. NOT a code-compliance
-                              statement. Renamed from the original's
-                              (mis-labelled) feasibility check.
-    Episode termination still requires 3 consecutive steps with
-    in_target_band==True (unchanged from exp54b), but `feasible` is
-    computed and logged every step regardless of termination status, so
-    post-hoc analysis (e.g. "what fraction of terminated episodes are
-    ACTUALLY feasible, not just in the training target band") is possible
-    for the first time.
+                              called "feasible" in analysis or plots --
+                              utilisation strictly above 1.0 means EC3
+                              capacity is violated.
+    info["in_target_band"] : 0.90 <= util <= 1.05. Used purely to decide
+                              early episode termination for training
+                              efficiency (3 consecutive steps in-band).
+                              NOT a code-compliance statement -- keep it
+                              out of any reported feasibility number.
+    `feasible` is computed and logged every step regardless of termination
+    status, so post-hoc analysis (e.g. "what fraction of terminated
+    episodes are actually feasible, not just in the training target
+    band") is always possible.
 
-AUTHOR: Muhammad Shifa (env core, EC3 mechanics — unchanged)
-        Constrained-MDP redesign — this file
-AFFILIATION: HKU
+ENVIRONMENT DYNAMICS
+----------------------
+6-dimensional continuous action space (depth, width, flange thickness,
+web thickness, grade selection via a softmax-snapped continuous input,
+section-type selection), 26-dimensional observation (normalised design
+variables, EC3 outputs, and episode progress -- see `_get_obs` for why
+episode progress is included), up to 40 steps of iterative refinement per
+episode with an annealed step size (coarse-to-fine local search), and a
+curriculum-sampled reset distribution over (span, load, storey) spanning
+6-15m spans and 20-140 kN/m loads.
+
+AUTHOR: Muhammad Shifa
 ================================================================
 """
 
@@ -136,15 +124,16 @@ class HSSBeamEnv(gym.Env):
         reward_mode: str = "lagrangian",
         economy_metric: str = "cost",
         include_novelty: bool = False,
-        # --- unchanged environment-dynamics parameters (exp54b defaults) ---
+        # --- environment-dynamics parameters ---
         use_storey_load_scaling: bool = True,
         include_zg_in_mcr: bool = False,
         sls_load_factor: float = 0.50,
         ltb_restraint_factor: float = 0.40,
         # --- Lagrangian-mode initial multipliers (updated externally) ------
         lagrange_init: dict | None = None,
-        # --- MDP-formulation parameters, exposed for ablation (Comment #13:
-        # "why is 40 steps appropriate?" / "one-shot vs multi-step") --------
+        # --- MDP-formulation parameters, exposed for ablation studies ------
+        # (e.g. one-shot vs. multi-step refinement, grade-softmax temperature
+        # sensitivity) without needing to modify this class.
         max_steps: int = 40,
         grade_softmax_temperature: float = 0.15,
     ):
@@ -190,9 +179,8 @@ class HSSBeamEnv(gym.Env):
         self.memory_similarity_threshold = 0.08
 
         self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(6,), dtype=np.float32)
-        # 26, not 25: see _get_obs() -- episode progress was added as an
-        # explicit observation feature during the pre-Experiment-1 audit to
-        # restore the Markov property (see docstring note below).
+        # 26-dim: 25 normalised design/EC3-output features + episode_progress
+        # (see _get_obs() docstring for why episode progress must be observed).
         self.observation_space = spaces.Box(low=0.0, high=1.0, shape=(26,), dtype=np.float32)
 
         # ---- Lagrange multipliers (lagrangian mode only) ------------------
@@ -243,7 +231,7 @@ class HSSBeamEnv(gym.Env):
         return base_load * storey_factor
 
     # ================================================================
-    # RESET  (unchanged curriculum logic from exp54b — see module docstring)
+    # RESET  (span/load/storey curriculum -- see module docstring)
     # ================================================================
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -290,26 +278,21 @@ class HSSBeamEnv(gym.Env):
         return self._get_obs(), {}
 
     # ================================================================
-    # OBSERVATION (unchanged from exp54b)
+    # OBSERVATION
     # ================================================================
     def _get_obs(self) -> np.ndarray:
         """
-        NOTE (pre-Experiment-1 audit, MDP-formulation check -- see
-        supervisor Comment #13 "is the state truly Markov?"): the design-
-        update step size is deliberately annealed over the episode
-        (`_update_design`'s `step_scale`, a function of `self.curr_step`),
-        which is standard and defensible for a within-episode coarse-to-
-        fine refinement schedule. However, the ORIGINAL 25-feature
-        observation never exposed `curr_step` (or any proxy for it), which
-        means the transition dynamics P(s'|s,a) depended on information the
-        policy could not observe -- the same (observation, action) pair
-        could produce different next-states depending on which step of the
-        episode it was. That is a genuine POMDP, not an MDP, regardless of
-        network capacity or training budget. Fixed by adding normalised
-        `episode_progress` (curr_step/max_steps) as an explicit observation
-        feature below, which restores the Markov property by construction:
-        every quantity `_update_design` and `_ec3_analysis` depend on is
-        now either part of the observation or a fixed environment constant.
+        MDP-formulation note: the design-update step size is deliberately
+        annealed over the episode (`_update_design`'s `step_scale`, a
+        function of `self.curr_step`), implementing a within-episode
+        coarse-to-fine refinement schedule. For this to be a well-formed
+        MDP rather than a POMDP, the policy must be able to observe
+        whatever the transition dynamics P(s'|s,a) depend on -- so
+        `episode_progress` (curr_step/max_steps) is included as an
+        explicit observation feature below. Every quantity `_update_design`
+        and `_ec3_analysis` depend on is therefore either part of the
+        observation or a fixed environment constant, which is what makes
+        this a genuine MDP.
         """
         eps = self.epsilon
         section_flag = 0.0 if self.section_type == "rolled" else 1.0
@@ -402,7 +385,7 @@ class HSSBeamEnv(gym.Env):
         return self._get_obs(), float(reward), terminated, truncated, info
 
     # ================================================================
-    # DESIGN UPDATE (unchanged action mapping from exp54b)
+    # DESIGN UPDATE
     # ================================================================
     def _update_design(self, action: np.ndarray):
         progress = self.curr_step / self.max_steps
@@ -474,43 +457,32 @@ class HSSBeamEnv(gym.Env):
         Reward-shaping baseline. Same structural style as typical RL-for-
         design reward engineering (weighted economy term + utilisation-
         target Gaussian + feasibility penalties + mass-improvement shaping
-        + optional novelty), but with two corrections made during the
-        pre-Experiment-1 audit so this arm is a scientifically valid
-        control for the other two modes:
+        + optional novelty). Two design points worth stating explicitly,
+        since they are what make this a scientifically valid control arm
+        for `feasibility_gated`/`lagrangian` rather than a different
+        problem entirely:
 
-        1. OBJECTIVE CONSISTENCY (fixed here): the previous version's
-           economy term was `-5*mass_n - 5*cost_n`, a FIXED mass+cost
-           blend that ignored `self.economy_metric` entirely -- so running
-           `reward_mode="shaped"` with `economy_metric="co2"` never
-           actually rewarded CO2 reduction as the primary objective, only
-           as a separate bounded bonus term with a different scale. That
-           broke the whole point of a 3-arm reward-formulation ablation:
-           the arms must optimise the SAME objective and differ only in
-           HOW they're incentivised to do so. Fixed: economy_reward now
-           uses `self._economy(mass, cost, co2)`, the identical objective
-           function `feasibility_gated` and `lagrangian` use, scaled to
-           the same magnitude the old two-term formula produced (~-10 at
-           norm=1). The separate `co2_lca_reward` bonus is REMOVED (not
-           renamed) -- keeping it would double-count CO2 when
-           economy_metric="co2" and inject an uncontrolled secondary
-           objective into the other two economy_metric settings.
+        1. OBJECTIVE CONSISTENCY: `economy_reward` uses
+           `self._economy(mass, cost, co2)` -- the identical objective
+           function `feasibility_gated` and `lagrangian` use, respecting
+           whichever `economy_metric` is configured. All three reward
+           modes optimise the SAME objective and differ only in HOW they
+           are incentivised toward it; none contains a separate, metric-
+           specific bonus term that could inject an uncontrolled
+           secondary objective or double-count a metric.
 
-        2. FEASIBILITY-BOUNDARY CONSISTENCY (fixed here): the previous
-           utilisation-score curve gave nearly its FULL reward for any
-           util up to 1.05, i.e. it rewarded up to 5%-overstressed
-           (genuinely EC3-noncompliant, per this codebase's own
-           `feasible` definition) designs almost as if they were fully
-           compliant, creating an incentive to settle just past the
-           util<=1.0 boundary rather than at it. The curve below now
-           breaks its "full reward" zone at util<=1.0 (matching
-           `feasible`'s actual definition everywhere else in this
-           codebase), applies a blended step-down through the training-
-           termination convenience band (1.0, 1.05], and only then
-           continues the original steep quadratic penalty. This does NOT
-           change the termination rule itself (still 3 consecutive steps
-           in [0.90, 1.05], see `_check_termination` and its docstring) --
-           it only stops the REWARD from telling the agent that mild
-           infeasibility is nearly as good as compliance.
+        2. FEASIBILITY-BOUNDARY CONSISTENCY: the utilisation-score curve
+           gives its full reward only for util<=1.0 -- matching
+           `feasible`'s definition everywhere else in this codebase --
+           then blends down through the (1.0, 1.05] training-termination
+           convenience band before continuing a steep quadratic penalty
+           beyond 1.05. This keeps the reward signal honest about EC3
+           compliance: a design at util=1.03 (genuinely non-compliant) is
+           never rewarded nearly as well as a compliant one, even though
+           the termination rule itself still allows episodes to end
+           anywhere in [0.90, 1.05] for training-efficiency reasons (see
+           `_check_termination`'s docstring for why that's a separate,
+           deliberate choice).
         """
         economy_reward = -10.0 * self._economy(mass, cost, co2)
 
@@ -603,6 +575,14 @@ class HSSBeamEnv(gym.Env):
     # TERMINATION — training-efficiency signal only (see module docstring)
     # ================================================================
     def _check_termination(self, in_target_band: bool):
+        """
+        Episode ends after 3 consecutive steps with util in [0.90, 1.05]
+        (a training-efficiency stopping rule, not a code-compliance
+        statement -- see `info["feasible"]` vs `info["in_target_band"]`
+        in the module docstring). Evaluation code should always use
+        `feasible` (util<=1.0) when reporting results; this method's
+        band only controls when an episode stops collecting steps.
+        """
         if in_target_band:
             self.success_counter += 1
         else:
@@ -612,7 +592,7 @@ class HSSBeamEnv(gym.Env):
         return terminated, truncated
 
     # ================================================================
-    # EC3 ANALYSIS — UNCHANGED from exp54b (verified by regression test)
+    # EC3 ANALYSIS (EN 1993-1-1)
     # ================================================================
     def _ec3_analysis(self):
         h, b, tf, tw, fy = self.h, self.b, self.tf, self.tw, self.fy
@@ -673,13 +653,10 @@ class HSSBeamEnv(gym.Env):
         # EN1993-1-1 Table 6.5 (LTB buckling curve selection), all four cases:
         #   rolled, h/b<=2 -> curve a (0.21) | rolled, h/b>2 -> curve b (0.34)
         #   welded, h/b<=2 -> curve c (0.49) | welded, h/b>2 -> curve d (0.76)
-        # FIX (pre-Experiment-1 audit, independent EC3 verification): the
-        # previous version used alpha_lt=0.49 for ALL welded sections
-        # regardless of h/b, omitting curve d (0.76) for welded h/b>2.
-        # Confirmed by research/tests/ec3_independent_verification.py:
-        # this produced a 14% chi_LT error / 12% utilization error on a
-        # deep welded S690 test case -- large enough to flip a feasibility
-        # determination. See that file for the full verification table.
+        # Verified against a from-spec independent re-derivation in
+        # research/tests/ec3_independent_verification.py, which cross-
+        # checks this formula on representative cases spanning all four
+        # (section_type, h/b) combinations.
         if self.section_type == "rolled":
             alpha_lt = 0.34 if h/b > 2.0 else 0.21
         else:
@@ -720,7 +697,7 @@ class HSSBeamEnv(gym.Env):
         }
 
     # ================================================================
-    # COST / CO2 — UNCHANGED from exp54b
+    # COST / CO2 (life-cycle assessment model)
     # ================================================================
     def _calculate_cost_co2(self, mass: float):
         fy_key = int(self.fy)

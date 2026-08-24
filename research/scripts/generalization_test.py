@@ -1,13 +1,13 @@
 """
 research/scripts/generalization_test.py
 ================================================================
-Every result so far (exp54b's validation, this project's evaluate.py) is
-IN-DISTRIBUTION: spans 6-15m, loads 20-140 kN/m -- exactly the training
-envelope. This script evaluates a trained policy OUTSIDE that envelope
-and characterizes WHERE and HOW it fails, which is a standard and
-expected thing for a top-journal reviewer to ask for and which costs
-almost nothing to add (same policy, same env class, different test
-points) yet meaningfully strengthens the paper's honesty/rigor.
+Every result from research/scripts/evaluate.py is IN-DISTRIBUTION: spans
+6-15m, loads 20-140 kN/m -- exactly the training envelope. This script
+evaluates a trained policy OUTSIDE that envelope and characterizes WHERE
+and HOW it fails, which is a standard and expected thing for a top-
+journal reviewer to ask for and which costs almost nothing to add (same
+policy, same env class, different test points) yet meaningfully
+strengthens the paper's honesty/rigor.
 
 Three extrapolation directions are tested independently, since a policy
 might generalize well in one and fail in another:

@@ -3,14 +3,15 @@ research/tests/quantify_infeasible_contexts.py
 ================================================================
 Some (span, load) demand contexts within the nominal training/evaluation
 range cannot be satisfied by ANY (grade, section_type) combination, even
-at maximum-bound geometry (h=750, b=300, tf=35, tw=25) -- confirmed
-during the audit at span=15m/load=140kN/m (util=1.10 rolled, 1.46 welded
-even at max bounds, S690). These contexts are automatically excluded from
-ground-truth-based gap metrics (a context with zero feasible rows simply
-has no entry to compare against), which is CORRECT behaviour, but the
-exclusion needs to be quantified and stated explicitly rather than left
-implicit -- a reviewer should not have to infer "why are there only ~745
-of a possible 1728 rows" on their own.
+at maximum-bound geometry (h=750, b=300, tf=35, tw=25) -- for example,
+at span=15m/load=140kN/m, even S690 at maximum-bound geometry gives
+util=1.10 (rolled) / 1.46 (welded), both infeasible. These contexts are
+automatically excluded from ground-truth-based gap metrics (a context
+with zero feasible rows simply has no entry to compare against), which
+is correct behaviour, but the exclusion needs to be quantified and
+stated explicitly rather than left implicit -- a reviewer should not
+have to infer "why are there fewer rows than the full combinatorial
+count of grade x type x span x load contexts" on their own.
 
 This is a fast, deterministic, GA-independent check: for every (span,
 load) grid point, try ALL 6 grades x 2 types at MAXIMUM-BOUND geometry

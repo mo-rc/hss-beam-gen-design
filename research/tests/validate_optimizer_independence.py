@@ -70,11 +70,14 @@ def de_design_fixed_grade(span_mm, load_kNm, storey, grade, section_type, econom
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--ground_truth_csv", default="pretrain_data/ec3_optimal_designs.csv",
-                    help="Any per-metric ground truth CSV works; this script only needs "
-                         "(span_m, load_kNm, grade, section_type) rows to sample from -- "
-                         "it re-derives its own reference value via DE, it does not trust "
-                         "the CSV's stored mass/cost/co2 columns.")
+    p.add_argument("--ground_truth_csv", default="pretrain_data/ec3_optimal_designs_mass.csv",
+                    help="Any per-metric ground truth CSV works (e.g. "
+                         "pretrain_data/ec3_optimal_designs_{mass,cost,co2}.csv from "
+                         "regenerate_ground_truth.py); this script only needs (span_m, "
+                         "load_kNm, grade, section_type) rows to sample from -- it "
+                         "re-derives its own reference value via DE, it does not trust "
+                         "the CSV's stored mass/cost/co2 columns. Match --economy_metric "
+                         "to whichever file you point this at.")
     p.add_argument("--n_samples", type=int, default=15)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--economy_metric", default="mass")

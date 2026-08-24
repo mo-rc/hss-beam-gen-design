@@ -1,35 +1,34 @@
 """
 research/scripts/regenerate_ground_truth.py
 ================================================================
-Replaces pretrain_data/ec3_optimal_designs.csv with THREE objective-
-specific ground-truth datasets (mass/cost/co2), using the fixed EC3 code
-and a GA-based search instead of the original coarse, pre-fix grid.
+Produces THREE objective-specific ground-truth datasets (mass/cost/co2)
+via GA-based search over (span, load, grade, section_type) contexts,
+using research.envs.hss_env.HSSBeamEnv's EC3 mechanics directly.
 
-WHY THREE SEPARATE FILES, NOT ONE (pre-Experiment-1 audit fix)
-------------------------------------------------------------------
-The first version of this script (and the original
-generate_ec3_pretrain_dataset.py before it) optimised geometry for MASS
-only, then reported the resulting design's cost and CO2 alongside it "for
-free". That is not objective-specific ground truth: the mass-optimal
-geometry for a given (span, load, grade, type) is generally NOT the same
-geometry that minimises cost or CO2 for that same combination (fabrication
-cost/CO2 factors and material unit prices weight grade and section_type
-differently than mass alone does). Using the mass-optimal design's cost/
-CO2 values as if they were the cost-optimal/CO2-optimal ground truth
-silently biases every reported gap for those two metrics.
+WHY THREE SEPARATE FILES, NOT ONE
+------------------------------------
+Optimising geometry for MASS only, then reporting the resulting design's
+cost and CO2 alongside it, is NOT objective-specific ground truth: the
+mass-optimal geometry for a given (span, load, grade, type) is generally
+not the same geometry that minimises cost or CO2 for that same
+combination (fabrication cost/CO2 factors and material unit prices
+weight grade and section_type differently than mass alone does). Using
+a mass-optimal design's cost/CO2 values as if they were the cost-
+optimal/CO2-optimal ground truth would silently bias every reported gap
+for those two metrics.
 
-This script now runs THREE independent GA searches per (span, load,
-grade, section_type) context -- one per economy_metric -- and writes
-three separate CSVs (ec3_optimal_designs_mass.csv, _cost.csv, _co2.csv),
-each containing that metric's own optimal geometry. research/scripts/
-evaluate.py's ground-truth loading was updated to match (see that file).
+This script runs THREE independent GA searches per (span, load, grade,
+section_type) context -- one per economy_metric -- and writes three
+separate CSVs (ec3_optimal_designs_mass.csv, _cost.csv, _co2.csv), each
+containing that metric's own optimal geometry. research/scripts/
+evaluate.py's ground-truth loading is written to match (see that file).
 
-Same context grid as before (12 spans x 12 loads x 6 grades x 2 section
-types = 1,728 contexts per metric, 5,184 GA searches total), same CSV
-schema per file, so evaluate.py / grade_policy_analysis.py need only a
-path change, not a logic change.
+Context grid: 12 spans x 12 loads x 6 grades x 2 section types = 1,728
+contexts per metric, 5,184 GA searches total, same CSV schema per file,
+so evaluate.py / grade_policy_analysis.py only need a path selection,
+not a logic change, to use whichever metric's file is relevant.
 
-RUNTIME: ~0.42s per (context, restart) measured during the audit. At
+RUNTIME: ~0.42s per (context, restart) measured on a single CPU core. At
 pop_size=50, n_generations=80, n_restarts=2: ~1,728 x 3 x 2 x 0.42s =
 ~72 minutes single-threaded for the full 3-metric regeneration.
 
@@ -79,10 +78,11 @@ def main():
     p.add_argument("--metrics", nargs="+", default=["mass", "cost", "co2"],
                     choices=["mass", "cost", "co2"])
     p.add_argument("--grade_filter", type=float, default=None,
-                    help="If given, only process this single grade -- for chunked execution "
-                         "within a sandbox's per-call time limit. Writes to a per-chunk file "
-                         "(ec3_optimal_designs_{metric}_g{grade}.csv); merge chunks afterward "
-                         "with --merge_only.")
+                    help="If given, only process this single grade -- useful for splitting "
+                         "the full regeneration into smaller chunks (e.g. on a machine with "
+                         "a walltime/job-time limit, or to checkpoint progress). Writes to a "
+                         "per-chunk file (ec3_optimal_designs_{metric}_g{grade}.csv); merge "
+                         "chunks afterward with --merge_only.")
     p.add_argument("--merge_only", action="store_true",
                     help="Skip computation; just merge existing per-grade chunk files for "
                          "each metric in --metrics into the final ec3_optimal_designs_{metric}.csv.")

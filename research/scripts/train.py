@@ -2,10 +2,10 @@
 research/scripts/train.py
 ================================================================
 Unified training entry point for all reward-mode arms (shaped,
-feasibility_gated, lagrangian). Hyperparameters default
-to the exp54b `training_config.json` values so results are comparable
-across arms -- ONLY reward_mode (and, for lagrangian, the dual-ascent
-settings) differs between runs, per the paper's ablation methodology.
+feasibility_gated, lagrangian). Hyperparameters default to a standard
+PPO configuration for this environment so results are comparable across
+arms -- ONLY reward_mode (and, for lagrangian, the dual-ascent settings)
+differs between runs, per the paper's ablation methodology.
 
 USAGE
 ------

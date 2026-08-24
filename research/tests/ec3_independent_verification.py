@@ -4,10 +4,9 @@ research/tests/ec3_independent_verification.py
 Independent re-derivation of EC3 (EN 1993-1-1) member checks, written
 from the specification clauses directly, NOT copy-pasted from
 research/envs/hss_env.py, then cross-checked against the environment's
-_ec3_analysis() on representative cases. This is the "compact
-verification table" the supervisor's review (Comment #7) explicitly
-asked for -- a structural reviewer can read this file and confirm the
-mechanics independently of trusting the RL codebase.
+_ec3_analysis() on representative cases. A structural reviewer can read
+this file and confirm the mechanics independently of trusting the RL
+codebase.
 
 CLAUSES IMPLEMENTED (with citation, for the paper's Methods section)
 ------------------------------------------------------------------
@@ -26,17 +25,8 @@ CLAUSES IMPLEMENTED (with citation, for the paper's Methods section)
         rolled,  h/b <= 2  -> curve a  (alpha_LT = 0.21)
         rolled,  h/b >  2  -> curve b  (alpha_LT = 0.34)
         welded,  h/b <= 2  -> curve c  (alpha_LT = 0.49)
-        welded,  h/b >  2  -> curve d  (alpha_LT = 0.76)   <-- see finding below
+        welded,  h/b >  2  -> curve d  (alpha_LT = 0.76)
   - Deflection: elementary beam theory, delta = 5wL^4/(384EI).
-
-FINDING FROM THIS AUDIT (fixed in hss_env.py, see CHANGELOG at bottom
-of this file's __main__ output)
-------------------------------------------------------------------
-The environment's LTB curve selection used alpha_LT = 0.49 for ALL
-welded sections regardless of h/b. Per Table 6.5, welded sections with
-h/b > 2 must use curve d (alpha_LT = 0.76), not curve c (0.49). This
-under-penalised (over-predicted the capacity of) deep welded sections.
-Confirmed independently below and fixed in research/envs/hss_env.py.
 ================================================================
 """
 
@@ -195,9 +185,7 @@ def main():
     print(f"Max chi_LT relative difference across all cases: {max_chi_diff:.3f}%")
     print(f"Max utilization relative difference across all cases: {max_util_diff:.3f}%")
     if max_chi_diff < 0.5 and max_util_diff < 0.5:
-        print("\n=> Environment matches independent EC3 derivation to <0.5% on all test cases")
-        print("   (AFTER the welded curve-d fix -- re-run this script before/after the fix")
-        print("   in hss_env.py to see the case it corrects: 'High demand, welded h/b>2, S690'.)")
+        print("\n=> Environment matches independent EC3 derivation to <0.5% on all test cases.")
     else:
         print("\n=> DIVERGENCE ABOVE 0.5% FOUND -- do not proceed to Experiment 1 until resolved.")
 

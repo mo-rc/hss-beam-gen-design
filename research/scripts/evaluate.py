@@ -2,41 +2,41 @@
 research/scripts/evaluate.py
 ================================================================
 Evaluates a trained policy (PPO/DDPG/TD3 from research/scripts/train*.py)
-OR the GA baseline against the brute-force EC3 ground truth
-(pretrain_data/ec3_optimal_designs.csv), producing the metric your
-supervisor's Comment #3 asked for and paper.md never actually computed:
+OR the GA baseline against the objective-specific EC3 ground truth
+(pretrain_data/ec3_optimal_designs_{mass,cost,co2}.csv), producing
 optimality gap (mean/median/p90/p95) relative to a TRUE optimum, not a
 self-referential feasibility rate.
 
 GROUND TRUTH RECONSTRUCTION
 ------------------------------
-pretrain_data/ec3_optimal_designs.csv has one row per (span, load, grade,
-section_type) -- i.e. it is the minimum-mass design FOR A FIXED GRADE.
-The TRUE optimum for a (span, load) context, allowing the optimizer to
-also choose grade and section type (exactly what the RL agent and GA are
-free to choose), is the best row across all grade x section_type
-combinations at that (span, load). This module computes that directly
-from the CSV (`_ground_truth_optimum`) -- no new EC3 evaluation needed,
-since the CSV already covers the full combinatorial space.
+Each ground-truth CSV has one row per (span, load, grade, section_type)
+-- i.e. the optimal design FOR A FIXED GRADE, optimised for that file's
+specific economy metric. The TRUE optimum for a (span, load) context,
+allowing the optimizer to also choose grade and section type (exactly
+what the RL agent and GA are free to choose), is the best row across all
+grade x section_type combinations at that (span, load). This module
+computes that directly from the CSV (`ground_truth_optimum`) -- no new
+EC3 evaluation needed, since the CSV already covers the full
+combinatorial space.
 
 As a side effect, this also directly answers "does the true EC3+cost
 optimum prefer higher grade at higher demand" from ground truth alone,
-independent of any RL result -- see `grade_vs_demand_from_ground_truth()`.
-This is worth reporting in the paper regardless of how the RL arms turn
-out, since it's the actual mechanics-derived answer the RL policy is
-trying to approximate.
+independent of any RL result -- see `grade_vs_demand_from_ground_truth()`
+in grade_policy_analysis.py. This is worth reporting in the paper
+regardless of how the RL arms turn out, since it's the actual mechanics-
+derived answer the RL policy is trying to approximate.
 
 USAGE
 ------
     python research/scripts/evaluate.py \\
-        --model_path research/models/arm_B_lagrangian/final_model \\
-        --vecnorm_path research/models/arm_B_lagrangian/vecnormalize.pkl \\
-        --algo ppo --economy_metric cost --run_name arm_B_lagrangian \\
-        --out_csv research/results/arm_B_lagrangian_eval.csv
+        --model_path research/models/arm_lagrangian_cost/final_model \\
+        --algo ppo --economy_metric cost --run_name arm_lagrangian_cost \\
+        --ground_truth_dir pretrain_data \\
+        --out_csv research/results/arm_lagrangian_cost_eval.csv
 
     python research/scripts/evaluate.py --ga_baseline --economy_metric cost \\
         --run_name ga_baseline --out_csv research/results/ga_baseline_eval.csv \\
-        --n_contexts 100   # subsample for speed; omit for the full 745-context set
+        --n_contexts 100   # subsample for speed; omit for the full context set
 ================================================================
 """
 
@@ -63,13 +63,13 @@ def load_ground_truth(csv_path: str) -> pd.DataFrame:
 
 def ground_truth_path_for_metric(economy_metric: str, ground_truth_dir: str = "pretrain_data") -> str:
     """
-    Post-audit convention: ground truth is OBJECTIVE-SPECIFIC. There are
-    three files, ec3_optimal_designs_{mass,cost,co2}.csv, each produced by
-    an independent GA search optimising THAT metric directly (see
+    Ground truth is OBJECTIVE-SPECIFIC: three files,
+    ec3_optimal_designs_{mass,cost,co2}.csv, each produced by an
+    independent GA search optimising THAT metric directly (see
     research/scripts/regenerate_ground_truth.py) -- not one file with
-    cost/co2 read off a mass-optimal geometry, which was the pre-audit
-    (biased) behaviour. This function is the single place that maps an
-    economy_metric to its correct ground-truth file; every evaluation
+    cost/co2 read off a mass-optimal geometry, which would silently bias
+    the cost/CO2 gap metrics. This function is the single place that maps
+    an economy_metric to its correct ground-truth file; every evaluation
     script should go through it rather than hardcoding a filename.
     """
     return os.path.join(ground_truth_dir, f"ec3_optimal_designs_{economy_metric}.csv")
@@ -90,11 +90,11 @@ def ground_truth_optimum_all_metrics(ground_truth_dir: str = "pretrain_data") ->
     by (span_m, load_kNm) -> {metric: optimal_value}, each drawn from ITS
     OWN objective-specific file. Used so a policy trained on ONE
     economy_metric can still be scored on its incidental gap in the other
-    two -- directly answers the supervisor's request for a 'composite-
-    objective gap' without reintroducing an arbitrary-weight scalarisation
-    (Comment #5's objection to weighted-sum reward design applies equally
-    to a weighted-sum GAP metric), and without the pre-audit bug of
-    reading cost/co2 off a mass-optimal geometry."""
+    two, giving a genuine composite-objective picture without reintroducing
+    an arbitrary-weight scalarisation (a weighted-sum reward is ill-posed
+    for the same reason a weighted-sum gap metric would be) and without
+    the bias that would come from reading cost/co2 off a mass-optimal
+    geometry instead of each metric's own optimum."""
     out = {}
     for metric in ["mass", "cost", "co2"]:
         path = ground_truth_path_for_metric(metric, ground_truth_dir)
@@ -141,16 +141,15 @@ def run_policy_episode(env: HSSBeamEnv, policy_fn, span_m: float, load_kNm: floa
                         storey: int = 20, max_steps: int = 40, seed: int = 0,
                         return_best_feasible: bool = True):
     """
-    Pre-Experiment-1 audit fix (supervisor Comment #14: "retain the best
-    feasible design encountered in the episode"): the termination rule
-    (3 consecutive steps in the 0.90-1.05 target band) is a TRAINING
-    convenience, not a guarantee that the episode's LAST step is the best
-    (or even a feasible) design. A policy can visit a genuinely good,
-    code-compliant design mid-episode and then continue exploring/refining
-    past it, ending on something worse or infeasible. Reporting only the
-    terminal info dict would then understate the policy's true achievable
-    performance -- and understates it in a way that has nothing to do with
-    design quality, only with where the episode happened to stop.
+    The termination rule (3 consecutive steps in the 0.90-1.05 target
+    band) is a TRAINING convenience, not a guarantee that the episode's
+    LAST step is the best (or even a feasible) design. A policy can visit
+    a genuinely good, code-compliant design mid-episode and then continue
+    exploring/refining past it, ending on something worse or infeasible.
+    Reporting only the terminal info dict would then understate the
+    policy's true achievable performance -- and understates it in a way
+    that has nothing to do with design quality, only with where the
+    episode happened to stop.
 
     With return_best_feasible=True (the default, and what all evaluation
     scripts should use for reported results), this tracks every step's

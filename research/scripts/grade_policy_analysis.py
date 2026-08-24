@@ -2,7 +2,7 @@
 research/scripts/grade_policy_analysis.py
 ================================================================
 Produces the mass/cost/CO2 grade-selection comparison directly from the
-brute-force ground truth (no RL involved) -- this is the evidence behind
+GA-based ground truth (no RL involved) -- this is the evidence behind
 the finding that "does HSS become optimal at higher demand" has a
 different, economy-metric-dependent answer, and should be reported as a
 Results-section table/figure regardless of how the RL arms perform.
@@ -15,24 +15,18 @@ per-context CSV, using `agent_grade` instead of `grade`) to check whether
 the trained policy's grade-selection pattern matches the correct ground-
 truth pattern for whichever economy_metric it was trained on.
 
+Uses THREE independent, objective-specific ground-truth files
+(ec3_optimal_designs_{mass,cost,co2}.csv, produced by
+research/scripts/regenerate_ground_truth.py, each from its own GA
+search), so each metric's "grades ever optimal" reflects a genuinely
+re-optimised geometry for that metric rather than one metric's optimal
+geometry relabelled with another metric's cost function.
+
 USAGE
 ------
     python research/scripts/grade_policy_analysis.py \\
         --ground_truth_dir pretrain_data \\
         --out_dir research/results/grade_policy_analysis
-
-NOTE (pre-Experiment-1 audit fix): this script previously derived the
-cost and CO2 columns for `analyze_metric("cost")` / `analyze_metric("co2")`
-from a SINGLE, mass-optimised ground-truth file -- i.e. "the cost of the
-mass-optimal design" rather than "the design that actually minimises
-cost". Since mass-optimal and cost-optimal geometries are generally
-different (fabrication cost/CO2 factors weight grade and section_type
-differently than mass alone), this biased exactly the comparison this
-script exists to produce. Now loads THREE independent, objective-specific
-files (ec3_optimal_designs_{mass,cost,co2}.csv, produced by
-research/scripts/regenerate_ground_truth.py, each from its own GA search)
-so each metric's "grades ever optimal" reflects a genuinely re-optimised
-geometry for that metric, not a relabelled mass-optimal one.
 ================================================================
 """
 
@@ -48,6 +42,37 @@ import pandas as pd
 from research.scripts.evaluate import load_ground_truth, ground_truth_optimum, ground_truth_path_for_metric
 
 
+def grade_selection_margins(df: pd.DataFrame, economy_metric: str) -> dict:
+    """
+    Quantifies how close the race is between the winning grade and the
+    runner-up at each context -- the top-1 vs. top-2 economy-value gap,
+    ranked per (span, load), computed directly from the ground-truth file
+    (no additional search needed). This matters because the reference
+    GA optimizer itself carries a small residual gap from the true
+    optimum (see research/README.md's ground-truth validation section for
+    the measured magnitude); a context whose top-1/top-2 margin is
+    smaller than that residual gap should not be treated as a confident
+    single-grade determination when reporting per-context results.
+    Aggregate/distributional claims (grade counts, Spearman correlation)
+    remain valid regardless, since they are computed over many contexts
+    and are far less sensitive to individual close calls flipping.
+    """
+    margins = []
+    for (s, l), grp in df.groupby(["span_m", "load_kNm"]):
+        grp = grp.sort_values(economy_metric)
+        if len(grp) >= 2:
+            top1, top2 = grp.iloc[0][economy_metric], grp.iloc[1][economy_metric]
+            margins.append(100 * (top2 - top1) / top1)
+    margins = pd.Series(margins)
+    return dict(
+        margin_median_pct=float(margins.median()) if len(margins) else np.nan,
+        margin_mean_pct=float(margins.mean()) if len(margins) else np.nan,
+        pct_contexts_margin_lt_1pct=float((margins < 1.0).mean()) if len(margins) else np.nan,
+        pct_contexts_margin_lt_2pct=float((margins < 2.0).mean()) if len(margins) else np.nan,
+        pct_contexts_margin_lt_4pct=float((margins < 4.0).mean()) if len(margins) else np.nan,
+    )
+
+
 def analyze_metric(df: pd.DataFrame, economy_metric: str) -> dict:
     opt = ground_truth_optimum(df, economy_metric)
     opt = opt.copy()
@@ -61,14 +86,15 @@ def analyze_metric(df: pd.DataFrame, economy_metric: str) -> dict:
     # noise)? Report the fraction of adjacent pairs that are consistent
     # (grade doesn't decrease as demand increases) as a simple monotonicity
     # score, rather than assuming strict monotonicity is even the right
-    # ground-truth expectation (Concern #21 from the supervisor comments --
-    # deflection/compactness governance can legitimately make monotonicity
-    # NOT hold, and this script reports that honestly instead of assuming
-    # it away).
+    # ground-truth expectation -- deflection/compactness governance can
+    # legitimately make monotonicity NOT hold, and this script reports
+    # that honestly instead of assuming it away.
     sorted_opt = opt.sort_values("demand_proxy")
     grade_seq = sorted_opt["grade"].to_numpy()
     non_decreasing = np.diff(grade_seq) >= 0
     monotonicity_score = float(non_decreasing.mean()) if len(non_decreasing) else np.nan
+
+    margin_stats = grade_selection_margins(df, economy_metric)
 
     return dict(
         economy_metric=economy_metric,
@@ -79,6 +105,7 @@ def analyze_metric(df: pd.DataFrame, economy_metric: str) -> dict:
         spearman_demand_grade_corr=float(spearman_corr),
         monotonicity_score=monotonicity_score,
         governing_check_distribution=opt["governing"].value_counts().to_dict() if "governing" in opt.columns else {},
+        **margin_stats,
     )
 
 
@@ -103,6 +130,10 @@ def main():
         print(f"  spearman(demand, grade)  : {result['spearman_demand_grade_corr']:.3f}")
         print(f"  monotonicity score       : {result['monotonicity_score']:.3f}  "
               f"(fraction of demand-sorted adjacent pairs with non-decreasing grade)")
+        print(f"  top1-vs-top2 margin      : median={result['margin_median_pct']:.2f}%  "
+              f"mean={result['margin_mean_pct']:.2f}%")
+        print(f"  contexts with margin<2%  : {result['pct_contexts_margin_lt_2pct']*100:.1f}%  "
+              f"(see research/README.md for how to weight per-context grade claims given this)")
         print()
         summary_rows.append({k: v for k, v in result.items()
                               if k not in ("demand_range_by_grade", "governing_check_distribution")})

@@ -1,34 +1,31 @@
 """
 research/tests/validate_ground_truth.py
 ================================================================
-Every optimality-gap number in this project is relative to
-pretrain_data/ec3_optimal_designs.csv, produced by a 9^4-point coarse grid
-search per (span, load, grade, section_type) context
-(generate_ec3_pretrain_dataset.py). That file's own generation-time
-comments note the coarse-to-fine refinement strategy had known quality
-issues (mass-ordering inversions changed between refinement passes). If
-the grid search is NOT actually close to the true (grade, type)-fixed
-optimum, every downstream gap metric in this project is biased and the
-paper's central "X% mean gap vs. optimum" claims are not defensible.
+Every optimality-gap number in this project is relative to the
+objective-specific ground-truth files produced by
+research/scripts/regenerate_ground_truth.py (a GA search per (span,
+load, grade, section_type, economy_metric) context). If that reference
+search is NOT actually close to the true (grade, type)-fixed optimum,
+every downstream gap metric in this project is biased and any "X% mean
+gap vs. optimum" claim built on it is not defensible.
 
 This script cross-checks a random sample of ground-truth rows against a
 fine-grained, GRADE-AND-TYPE-FIXED genetic algorithm search (only the 4
 continuous geometry genes vary -- an apples-to-apples comparison against
-what the grid search was doing at each of its 1,728 fixed-grade/fixed-
-type contexts) with a larger population and more generations than any
-"per-instance" GA baseline elsewhere in this project needs, specifically
-BECAUSE this run only has to happen once, ever, as a validation check,
-not per training run.
+what the reference generator does at each context) with a larger
+population and more generations than the reference generator uses,
+specifically BECAUSE this run only has to happen once, ever, as a
+validation check, not per training run.
 
 DECISION RULE
 --------------
 For each sampled context, compute:
-    improvement = (grid_mass - ga_mass) / grid_mass
+    improvement = (ref_value - ga_value) / ref_value
 If GA finds a MEANINGFULLY better design (improvement > 1%) on more than
-a small fraction of sampled contexts, the grid ground truth is NOT
-reliable enough to report gap metrics against, and should be regenerated
-with a finer grid (or replaced by GA-refined values context-by-context,
-which this script can also produce, see --write_refined).
+a small fraction of sampled contexts, the ground truth is not reliable
+enough to report gap metrics against as-is, and should be regenerated
+with a larger GA budget (or replaced by GA-refined values context-by-
+context, which this script can also produce, see --write_refined).
 
 USAGE
 ------
@@ -65,7 +62,7 @@ def main():
     p.add_argument("--n_restarts", type=int, default=3,
                     help="Independent GA restarts per context (different seeds); "
                          "keep the best, to reduce the chance GA itself gets stuck "
-                         "in a local optimum and produces a false 'grid is fine' verdict.")
+                         "in a local optimum and produces a false 'ground truth is fine' verdict.")
     p.add_argument("--write_refined", type=str, default=None,
                     help="If given, write a GA-refined version of the sampled rows to this CSV.")
     args = p.parse_args()
@@ -78,7 +75,7 @@ def main():
           f"(economy_metric={args.economy_metric}, pop={args.pop_size}, "
           f"gens={args.n_generations}, restarts={args.n_restarts})...\n")
     m = args.economy_metric
-    print(f"{'span_m':>7s} {'load':>6s} {'grade':>5s} {'type':>7s} {'grid_'+m:>10s} "
+    print(f"{'span_m':>7s} {'load':>6s} {'grade':>5s} {'type':>7s} {'ref_'+m:>10s} "
           f"{'ga_'+m:>10s} {'improve%':>9s}")
 
     improvements = []
@@ -99,7 +96,7 @@ def main():
 
         if best_ga_result is None:
             print(f"{r['span_m']:7.2f} {r['load_kNm']:6.1f} {r['grade']:5.0f} {r['section_type']:>7s}   "
-                  f"GA found NO feasible design (grid says {r[m]:.1f} -- investigate)")
+                  f"GA found NO feasible design (reference says {r[m]:.1f} -- investigate)")
             continue
 
         improvement = (r[m] - best_ga_val) / r[m]
@@ -122,15 +119,15 @@ def main():
 
     if (improvements > 0.01).mean() > 0.10:
         print("\n=> WARNING: GA found >1% better designs on more than 10% of sampled")
-        print("   contexts. The grid-search ground truth is NOT reliable enough to")
-        print("   report gap metrics against as-is. Options: (a) regenerate with a")
-        print("   finer grid, (b) use --write_refined to produce GA-corrected ground")
-        print("   truth for the full dataset, (c) use GA itself (many restarts) as")
-        print("   the reference optimum instead of the grid.")
+        print("   contexts. The reference ground truth is NOT reliable enough to")
+        print("   report gap metrics against as-is. Options: (a) increase the GA budget")
+        print("   in regenerate_ground_truth.py, (b) use --write_refined to produce")
+        print("   GA-corrected ground truth for the sampled contexts, (c) use a larger-")
+        print("   restart GA as the reference optimum for the full dataset.")
     else:
-        print("\n=> Grid ground truth validated: GA improvement <1% on >90% of sampled")
-        print("   contexts. Safe to report gap metrics against pretrain_data/ec3_optimal_designs.csv")
-        print("   as-is for Experiment 1.")
+        print("\n=> Ground truth validated: GA improvement <1% on >90% of sampled")
+        print(f"   contexts against {args.ground_truth_csv}. Safe to report gap")
+        print("   metrics against as-is.")
 
     if args.write_refined and refined_rows:
         pd.DataFrame(refined_rows).to_csv(args.write_refined, index=False)

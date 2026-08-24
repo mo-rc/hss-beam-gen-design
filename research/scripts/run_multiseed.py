@@ -6,9 +6,9 @@ usage predictable on a single machine -- edit to launch in parallel
 background processes if you have the cores/GPUs to spare), then
 aggregates results and runs significance tests between arms.
 
-This directly implements the supervisor's Comment #10 (multi-seed
-replication) and gives the paper real statistics ("X vs Y, p=...")
-instead of single-run point estimates.
+This gives the paper real statistics ("X vs Y, p=...") instead of
+single-run point estimates, which matters for RL results in particular
+given how much run-to-run variance a single seed can carry.
 
 USAGE
 ------

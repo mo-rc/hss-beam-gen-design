@@ -1,0 +1,16 @@
+{
+  "label": "ga_cost",
+  "n_contexts": 142,
+  "feasibility_rate": 1.0,
+  "gap_mean": 0.01312934385710777,
+  "gap_median": 0.00807692828751471,
+  "gap_std": 0.01907544703771921,
+  "gap_p90": 0.0388799806057236,
+  "gap_p95": 0.045959971781314564,
+  "gap_worst": 0.07188002906897686,
+  "pct_within_1pct": 0.5,
+  "pct_within_5pct": 0.9647887323943662,
+  "pct_within_10pct": 1.0,
+  "wall_time_s_total": 172.2543601989746,
+  "wall_time_s_per_context": 1.2130588746406663
+}

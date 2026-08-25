@@ -1,0 +1,20 @@
+{
+  "label": "lagrangian_cost_seed45",
+  "n_contexts": 142,
+  "feasibility_rate": 1.0,
+  "gap_mean": 0.7511101116750073,
+  "gap_median": 0.7062146768998783,
+  "gap_std": 0.3183465720887702,
+  "gap_p90": 1.1673890337689106,
+  "gap_p95": 1.385832306182795,
+  "gap_worst": 1.6505165858002275,
+  "pct_within_1pct": 0.0,
+  "pct_within_5pct": 0.0,
+  "pct_within_10pct": 0.0,
+  "wall_time_s_total": 6.825031042098999,
+  "wall_time_s_per_context": 0.04806359888802112,
+  "gap_mass_mean": 0.9103477159233656,
+  "gap_mass_median": 0.8886393049092869,
+  "gap_co2_mean": 1.5454297473262864,
+  "gap_co2_median": 1.5740936788925306
+}

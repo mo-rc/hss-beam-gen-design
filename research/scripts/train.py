@@ -10,16 +10,21 @@ differs between runs, per the paper's ablation methodology.
 USAGE
 ------
   # Arm "shaped" (weighted-sum reward, NO grade-specific term):
-  python research/scripts/train.py --reward_mode shaped --run_name arm_shaped --seed 42
+  python research/scripts/train.py --reward_mode shaped --run_name shaped_cost --seed 42
 
-  # Arm C (feasibility-gated, safe-RL style):
-  python research/scripts/train.py --reward_mode feasibility_gated --run_name arm_C_gated --seed 42
+  # Feasibility-gated (safe-RL style):
+  python research/scripts/train.py --reward_mode feasibility_gated --run_name gated_cost --seed 42
 
-  # Arm B (Lagrangian-constrained -- the paper's primary proposed method):
+  # Lagrangian-constrained (primary proposed method):
   python research/scripts/train.py --reward_mode lagrangian --economy_metric cost \\
-      --run_name arm_B_lagrangian --seed 42
+      --run_name lagrangian_cost --seed 42
 
-  # Multi-seed replication (run this 5x with --seed 42/43/44/45/46 per arm)
+  # Catalog action-space variant (discrete rolled-section catalog):
+  python research/scripts/train.py --reward_mode lagrangian --env_type catalog \\
+      --run_name lagrangian_cost_catalog --seed 42
+
+  # Multi-seed replication (run this 5x with --seed 42/43/44/45/46 per arm,
+  # or use research/scripts/run_multiseed.py to automate it)
 ================================================================
 """
 
@@ -36,12 +41,20 @@ from stable_baselines3.common.callbacks import CheckpointCallback, CallbackList
 from stable_baselines3.common.monitor import Monitor
 
 from research.envs.hss_env import HSSBeamEnv, REWARD_MODES, ECONOMY_METRICS
+from research.envs.hss_catalog_env import HSSBeamCatalogEnv
 from research.algo.lagrangian import LagrangianCallback
 
 
-def make_env(reward_mode, economy_metric, lagrange_init, ltb_factor, sls_factor, seed, rank):
+def make_env(env_type, reward_mode, economy_metric, lagrange_init, ltb_factor, sls_factor, seed, rank):
+    """
+    env_type: "continuous" (default, HSSBeamEnv -- 6-dim Box action, softmax-
+        snapped grade) or "catalog" (HSSBeamCatalogEnv -- MultiDiscrete action
+        over research/envs/rolled_catalog.py's procedural rolled-section
+        catalog, rolled-only).
+    """
     def _init():
-        env = HSSBeamEnv(
+        cls = HSSBeamCatalogEnv if env_type == "catalog" else HSSBeamEnv
+        env = cls(
             reward_mode=reward_mode, economy_metric=economy_metric,
             lagrange_init=lagrange_init,
             ltb_restraint_factor=ltb_factor, sls_load_factor=sls_factor,
@@ -54,6 +67,10 @@ def make_env(reward_mode, economy_metric, lagrange_init, ltb_factor, sls_factor,
 
 def main():
     p = argparse.ArgumentParser()
+    p.add_argument("--env_type", choices=["continuous", "catalog"], default="continuous",
+                    help="'continuous': HSSBeamEnv (6-dim Box action). "
+                         "'catalog': HSSBeamCatalogEnv (MultiDiscrete action over a "
+                         "procedural rolled-section catalog, rolled sections only).")
     p.add_argument("--reward_mode", choices=REWARD_MODES, required=True)
     p.add_argument("--economy_metric", choices=ECONOMY_METRICS, default="cost")
     p.add_argument("--run_name", type=str, required=True)
@@ -87,7 +104,7 @@ def main():
 
     lagrange_init = dict(g1_util=0.0, g2_class=0.0, g3_geom=0.0)
 
-    env_fns = [make_env(args.reward_mode, args.economy_metric, lagrange_init,
+    env_fns = [make_env(args.env_type, args.reward_mode, args.economy_metric, lagrange_init,
                          args.ltb_factor, args.sls_factor, args.seed, i)
                for i in range(args.n_envs)]
     vec_env = SubprocVecEnv(env_fns) if args.n_envs > 1 else env_fns[0]()

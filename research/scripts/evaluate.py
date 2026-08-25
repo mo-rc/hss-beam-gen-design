@@ -52,6 +52,7 @@ import numpy as np
 import pandas as pd
 
 from research.envs.hss_env import HSSBeamEnv
+from research.envs.hss_catalog_env import HSSBeamCatalogEnv
 
 
 # ================================================================
@@ -200,14 +201,16 @@ def run_policy_episode(env: HSSBeamEnv, policy_fn, span_m: float, load_kNm: floa
 # ================================================================
 def evaluate_policy_vs_ground_truth(policy_fn, economy_metric: str, ground_truth_dir: str,
                                      n_contexts: int | None = None, seed: int = 0,
-                                     reward_mode_for_env: str = "lagrangian"):
+                                     reward_mode_for_env: str = "lagrangian",
+                                     env_type: str = "continuous"):
     df = load_ground_truth(ground_truth_path_for_metric(economy_metric, ground_truth_dir))
     opt = ground_truth_optimum(df, economy_metric)
     gt_all = ground_truth_optimum_all_metrics(ground_truth_dir)
     if n_contexts is not None and n_contexts < len(opt):
         opt = opt.sample(n=n_contexts, random_state=seed).reset_index(drop=True)
 
-    env = HSSBeamEnv(reward_mode=reward_mode_for_env, economy_metric=economy_metric)
+    cls = HSSBeamCatalogEnv if env_type == "catalog" else HSSBeamEnv
+    env = cls(reward_mode=reward_mode_for_env, economy_metric=economy_metric)
 
     rows = []
     t0 = time.time()
@@ -305,6 +308,12 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--model_path", type=str, default=None)
     p.add_argument("--algo", choices=["ppo", "ddpg", "td3"], default="ppo")
+    p.add_argument("--env_type", choices=["continuous", "catalog"], default="continuous",
+                    help="Must match the env_type the model at --model_path was TRAINED "
+                         "with (see train.py --env_type) -- a catalog-trained policy has a "
+                         "MultiDiscrete action space and will silently produce garbage "
+                         "actions if evaluated against the continuous HSSBeamEnv, or vice "
+                         "versa. Not auto-detected from the checkpoint; get this right.")
     p.add_argument("--ga_baseline", action="store_true")
     p.add_argument("--economy_metric", choices=["mass", "cost", "co2"], default="cost")
     p.add_argument("--ground_truth_dir", type=str, default="pretrain_data",
@@ -328,7 +337,8 @@ def main():
         assert args.model_path, "--model_path required unless --ga_baseline"
         policy_fn = load_policy(args.model_path, args.algo)
         result, wall_time = evaluate_policy_vs_ground_truth(
-            policy_fn, args.economy_metric, args.ground_truth_dir, args.n_contexts, args.seed)
+            policy_fn, args.economy_metric, args.ground_truth_dir, args.n_contexts, args.seed,
+            env_type=args.env_type)
 
     result.to_csv(args.out_csv, index=False)
     summary = summarize(result, wall_time, args.run_name)

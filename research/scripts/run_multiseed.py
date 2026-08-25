@@ -15,16 +15,17 @@ USAGE
   # Train 5 seeds of the primary Lagrangian arm:
   python research/scripts/run_multiseed.py train \\
       --reward_mode lagrangian --economy_metric cost \\
-      --run_prefix arm_B_lagrangian --seeds 42 43 44 45 46 --timesteps 1000000
+      --run_prefix lagrangian_cost --seeds 42 43 44 45 46 --timesteps 1000000
 
   # Evaluate all 5 seeds against ground truth and aggregate:
   python research/scripts/run_multiseed.py evaluate \\
-      --run_prefix arm_B_lagrangian --seeds 42 43 44 45 46 --economy_metric cost
+      --run_prefix lagrangian_cost --seeds 42 43 44 45 46 --economy_metric cost \\
+      --ground_truth_dir pretrain_data
 
-  # Compare two arms statistically (e.g. Lagrangian vs. legacy shaped):
+  # Compare two arms statistically (e.g. lagrangian vs. shaped):
   python research/scripts/run_multiseed.py compare \\
-      --arm_a research/results/arm_B_lagrangian_seed*_summary.json \\
-      --arm_b research/results/arm_A_legacy_seed*_summary.json \\
+      --arm_a "research/results/lagrangian_cost_seed*_summary.json" \\
+      --arm_b "research/results/shaped_cost_seed*_summary.json" \\
       --metric gap_mean
 ================================================================
 """
@@ -52,6 +53,7 @@ def cmd_train(args):
         print(f"\n{'='*70}\nTraining {run_name} (reward_mode={args.reward_mode})\n{'='*70}")
         cmd = [
             sys.executable, os.path.join(THIS_DIR, "train.py"),
+            "--env_type", args.env_type,
             "--reward_mode", args.reward_mode, "--economy_metric", args.economy_metric,
             "--run_name", run_name, "--seed", str(seed), "--timesteps", str(args.timesteps),
             "--n_envs", str(args.n_envs),
@@ -67,8 +69,9 @@ def cmd_evaluate(args):
         print(f"\nEvaluating {run_name}...")
         cmd = [
             sys.executable, os.path.join(THIS_DIR, "evaluate.py"),
-            "--model_path", model_path, "--algo", args.algo,
+            "--model_path", model_path, "--algo", args.algo, "--env_type", args.env_type,
             "--economy_metric", args.economy_metric, "--run_name", run_name,
+            "--ground_truth_dir", args.ground_truth_dir,
             "--out_csv", out_csv,
         ]
         subprocess.run(cmd, check=True)
@@ -143,6 +146,7 @@ def main():
     pt = sub.add_parser("train")
     pt.add_argument("--reward_mode", required=True)
     pt.add_argument("--economy_metric", default="cost")
+    pt.add_argument("--env_type", choices=["continuous", "catalog"], default="continuous")
     pt.add_argument("--run_prefix", required=True)
     pt.add_argument("--seeds", type=int, nargs="+", required=True)
     pt.add_argument("--timesteps", type=int, default=1_000_000)
@@ -153,6 +157,8 @@ def main():
     pe.add_argument("--run_prefix", required=True)
     pe.add_argument("--seeds", type=int, nargs="+", required=True)
     pe.add_argument("--economy_metric", default="cost")
+    pe.add_argument("--env_type", choices=["continuous", "catalog"], default="continuous")
+    pe.add_argument("--ground_truth_dir", default="pretrain_data")
     pe.add_argument("--algo", default="ppo", choices=["ppo", "ddpg", "td3"])
     pe.set_defaults(func=cmd_evaluate)
 

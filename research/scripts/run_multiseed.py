@@ -91,7 +91,7 @@ def cmd_evaluate(args):
     df.to_csv(agg_path, index=False)
 
     print(f"\n=== {args.run_prefix}: {len(args.seeds)}-seed summary ===")
-    for col in ["feasibility_rate", "gap_mean", "gap_median", "gap_p90", "gap_p95"]:
+    for col in ["feasibility_rate", "gap_mean_pct", "gap_median_pct", "gap_p90_pct", "gap_p95_pct"]:
         if col in df.columns:
             print(f"  {col:20s}: mean={df[col].mean():.4f}  std={df[col].std():.4f}  "
                   f"(seeds: {df[col].round(4).tolist()})")
@@ -165,7 +165,7 @@ def main():
     pc = sub.add_parser("compare")
     pc.add_argument("--arm_a", required=True, help="glob pattern matching arm A's *_summary.json files")
     pc.add_argument("--arm_b", required=True, help="glob pattern matching arm B's *_summary.json files")
-    pc.add_argument("--metric", default="gap_mean")
+    pc.add_argument("--metric", default="gap_mean_pct")
     pc.set_defaults(func=cmd_compare)
 
     args = p.parse_args()

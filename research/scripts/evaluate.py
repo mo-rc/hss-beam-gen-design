@@ -276,18 +276,28 @@ def evaluate_ga_vs_ground_truth(economy_metric: str, ground_truth_dir: str,
 
 
 def summarize(result: pd.DataFrame, wall_time: float, label: str) -> dict:
+    """
+    NOTE ON UNITS: `gap` is stored as a raw fraction throughout this file
+    ((agent - optimal) / optimal), NOT a percentage -- gap_mean=0.05 means
+    a 5% gap, not 0.05%. All *_pct fields below are named for what they
+    threshold (gap <= 1%, <= 5%, <= 10%), not because gap itself is in
+    percent. When reporting gap_mean/median/p90/p95/worst, multiply by
+    100 for a percentage, or read them as fractions consistently -- do
+    not eyeball "0.64" as "0.64%", it is 64%.
+    """
     feasible_mask = result["feasible"]
     gaps = result.loc[feasible_mask, "gap"].dropna()
     summary = dict(
         label=label,
         n_contexts=len(result),
         feasibility_rate=float(feasible_mask.mean()),
-        gap_mean=float(gaps.mean()) if len(gaps) else np.nan,
-        gap_median=float(gaps.median()) if len(gaps) else np.nan,
-        gap_std=float(gaps.std()) if len(gaps) else np.nan,
-        gap_p90=float(gaps.quantile(0.90)) if len(gaps) else np.nan,
-        gap_p95=float(gaps.quantile(0.95)) if len(gaps) else np.nan,
-        gap_worst=float(gaps.max()) if len(gaps) else np.nan,
+        gap_mean_frac=float(gaps.mean()) if len(gaps) else np.nan,
+        gap_mean_pct=float(gaps.mean() * 100) if len(gaps) else np.nan,
+        gap_median_pct=float(gaps.median() * 100) if len(gaps) else np.nan,
+        gap_std_pct=float(gaps.std() * 100) if len(gaps) else np.nan,
+        gap_p90_pct=float(gaps.quantile(0.90) * 100) if len(gaps) else np.nan,
+        gap_p95_pct=float(gaps.quantile(0.95) * 100) if len(gaps) else np.nan,
+        gap_worst_pct=float(gaps.max() * 100) if len(gaps) else np.nan,
         pct_within_1pct=float((gaps.abs() <= 0.01).mean()) if len(gaps) else np.nan,
         pct_within_5pct=float((gaps.abs() <= 0.05).mean()) if len(gaps) else np.nan,
         pct_within_10pct=float((gaps.abs() <= 0.10).mean()) if len(gaps) else np.nan,
@@ -299,8 +309,8 @@ def summarize(result: pd.DataFrame, wall_time: float, label: str) -> dict:
     for col in [c for c in result.columns if c.startswith("gap_") and c != "gap"]:
         vals = result.loc[feasible_mask, col].dropna()
         if len(vals):
-            summary[f"{col}_mean"] = float(vals.mean())
-            summary[f"{col}_median"] = float(vals.median())
+            summary[f"{col}_mean_pct"] = float(vals.mean() * 100)
+            summary[f"{col}_median_pct"] = float(vals.median() * 100)
     return summary
 
 

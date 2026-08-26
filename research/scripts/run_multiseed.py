@@ -64,8 +64,8 @@ def cmd_train(args):
 def cmd_evaluate(args):
     for seed in args.seeds:
         run_name = f"{args.run_prefix}_seed{seed}"
-        model_path = os.path.join("research", "models", run_name, "final_model")
-        out_csv = os.path.join("research", "results", f"{run_name}_eval.csv")
+        model_path = os.path.join("models", run_name, "final_model")
+        out_csv = os.path.join("results", f"{run_name}_eval.csv")
         print(f"\nEvaluating {run_name}...")
         cmd = [
             sys.executable, os.path.join(THIS_DIR, "evaluate.py"),
@@ -80,14 +80,14 @@ def cmd_evaluate(args):
     summaries = []
     for seed in args.seeds:
         run_name = f"{args.run_prefix}_seed{seed}"
-        summary_path = os.path.join("research", "results", f"{run_name}_eval_summary.json")
+        summary_path = os.path.join("results", f"{run_name}_eval_summary.json")
         with open(summary_path) as f:
             s = json.load(f)
         s["seed"] = seed
         summaries.append(s)
 
     df = pd.DataFrame(summaries)
-    agg_path = os.path.join("research", "results", f"{args.run_prefix}_multiseed_summary.csv")
+    agg_path = os.path.join("results", f"{args.run_prefix}_multiseed_summary.csv")
     df.to_csv(agg_path, index=False)
 
     print(f"\n=== {args.run_prefix}: {len(args.seeds)}-seed summary ===")

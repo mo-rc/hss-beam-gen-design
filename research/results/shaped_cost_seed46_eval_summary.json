@@ -1,0 +1,21 @@
+{
+  "label": "shaped_cost_seed46",
+  "n_contexts": 142,
+  "feasibility_rate": 1.0,
+  "gap_mean_frac": 0.8954703199504801,
+  "gap_mean_pct": 89.54703199504802,
+  "gap_median_pct": 92.02922152531559,
+  "gap_std_pct": 31.465892194793156,
+  "gap_p90_pct": 127.62132514069427,
+  "gap_p95_pct": 134.36095638327964,
+  "gap_worst_pct": 157.8374902914919,
+  "pct_within_1pct": 0.0,
+  "pct_within_5pct": 0.0,
+  "pct_within_10pct": 0.0,
+  "wall_time_s_total": 8.252175092697144,
+  "wall_time_s_per_context": 0.05811390910350101,
+  "gap_mass_mean_pct": 106.5617914218026,
+  "gap_mass_median_pct": 106.58867936228486,
+  "gap_co2_mean_pct": 181.134103646519,
+  "gap_co2_median_pct": 193.14731000442066
+}

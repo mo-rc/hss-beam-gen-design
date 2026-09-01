@@ -1,0 +1,21 @@
+{
+  "label": "gated_cost_merged_seed42_1p3M",
+  "n_contexts": 142,
+  "feasibility_rate": 1.0,
+  "gap_mean_frac": 0.33911407108625086,
+  "gap_mean_pct": 33.911407108625085,
+  "gap_median_pct": 30.87589952680108,
+  "gap_std_pct": 14.389643822597842,
+  "gap_p90_pct": 51.53136714233152,
+  "gap_p95_pct": 67.43972890932528,
+  "gap_worst_pct": 99.42339655926693,
+  "pct_within_1pct": 0.0,
+  "pct_within_5pct": 0.0,
+  "pct_within_10pct": 0.0,
+  "wall_time_s_total": 7.7180280685424805,
+  "wall_time_s_per_context": 0.05435231034184845,
+  "gap_mass_mean_pct": 53.531456053245066,
+  "gap_mass_median_pct": 54.86275160091685,
+  "gap_co2_mean_pct": 108.46155498099064,
+  "gap_co2_median_pct": 111.5499114808137
+}

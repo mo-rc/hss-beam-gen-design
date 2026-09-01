@@ -36,16 +36,18 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 import numpy as np
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import SubprocVecEnv, VecNormalize
+from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize
 from stable_baselines3.common.callbacks import CheckpointCallback, CallbackList
 from stable_baselines3.common.monitor import Monitor
 
 from research.envs.hss_env import HSSBeamEnv, REWARD_MODES, ECONOMY_METRICS
 from research.envs.hss_catalog_env import HSSBeamCatalogEnv
 from research.algo.lagrangian import LagrangianCallback
+from research.algo.log_std_anneal import LogStdAnnealCallback
 
 
-def make_env(env_type, reward_mode, economy_metric, lagrange_init, ltb_factor, sls_factor, seed, rank):
+def make_env(env_type, reward_mode, economy_metric, lagrange_init, ltb_factor, sls_factor,
+             economy_reward_mode, seed, rank):
     """
     env_type: "continuous" (default, HSSBeamEnv -- 6-dim Box action, softmax-
         snapped grade) or "catalog" (HSSBeamCatalogEnv -- MultiDiscrete action
@@ -58,6 +60,7 @@ def make_env(env_type, reward_mode, economy_metric, lagrange_init, ltb_factor, s
             reward_mode=reward_mode, economy_metric=economy_metric,
             lagrange_init=lagrange_init,
             ltb_restraint_factor=ltb_factor, sls_load_factor=sls_factor,
+            economy_reward_mode=economy_reward_mode,
         )
         env = Monitor(env)
         env.reset(seed=seed + rank)
@@ -96,6 +99,24 @@ def main():
     p.add_argument("--lambda_max", type=float, default=200.0)
     p.add_argument("--budget_util", type=float, default=0.0,
                     help="Allowed mean utilisation-constraint violation (0 = strict).")
+    # --- Annealed log_std ceiling (opt-in; default OFF reproduces the
+    # unmodified 38.69%+/-6.72% feasibility_gated baseline exactly) ---
+    # See research/algo/log_std_anneal.py for the full rationale. Applied
+    # in isolation from ent_coef, which stays constant as normal.
+    p.add_argument("--log_std_anneal", action="store_true",
+                    help="Enable the annealed log_std ceiling (see research/algo/log_std_anneal.py).")
+    p.add_argument("--log_std_ceiling_start", type=float, default=8.0,
+                    help="Std ceiling (not log-std) during/at the start of the anneal phase; "
+                         "should stay a no-op through the uncontrolled phase (default is generously "
+                         "above the ~2.3-5.8 std observed at the end of unclamped 1M-step runs).")
+    p.add_argument("--log_std_ceiling_end", type=float, default=1.0,
+                    help="Std ceiling at the end of training.")
+    p.add_argument("--log_std_anneal_start_frac", type=float, default=0.5,
+                    help="Fraction of total_timesteps before the ceiling starts tightening; "
+                         "before this point std is completely uncontrolled (bit-for-bit baseline).")
+    p.add_argument("--economy_reward_mode", choices=["linear", "log_relative"], default="linear",
+                    help="See research/envs/hss_env.py's _economy_reward() docstring. Default 'linear' "
+                         "reproduces existing behaviour exactly.")
     p.add_argument("--out_dir", type=str, default="./research/models")
     args = p.parse_args()
 
@@ -105,9 +126,9 @@ def main():
     lagrange_init = dict(g1_util=0.0, g2_class=0.0, g3_geom=0.0)
 
     env_fns = [make_env(args.env_type, args.reward_mode, args.economy_metric, lagrange_init,
-                         args.ltb_factor, args.sls_factor, args.seed, i)
+                         args.ltb_factor, args.sls_factor, args.economy_reward_mode, args.seed, i)
                for i in range(args.n_envs)]
-    vec_env = SubprocVecEnv(env_fns) if args.n_envs > 1 else env_fns[0]()
+    vec_env = SubprocVecEnv(env_fns) if args.n_envs > 1 else DummyVecEnv(env_fns)  # n_envs==1 fix: VecNormalize requires VecEnv semantics, not a raw env
     vec_env = VecNormalize(vec_env, norm_obs=False, norm_reward=True, clip_reward=50.0, gamma=args.gamma)
 
     model = PPO(
@@ -122,7 +143,8 @@ def main():
     )
 
     callbacks = [CheckpointCallback(save_freq=max(200_000 // args.n_envs, 1),
-                                     save_path=run_dir, name_prefix="checkpoint")]
+                                     save_path=run_dir, name_prefix="checkpoint",
+                                     save_vecnormalize=True)]
     lagrangian_cb = None
     if args.reward_mode == "lagrangian":
         lagrangian_cb = LagrangianCallback(
@@ -132,6 +154,13 @@ def main():
             lambda_max=args.lambda_max, update_freq=args.n_steps * args.n_envs, log_every=1, verbose=1,
         )
         callbacks.append(lagrangian_cb)
+
+    if args.log_std_anneal:
+        callbacks.append(LogStdAnnealCallback(
+            total_timesteps=args.timesteps,
+            ceiling_start=args.log_std_ceiling_start, ceiling_end=args.log_std_ceiling_end,
+            anneal_start_frac=args.log_std_anneal_start_frac, verbose=1,
+        ))
 
     model.learn(total_timesteps=args.timesteps, callback=CallbackList(callbacks),
                 tb_log_name=args.run_name)

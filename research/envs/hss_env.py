@@ -134,7 +134,22 @@ class HSSBeamEnv(gym.Env):
         # --- MDP-formulation parameters, exposed for ablation studies ------
         # (e.g. one-shot vs. multi-step refinement, grade-softmax temperature
         # sensitivity) without needing to modify this class.
+        # `max_steps` controls EPISODE TERMINATION (truncation) only.
+        # `step_scale_horizon` controls the denominator of the within-episode
+        # coarse-to-fine `step_scale` anneal in `_update_design` (and of the
+        # `episode_progress` observation feature that must track it -- see
+        # `_get_obs`'s docstring). These were previously the same value
+        # (`max_steps` served both roles), which meant lengthening an
+        # episode for diagnostic purposes (e.g. running a trained policy
+        # past its trained horizon to check whether it keeps improving)
+        # necessarily also re-paced the step-size schedule, confounding
+        # "given more time, does it improve" with "given bigger steps late
+        # in the episode, does it improve". Defaults to `max_steps` when not
+        # given, so all existing behaviour (and every existing checkpoint)
+        # is reproduced exactly unless this is explicitly overridden.
         max_steps: int = 40,
+        step_scale_horizon: int | None = None,
+        economy_reward_mode: str = "linear",
         grade_softmax_temperature: float = 0.15,
     ):
         super().__init__()
@@ -170,9 +185,13 @@ class HSSBeamEnv(gym.Env):
 
         self.norm = {"mass": 4_000.0, "cost": 8_000.0, "co2": 10_000.0, "util": 1.5}
         self.max_steps = max_steps
+        self.step_scale_horizon = step_scale_horizon if step_scale_horizon is not None else max_steps
+        assert economy_reward_mode in ("linear", "log_relative")
+        self.economy_reward_mode = economy_reward_mode
         self.grade_softmax_temperature = grade_softmax_temperature
         self.curr_step = 0
         self.success_counter = 0
+        self._last_step_scale = 1.0  # overwritten every _update_design() call; see info["step_scale"]
 
         self.memory: list = []
         self.max_memory = 200
@@ -288,11 +307,18 @@ class HSSBeamEnv(gym.Env):
         coarse-to-fine refinement schedule. For this to be a well-formed
         MDP rather than a POMDP, the policy must be able to observe
         whatever the transition dynamics P(s'|s,a) depend on -- so
-        `episode_progress` (curr_step/max_steps) is included as an
-        explicit observation feature below. Every quantity `_update_design`
-        and `_ec3_analysis` depend on is therefore either part of the
-        observation or a fixed environment constant, which is what makes
-        this a genuine MDP.
+        `episode_progress` (curr_step/step_scale_horizon, clipped to
+        [0, 1]) is included as an explicit observation feature below.
+        This is deliberately keyed on `step_scale_horizon`, NOT
+        `max_steps` -- `step_scale_horizon` is what `_update_design`'s
+        `step_scale` actually depends on, and the two are no longer
+        necessarily equal (see `__init__`'s docstring on
+        `step_scale_horizon`). Keying this on the wrong one would make the
+        observation misrepresent the actual transition dynamics, silently
+        turning this back into a POMDP even though a progress feature is
+        present. Every quantity `_update_design` and `_ec3_analysis`
+        depend on is therefore either part of the observation or a fixed
+        environment constant, which is what makes this a genuine MDP.
         """
         eps = self.epsilon
         section_flag = 0.0 if self.section_type == "rolled" else 1.0
@@ -330,7 +356,7 @@ class HSSBeamEnv(gym.Env):
             np.clip((util_delta + 1.0) / 2.0, 0.0, 1.0),
             np.clip((mass_delta / 250.0 + 1.0) / 2.0, 0.0, 1.0),
             Med_norm,
-            np.clip(self.curr_step / self.max_steps, 0.0, 1.0),  # episode_progress -- see docstring above
+            np.clip(self.curr_step / self.step_scale_horizon, 0.0, 1.0),  # episode_progress -- see docstring above
         ], dtype=np.float32)
 
     # ================================================================
@@ -381,6 +407,8 @@ class HSSBeamEnv(gym.Env):
             "constraint_violations": violations,
             "feasible": feasible,           # <-- CORRECT definition: util<=1.0
             "in_target_band": in_target_band,  # <-- training-termination signal only
+            "step_scale": self._last_step_scale,  # <-- diagnostic-only, see _update_design
+            "curr_step": self.curr_step,
         }
         return self._get_obs(), float(reward), terminated, truncated, info
 
@@ -388,8 +416,18 @@ class HSSBeamEnv(gym.Env):
     # DESIGN UPDATE
     # ================================================================
     def _update_design(self, action: np.ndarray):
-        progress = self.curr_step / self.max_steps
+        # Keyed on step_scale_horizon (not max_steps) and clipped to [0, 1]:
+        # progress no longer exceeds 1.0 if curr_step runs past
+        # step_scale_horizon (e.g. when max_steps > step_scale_horizon for a
+        # diagnostic extended-episode run), so step_scale freezes at its
+        # terminal value (0.30) instead of being recomputed against a larger
+        # denominator -- which would otherwise hand a policy trained under
+        # one step-size schedule a different (larger, never-trained-under)
+        # step size once curr_step exceeds the horizon it actually trained
+        # with. See __init__'s docstring on step_scale_horizon.
+        progress = np.clip(self.curr_step / self.step_scale_horizon, 0.0, 1.0)
         step_scale = 0.30 + 0.70 * 0.5 * (1.0 + np.cos(np.pi * progress))
+        self._last_step_scale = float(step_scale)  # exposed via info["step_scale"] in step() -- diagnostic-only, does not affect reward/physics/objective.
 
         self.h = float(np.clip(self.h + action[0] * 50.0 * step_scale, *self.design_limits["h"]))
         self.b = float(np.clip(self.b + action[1] * 28.0 * step_scale, *self.design_limits["b"]))
@@ -438,6 +476,60 @@ class HSSBeamEnv(gym.Env):
                   "co2": co2 / self.norm["co2"]}[self.economy_metric]
         return float(value)
 
+    def _economy_reward(self, mass: float, cost: float, co2: float) -> float:
+        """
+        The quantity the three reward functions actually use for their
+        economy term. NOT the same as `_economy()` above, which stays
+        untouched and is only used for the (currently unused) 25-dim
+        pre-episode_progress observation math elsewhere.
+
+        `self.economy_reward_mode` (constructor arg, default "linear",
+        so every existing checkpoint/behaviour is reproduced exactly
+        unless explicitly overridden):
+
+        - "linear" (default): `mass/norm`, `cost/norm`, or `co2/norm`
+          -- i.e. exactly `_economy()`'s existing formula. Its reward
+          GRADIENT w.r.t. the raw economy value is a constant
+          (-1/norm) everywhere, independent of context.
+
+        - "log_relative": `log(raw / norm)`. Gradient w.r.t. the raw
+          value is `1/raw` -- i.e. reward now responds to *relative*
+          (percentage) changes in economy value by a constant amount,
+          regardless of the context's absolute cost/mass/co2 level.
+          Coefficient chosen so this exactly matches "linear"'s
+          gradient magnitude AT the reference scale raw==norm (where
+          both give d(economy_reward)/d(raw) == -1/norm), so switching
+          modes doesn't require re-tuning any of the other reward
+          terms' relative weights.
+
+        MOTIVATION (see project diagnostic history): under "linear",
+        a checkpoint's per-context cost gap correlates strongly
+        (r=-0.78) with how close that context's TRUE OPTIMAL geometry
+        sits to the design-space's own minimum-gauge floor -- i.e. with
+        how LOW its absolute optimal cost is. Tracing a corrected
+        (log_std-annealed) checkpoint directly confirms the mechanism:
+        for a low-cost context, the reward gradient available to keep
+        refining an already-feasible-but-wasteful design is tiny in
+        absolute terms even though the RELATIVE waste is large (e.g.
+        ~0.49 reward units of available gradient for the lowest-demand
+        quartile vs. ~1.27 for the highest, despite the lowest quartile
+        having the WORSE mean relative gap: 49.6% vs. 25.2%). This
+        reward-scale mismatch, not a reward-*shape* issue (already
+        ruled out separately), is a plausible driver of that residual
+        pattern. Does not touch EC3 physics, ground truth, or the
+        objective definition -- `norm` here is the SAME fixed constant
+        already used throughout this file (`self.norm[...]`), not
+        anything derived from the ground-truth optimum (which would be
+        circular).
+        """
+        raw = {"mass": mass, "cost": cost, "co2": co2}[self.economy_metric]
+        norm = self.norm[self.economy_metric]
+        if self.economy_reward_mode == "linear":
+            return float(raw / norm)
+        elif self.economy_reward_mode == "log_relative":
+            return float(np.log(max(raw, 1.0) / norm))
+        raise ValueError(self.economy_reward_mode)
+
     # ================================================================
     # REWARD — dispatches to one of three modes
     # ================================================================
@@ -484,7 +576,7 @@ class HSSBeamEnv(gym.Env):
            `_check_termination`'s docstring for why that's a separate,
            deliberate choice).
         """
-        economy_reward = -10.0 * self._economy(mass, cost, co2)
+        economy_reward = -10.0 * self._economy_reward(mass, cost, co2)
 
         target_util, sigma = 0.96, 0.06
         base_score = 100.0 * np.exp(-((util - target_util) ** 2) / (2.0 * sigma ** 2))
@@ -536,8 +628,7 @@ class HSSBeamEnv(gym.Env):
 
     # ---- ARM C: feasibility-gated + potential-based shaping (Ng et al. 1999) ----
     def _reward_feasibility_gated(self, util, mass, cost, co2, violations):
-        economy_n = self._economy(mass, cost, co2)
-        feasible = all(v <= 1e-3 for v in violations.values())
+        economy_n = self._economy_reward(mass, cost, co2)
 
         target_util = 0.96
         phi_prev = -abs(self.prev_util - target_util)
@@ -545,23 +636,36 @@ class HSSBeamEnv(gym.Env):
         gamma = 0.99
         shaping = gamma * phi_curr - phi_prev   # policy-invariant potential-based shaping
 
-        if feasible:
-            base = -economy_n
-        else:
-            base = -(1.0 + 10.0 * violations["g1_util"]
-                     + 5.0 * violations["g2_class"] + 2.0 * violations["g3_geom"])
+        # CONTINUOUS at the boundary (fix merged in from the separate
+        # reward-landscape audit; see diagnostics/reward_landscape_probe.py):
+        # both branches start from -economy_n, so a design at exactly zero
+        # violation gives the same reward whether approached from the
+        # feasible or infeasible side -- removes the previous fixed +1.0
+        # discontinuity that plausibly compounded the risk-averse-retreat
+        # mechanism this file's log_std_anneal work independently diagnosed
+        # and targeted from the exploration-noise side. This change and
+        # economy_reward_mode/log_std_anneal are independent, non-
+        # overlapping interventions on the same symptom and have not yet
+        # been evaluated in combination -- do that before assuming this
+        # is additive rather than redundant or (less likely) interacting
+        # unfavourably.
+        violation_penalty = (20.0 * violations["g1_util"] ** 1.5
+                              + 5.0 * violations["g2_class"]
+                              + 2.0 * violations["g3_geom"])
+        base = -economy_n - violation_penalty
+        feasible = violation_penalty <= 1e-9
 
         reward = base + 0.5 * shaping
         return reward, {
-            "economy_term": -economy_n if feasible else 0.0,
-            "violation_penalty": base if not feasible else 0.0,
+            "economy_term": -economy_n,
+            "violation_penalty": -violation_penalty,
             "potential_shaping": 0.5 * shaping,
             "feasible": float(feasible),
         }
 
     # ---- ARM B: Lagrangian-constrained (multipliers updated externally) ----
     def _reward_lagrangian(self, util, mass, cost, co2, violations):
-        economy_n = self._economy(mass, cost, co2)
+        economy_n = self._economy_reward(mass, cost, co2)
         penalty = sum(self.lagrange[k] * violations[k] for k in violations)
         reward = -economy_n - penalty
         return reward, {
@@ -582,6 +686,18 @@ class HSSBeamEnv(gym.Env):
         in the module docstring). Evaluation code should always use
         `feasible` (util<=1.0) when reporting results; this method's
         band only controls when an episode stops collecting steps.
+
+        `truncated` is keyed on `self.max_steps` -- the episode-length
+        budget -- which is independent of `self.step_scale_horizon` (the
+        design-update step-size anneal's denominator, see `__init__`'s
+        docstring). A policy can therefore be given more steps than it
+        trained with (larger `max_steps`) while still moving at exactly
+        the step size it trained under for any step beyond
+        `step_scale_horizon` (frozen at `step_scale`'s terminal value),
+        which is what makes it possible to test "does this policy keep
+        improving given more time at its trained pace" without also
+        silently handing it bigger, never-trained-under moves late in the
+        episode.
         """
         if in_target_band:
             self.success_counter += 1

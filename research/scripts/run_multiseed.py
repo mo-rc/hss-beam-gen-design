@@ -57,7 +57,15 @@ def cmd_train(args):
             "--reward_mode", args.reward_mode, "--economy_metric", args.economy_metric,
             "--run_name", run_name, "--seed", str(seed), "--timesteps", str(args.timesteps),
             "--n_envs", str(args.n_envs),
+            "--economy_reward_mode", args.economy_reward_mode,
         ]
+        if args.log_std_anneal:
+            cmd += [
+                "--log_std_anneal",
+                "--log_std_ceiling_start", str(args.log_std_ceiling_start),
+                "--log_std_ceiling_end", str(args.log_std_ceiling_end),
+                "--log_std_anneal_start_frac", str(args.log_std_anneal_start_frac),
+            ]
         subprocess.run(cmd, check=True)
 
 
@@ -151,6 +159,12 @@ def main():
     pt.add_argument("--seeds", type=int, nargs="+", required=True)
     pt.add_argument("--timesteps", type=int, default=1_000_000)
     pt.add_argument("--n_envs", type=int, default=8)
+    pt.add_argument("--economy_reward_mode", choices=["linear", "log_relative"], default="linear",
+                     help="See research/envs/hss_env.py's _economy_reward() docstring.")
+    pt.add_argument("--log_std_anneal", action="store_true")
+    pt.add_argument("--log_std_ceiling_start", type=float, default=8.0)
+    pt.add_argument("--log_std_ceiling_end", type=float, default=1.0)
+    pt.add_argument("--log_std_anneal_start_frac", type=float, default=0.5)
     pt.set_defaults(func=cmd_train)
 
     pe = sub.add_parser("evaluate")

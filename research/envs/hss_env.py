@@ -112,6 +112,8 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 
+from research.envs.manufacturability import effective_section_type
+
 
 REWARD_MODES = ("shaped", "feasibility_gated", "lagrangian")
 ECONOMY_METRICS = ("mass", "cost", "co2")
@@ -151,6 +153,17 @@ class HSSBeamEnv(gym.Env):
         step_scale_horizon: int | None = None,
         economy_reward_mode: str = "linear",
         grade_softmax_temperature: float = 0.15,
+        # --- manufacturability-aware costing (E1) --------------------------
+        # `section_type` is a FREE decision variable, so costing straight off
+        # its label let the optimiser claim the 2.8x-cheaper `rolled`
+        # fabrication factor while using plate-girder proportions. With this
+        # flag True (default) a design is only COSTED as rolled when it lies
+        # inside the hot-rolled envelope (research/envs/manufacturability.py);
+        # anything outside is costed as the welded plate girder it physically
+        # is. Costing/labelling only -- no EC3 mechanics are touched.
+        # Set False to reproduce every pre-correction number exactly.
+        enforce_rolled_manufacturability: bool = True,
+        rolled_limits: dict | None = None,
     ):
         super().__init__()
         assert reward_mode in REWARD_MODES, f"reward_mode must be one of {REWARD_MODES}"
@@ -189,6 +202,8 @@ class HSSBeamEnv(gym.Env):
         assert economy_reward_mode in ("linear", "log_relative")
         self.economy_reward_mode = economy_reward_mode
         self.grade_softmax_temperature = grade_softmax_temperature
+        self.enforce_rolled_manufacturability = enforce_rolled_manufacturability
+        self.rolled_limits = rolled_limits
         self.curr_step = 0
         self.success_counter = 0
         self._last_step_scale = 1.0  # overwritten every _update_design() call; see info["step_scale"]
@@ -818,6 +833,17 @@ class HSSBeamEnv(gym.Env):
     def _calculate_cost_co2(self, mass: float):
         fy_key = int(self.fy)
 
+        # ---- manufacturability-aware fabrication class (E1) --------------
+        # eff_type, not the free `section_type` label, drives the fabrication
+        # factor, the grade multipliers and the >=S550 thickness penalty.
+        if self.enforce_rolled_manufacturability:
+            eff_type = effective_section_type(
+                self.section_type, self.h, self.b, self.tf, self.tw, self.fy,
+                limits=self.rolled_limits,
+            )
+        else:
+            eff_type = self.section_type
+
         material_cost_factor = {355: 1.00, 460: 1.15, 500: 1.28, 550: 1.42, 620: 1.60, 690: 1.85}
         material_co2_factor = {355: 2.30, 460: 2.10, 500: 1.98, 550: 1.88, 620: 1.75, 690: 1.63}
         cost_factor = material_cost_factor.get(fy_key, 1.00)
@@ -826,7 +852,7 @@ class HSSBeamEnv(gym.Env):
         material_cost = mass * cost_factor
         material_co2 = mass * co2_factor
 
-        if self.section_type == "rolled":
+        if eff_type == "rolled":
             fab_factor = 0.15
             fab_co2_factor = 0.08
         else:
@@ -836,7 +862,7 @@ class HSSBeamEnv(gym.Env):
             elif fy_key >= 620: fab_factor *= 1.18; fab_co2_factor *= 1.10
             elif fy_key >= 550: fab_factor *= 1.10; fab_co2_factor *= 1.05
 
-        if self.section_type == "welded" and fy_key >= 550:
+        if eff_type == "welded" and fy_key >= 550:
             thickness_factor = (self.tf + self.tw) / 40.0
             extra_hss_fab_penalty = 1.0 + 0.35 * thickness_factor
         else:
@@ -861,6 +887,8 @@ class HSSBeamEnv(gym.Env):
             "material_co2": material_co2, "fabrication_co2": fabrication_co2,
             "transport_co2": transport_co2, "erection_co2": erection_co2,
             "painting_co2": painting_co2, "processing_co2": processing_co2,
+            "effective_section_type": eff_type,
+            "reclassified": bool(eff_type != self.section_type),
         }
         return total_cost, total_co2, debug
 

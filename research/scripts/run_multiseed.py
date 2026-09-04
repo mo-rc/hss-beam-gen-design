@@ -48,24 +48,56 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def cmd_train(args):
+    """Drives the correct trainer for the requested algorithm.
+
+    Audit fix: this previously hardcoded train.py, so there was no
+    multi-seed path for the off-policy baselines at all -- DDPG/TD3 could
+    only ever be run as one-off single-seed commands, which is why
+    research/models/ddpg_cost exists as a lone unevaluated seed. Every arm
+    in the comparison must be reproducible over the same seed set.
+
+    n_envs is deliberately NOT shared between the two paths. PPO wants many
+    parallel envs (its update count is set by n_steps*n_envs and n_epochs);
+    SB3 off-policy performs `gradient_steps` updates per collect_rollouts
+    call, which advances n_envs timesteps, so raising n_envs there silently
+    reduces learning per environment step. --n_envs applies to PPO,
+    --offpolicy_n_envs to DDPG/TD3/SAC.
+    """
+    off_policy = args.algo in ("ddpg", "td3", "sac")
     for seed in args.seeds:
         run_name = f"{args.run_prefix}_seed{seed}"
-        print(f"\n{'='*70}\nTraining {run_name} (reward_mode={args.reward_mode})\n{'='*70}")
-        cmd = [
-            sys.executable, os.path.join(THIS_DIR, "train.py"),
-            "--env_type", args.env_type,
-            "--reward_mode", args.reward_mode, "--economy_metric", args.economy_metric,
-            "--run_name", run_name, "--seed", str(seed), "--timesteps", str(args.timesteps),
-            "--n_envs", str(args.n_envs),
-            "--economy_reward_mode", args.economy_reward_mode,
-        ]
-        if args.log_std_anneal:
-            cmd += [
-                "--log_std_anneal",
-                "--log_std_ceiling_start", str(args.log_std_ceiling_start),
-                "--log_std_ceiling_end", str(args.log_std_ceiling_end),
-                "--log_std_anneal_start_frac", str(args.log_std_anneal_start_frac),
+        print(f"\n{'='*70}\nTraining {run_name} "
+              f"(algo={args.algo}, reward_mode={args.reward_mode})\n{'='*70}")
+        if off_policy:
+            if args.env_type != "continuous":
+                raise SystemExit(
+                    "The catalog env exposes a MultiDiscrete action space; DDPG/TD3/SAC "
+                    "are continuous-action-only. Use --algo ppo for --env_type catalog.")
+            cmd = [
+                sys.executable, os.path.join(THIS_DIR, "train_baseline_offpolicy.py"),
+                "--algo", args.algo,
+                "--reward_mode", args.reward_mode, "--economy_metric", args.economy_metric,
+                "--run_name", run_name, "--seed", str(seed),
+                "--timesteps", str(args.timesteps),
+                "--n_envs", str(args.offpolicy_n_envs),
+                "--economy_reward_mode", args.economy_reward_mode,
             ]
+        else:
+            cmd = [
+                sys.executable, os.path.join(THIS_DIR, "train.py"),
+                "--env_type", args.env_type,
+                "--reward_mode", args.reward_mode, "--economy_metric", args.economy_metric,
+                "--run_name", run_name, "--seed", str(seed), "--timesteps", str(args.timesteps),
+                "--n_envs", str(args.n_envs),
+                "--economy_reward_mode", args.economy_reward_mode,
+            ]
+            if args.log_std_anneal:
+                cmd += [
+                    "--log_std_anneal",
+                    "--log_std_ceiling_start", str(args.log_std_ceiling_start),
+                    "--log_std_ceiling_end", str(args.log_std_ceiling_end),
+                    "--log_std_anneal_start_frac", str(args.log_std_anneal_start_frac),
+                ]
         subprocess.run(cmd, check=True)
 
 
@@ -158,7 +190,11 @@ def main():
     pt.add_argument("--run_prefix", required=True)
     pt.add_argument("--seeds", type=int, nargs="+", required=True)
     pt.add_argument("--timesteps", type=int, default=1_000_000)
-    pt.add_argument("--n_envs", type=int, default=8)
+    pt.add_argument("--algo", default="ppo", choices=["ppo", "ddpg", "td3", "sac"],
+                     help="Routes to train.py (ppo) or train_baseline_offpolicy.py.")
+    pt.add_argument("--n_envs", type=int, default=8, help="PPO only.")
+    pt.add_argument("--offpolicy_n_envs", type=int, default=1,
+                     help="DDPG/TD3/SAC only. Keep at 1: see train_baseline_offpolicy.py.")
     pt.add_argument("--economy_reward_mode", choices=["linear", "log_relative"], default="linear",
                      help="See research/envs/hss_env.py's _economy_reward() docstring.")
     pt.add_argument("--log_std_anneal", action="store_true")
@@ -173,7 +209,7 @@ def main():
     pe.add_argument("--economy_metric", default="cost")
     pe.add_argument("--env_type", choices=["continuous", "catalog"], default="continuous")
     pe.add_argument("--ground_truth_dir", default="pretrain_data")
-    pe.add_argument("--algo", default="ppo", choices=["ppo", "ddpg", "td3"])
+    pe.add_argument("--algo", default="ppo", choices=["ppo", "ddpg", "td3", "sac"])
     pe.set_defaults(func=cmd_evaluate)
 
     pc = sub.add_parser("compare")

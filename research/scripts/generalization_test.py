@@ -87,7 +87,7 @@ def evaluate_region(policy_fn, env, span_range, load_range, seed, economy_metric
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--model_path", required=True)
-    p.add_argument("--algo", choices=["ppo", "ddpg", "td3"], default="ppo")
+    p.add_argument("--algo", choices=["ppo", "ddpg", "td3", "sac"], default="ppo")
     p.add_argument("--economy_metric", choices=["mass", "cost", "co2"], default="cost")
     p.add_argument("--reward_mode_for_env", default="lagrangian")
     p.add_argument("--seed", type=int, default=0)

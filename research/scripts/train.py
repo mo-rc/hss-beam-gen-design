@@ -47,7 +47,7 @@ from research.algo.log_std_anneal import LogStdAnnealCallback
 
 
 def make_env(env_type, reward_mode, economy_metric, lagrange_init, ltb_factor, sls_factor,
-             economy_reward_mode, seed, rank):
+             economy_reward_mode, seed, rank, max_steps=40, enforce_rolled=True):
     """
     env_type: "continuous" (default, HSSBeamEnv -- 6-dim Box action, softmax-
         snapped grade) or "catalog" (HSSBeamCatalogEnv -- MultiDiscrete action
@@ -61,6 +61,8 @@ def make_env(env_type, reward_mode, economy_metric, lagrange_init, ltb_factor, s
             lagrange_init=lagrange_init,
             ltb_restraint_factor=ltb_factor, sls_load_factor=sls_factor,
             economy_reward_mode=economy_reward_mode,
+            max_steps=max_steps,
+            enforce_rolled_manufacturability=enforce_rolled,
         )
         env = Monitor(env)
         env.reset(seed=seed + rank)
@@ -117,6 +119,15 @@ def main():
     p.add_argument("--economy_reward_mode", choices=["linear", "log_relative"], default="linear",
                     help="See research/envs/hss_env.py's _economy_reward() docstring. Default 'linear' "
                          "reproduces existing behaviour exactly.")
+    # Exposed explicitly (audit fix) so this entry point and
+    # train_baseline_offpolicy.py have an identical environment-shaping
+    # surface rather than matching only by coincidence of class defaults.
+    # Both defaults reproduce every existing run exactly.
+    p.add_argument("--max_steps", type=int, default=40,
+                    help="Episode length budget (env truncation).")
+    p.add_argument("--no_rolled_manufacturability", action="store_true",
+                    help="Disable E1 manufacturability-aware costing (reproduces "
+                         "pre-correction numbers). Leave OFF for all current work.")
     p.add_argument("--out_dir", type=str, default="./research/models")
     args = p.parse_args()
 
@@ -125,8 +136,10 @@ def main():
 
     lagrange_init = dict(g1_util=0.0, g2_class=0.0, g3_geom=0.0)
 
+    enforce_rolled = not args.no_rolled_manufacturability
     env_fns = [make_env(args.env_type, args.reward_mode, args.economy_metric, lagrange_init,
-                         args.ltb_factor, args.sls_factor, args.economy_reward_mode, args.seed, i)
+                         args.ltb_factor, args.sls_factor, args.economy_reward_mode, args.seed, i,
+                         max_steps=args.max_steps, enforce_rolled=enforce_rolled)
                for i in range(args.n_envs)]
     vec_env = SubprocVecEnv(env_fns) if args.n_envs > 1 else DummyVecEnv(env_fns)  # n_envs==1 fix: VecNormalize requires VecEnv semantics, not a raw env
     vec_env = VecNormalize(vec_env, norm_obs=False, norm_reward=True, clip_reward=50.0, gamma=args.gamma)
@@ -172,8 +185,10 @@ def main():
             os.path.join(run_dir, "lagrange_history.csv"), index=False)
 
     import json
+    cfg = vars(args).copy()
+    cfg["enforce_rolled_manufacturability"] = enforce_rolled
     with open(os.path.join(run_dir, "training_config.json"), "w") as f:
-        json.dump(vars(args), f, indent=2)
+        json.dump(cfg, f, indent=2)
 
     print(f"\nDone. Model, VecNormalize stats, config" +
           (", and Lagrange multiplier history" if lagrangian_cb else "") +

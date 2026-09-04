@@ -205,7 +205,7 @@ def eval_one(env, get_design, opt, metric, modes, label, storey=20, seed=0,
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--models", nargs="*", default=[])
-    p.add_argument("--algo", default="ppo")
+    p.add_argument("--algo", default="ppo", choices=["ppo", "ddpg", "td3", "sac"])
     p.add_argument("--economy_metric", default="cost")
     p.add_argument("--reward_mode_for_env", default="feasibility_gated")
     p.add_argument("--env_type", default="continuous", choices=["continuous", "catalog"])
@@ -245,8 +245,32 @@ def main():
     summaries, per_ctx = [], []
     for mp in a.models:
         name = os.path.basename(os.path.dirname(mp))
-        from stable_baselines3 import PPO, DDPG, TD3
-        model = {"ppo": PPO, "ddpg": DDPG, "td3": TD3}[a.algo].load(mp)
+        from stable_baselines3 import PPO, DDPG, TD3, SAC
+        model = {"ppo": PPO, "ddpg": DDPG, "td3": TD3, "sac": SAC}[a.algo].load(mp)
+
+        # This harness deliberately evaluates the BARE policy: it does not
+        # load the run's VecNormalize statistics. That is only sound because
+        # every trainer sets norm_obs=False (reward normalisation is a
+        # training-time device and has no effect on a deterministic rollout).
+        # If someone ever flips norm_obs=True, evaluation would silently feed
+        # the policy unnormalised observations and the reported gap would be
+        # meaningless -- so fail loudly instead.
+        _vn = os.path.join(os.path.dirname(mp), "vecnormalize.pkl")
+        if os.path.exists(_vn):
+            import pickle
+            try:
+                with open(_vn, "rb") as _f:
+                    _stats = pickle.load(_f)
+                if getattr(_stats, "norm_obs", False):
+                    raise SystemExit(
+                        f"ABORT: {name} was trained with VecNormalize(norm_obs=True), but this "
+                        f"evaluation harness feeds the policy raw observations. Either retrain "
+                        f"with norm_obs=False (the project standard) or extend this script to "
+                        f"wrap the eval env in the saved VecNormalize.")
+            except SystemExit:
+                raise
+            except Exception as _e:  # unreadable pickle is not a reason to block eval
+                print(f"  [warn] could not inspect {_vn}: {_e}")
 
         def policy_fn(obs):
             act, _ = model.predict(obs, deterministic=True)

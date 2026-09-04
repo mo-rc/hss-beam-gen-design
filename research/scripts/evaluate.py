@@ -122,11 +122,11 @@ def grade_vs_demand_from_ground_truth(df: pd.DataFrame, economy_metric: str = "c
 
 
 # ================================================================
-# Policy loading (algorithm-agnostic: PPO, DDPG, TD3 all share predict())
+# Policy loading (algorithm-agnostic: PPO, DDPG, TD3, SAC all share predict())
 # ================================================================
 def load_policy(model_path: str, algo: str):
-    from stable_baselines3 import PPO, DDPG, TD3
-    cls = {"ppo": PPO, "ddpg": DDPG, "td3": TD3}[algo]
+    from stable_baselines3 import PPO, DDPG, TD3, SAC
+    cls = {"ppo": PPO, "ddpg": DDPG, "td3": TD3, "sac": SAC}[algo]
     model = cls.load(model_path)
 
     def policy_fn(obs: np.ndarray) -> np.ndarray:
@@ -317,7 +317,7 @@ def summarize(result: pd.DataFrame, wall_time: float, label: str) -> dict:
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--model_path", type=str, default=None)
-    p.add_argument("--algo", choices=["ppo", "ddpg", "td3"], default="ppo")
+    p.add_argument("--algo", choices=["ppo", "ddpg", "td3", "sac"], default="ppo")
     p.add_argument("--env_type", choices=["continuous", "catalog"], default="continuous",
                     help="Must match the env_type the model at --model_path was TRAINED "
                          "with (see train.py --env_type) -- a catalog-trained policy has a "

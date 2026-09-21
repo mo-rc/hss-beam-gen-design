@@ -8,7 +8,7 @@
 
 ## Abstract
 
-This paper presents a comprehensive reinforcement learning (RL) framework for generative design of high-strength steel (HSS) beams with integrated manufacturability constraints. We develop a manufacturability-aware cost model that enforces physical feasibility rules derived from published section catalogs and material standards: only geometrically admissible sections receive economical rolled fabrication cost factors. Against a genetic algorithm (GA) baseline achieving 1.47% mean cost gap over 142 span-load contexts, our Proximal Policy Optimization (PPO) agent trained with feasibility-gated rewards reaches 6.34% mean gap while using 43×· fewer structural evaluations at inference. We demonstrate that a reparameterized design space with feasibility-by-construction enables blind uniform sampling to achieve 5.9% mean gap at matched budget, indicating that action space formulation—not algorithm choice—is the primary bottleneck. A leave-one-out k-nearest-neighbor predictor achieves 2.00% mean / 0.64% median gap with no training. The framework, complete experimental results spanning five experiment phases (E0–E5), and open-source implementation support reproducible research in machine learning for structural engineering.
+This paper presents a comprehensive reinforcement learning (RL) framework for generative design of high-strength steel (HSS) beams with integrated manufacturability constraints. We develop a manufacturability-aware cost model that enforces physical feasibility rules derived from published section catalogs and material standards: only geometrically admissible sections receive economical rolled fabrication cost factors. Against a genetic algorithm (GA) baseline (4,800 evaluations, with the same scale+thin post-hoc operator applied) achieving 1.47% mean cost gap over 142 span-load contexts, our Proximal Policy Optimization (PPO) agent trained with feasibility-gated rewards reaches 6.34% mean gap (single seed, scale+thin applied) while using 43×· fewer structural evaluations at inference. We demonstrate that a reparameterized design space with feasibility-by-construction enables blind uniform sampling to achieve 5.3% mean gap at 4,800 evaluations (the GA's budget, and 43×· PPO's), indicating that action space formulation—not algorithm choice—is the primary bottleneck. A leave-one-out k-nearest-neighbor predictor achieves 2.00% mean / 0.64% median gap with no training. The framework, complete experimental results spanning five experiment phases (E0–E5), and open-source implementation support reproducible research in machine learning for structural engineering.
 
 **Keywords:** Reinforcement learning, generative design, high-strength steel, manufacturability constraints, structural optimization, Proximal Policy Optimization
 
@@ -42,15 +42,15 @@ The paper makes six primary contributions:
 
 - **Manufacturability-aware environment:** We develop an RL environment that computes effective section type based on geometric limits (web slenderness ≤75ε, flange slenderness ≤11ε) and grade availability (fy ≤460 MPa for rolled sections), derived from 132 real British Steel universal beam sections and EN 10025-6 scope [6,7].
 
-- **Corrected ground truth:** We generate optimization references using a genetic algorithm (population 60, 80 generations, 4,800 evaluations per context) under corrected costing over 1,728 span-load contexts, establishing a physically achievable baseline for evaluation.
+- **Corrected ground truth:** We generate optimization references using a genetic algorithm (population 50, 80 generations, 2 restarts) run separately for each of 1,728 (span, load, grade, section-type) combinations under corrected costing, yielding 142 feasible span-load contexts and establishing a physically achievable baseline for evaluation.
 
-- **Post-hoc repair operator:** We develop deterministic repair operators that scale designs to utilisation = 1.0 and thin plates toward EC3 Class 3 limits, reducing PPO mean gap from 30.15% to 8.53% while maintaining 100% feasibility [12].
+- **Post-hoc operators:** We develop two deterministic post-hoc operators of different kinds: `scale`, a constraint-boundary projection that scales designs to utilisation = 1.0, and `scale+thin`, a cost-improving local search that also thins plates toward EC3 Class 1–3 limits. Under corrected costing they reduce the best PPO arm's mean gap from 30.15% (no operator) to 17.33% (`scale`) and 8.53% (`scale+thin`), at 100% feasibility [12].
 
-- **Algorithm comparison:** We evaluate four continuous-control RL algorithms (PPO, SAC, DDPG, TD3) under identical training protocols (1M environment steps, three seeds each) against the genetic algorithm baseline over 142 shared contexts, with paired bootstrap confidence intervals for statistical rigor [13].
+- **Algorithm comparison:** We evaluate four continuous-control RL algorithms (PPO, SAC, DDPG, TD3) under identical training protocols (1M environment steps; PPO with three seeds, DDPG, SAC and TD3 with one seed each) against the genetic algorithm baseline over 142 shared contexts, with paired bootstrap confidence intervals for statistical rigor [13].
 
-- **Configuration ablation:** We identify and resolve a critical configuration error (missing action standard deviation annealing) that understated PPO performance by 5.50 percentage points (95% CI [−8.98, −2.44]), establishing 6.34% as the authoritative PPO result [14].
+- **Configuration ablation:** We identify and resolve a critical configuration error (missing action standard deviation annealing) that understated PPO performance by 5.50 percentage points (95% CI [−8.98, −2.44]; linear economy reward, 6.86%), establishing 6.34% (single seed; the same annealing with the log_relative economy reward, Δ = 6.01 pp) as the authoritative PPO result [14].
 
-- **Formulation diagnosis:** We demonstrate that blind uniform sampling in a reparameterized one-shot design space achieves 5.9% mean gap at matched budget, and a leave-one-out k-NN predictor achieves 2.00% mean / 0.64% median gap with no training, indicating that action space formulation—not algorithm choice—is the binding constraint [11].
+- **Formulation diagnosis:** We demonstrate that blind uniform sampling in a reparameterized one-shot design space achieves 5.3% mean gap at 4,800 EC3 evaluations, and a leave-one-out k-NN predictor achieves 2.00% mean / 0.64% median gap with no training, indicating that action space formulation—not algorithm choice—is the binding constraint [11].
 
 ### 1.4 Paper Organization
 
@@ -90,7 +90,7 @@ We model HSS beam design as a Markov Decision Process (MDP) defined by the tuple
 
 **State space (𝒮):** 26-dimensional continuous vector comprising normalized design variables (height h, flange width b, flange thickness tf, web thickness tw, yield strength fy, section type), Eurocode 3 (EC3) analysis outputs (utilisation ratio, section class, LTB reduction factor), and episode progress [12].
 
-**Action space (𝒜):** 6-dimensional continuous Box(−1, +1) vector interpreted as incremental adjustments to design variables. Actions are scaled by an annealed step size σt that decreases linearly from coarse (σ0 = 0.4) to fine (σT = 0.05) over T = 40 steps [12].
+**Action space (𝒜):** 6-dimensional continuous Box(−1, +1) vector interpreted as incremental adjustments to design variables. The first four components are increments to (h, b, tf, tw) with full-scale magnitudes of 50, 28, 3 and 2.5 mm, multiplied by an annealed step scale that follows a half-cosine from 1.0 to 0.30 over the T = 40-step episode, s_t = 0.30 + 0.70·½[1 + cos(πt/T)] (s_1 = 0.999, s_20 = 0.650, s_40 = 0.300), i.e. from coarse to fine increments (h: 50 → 15 mm; tw: 2.5 → 0.75 mm). The remaining two components select the steel grade (nearest of six grade centres, S355–S690) and the section type (sign) and are not scaled [12].
 
 ### 3.3 Reward Function
 
@@ -128,14 +128,14 @@ A design is rolled-manufacturable if it satisfies all constraints in ROLLED_LIMI
 
 These constraints are derived from analysis of 132 real British Steel universal beam sections and EN 10025-6 scope [6,7].
 
-### 3.5 Repair Operator
+### 3.5 Post-hoc Operators
 
-We develop deterministic post-hoc repair operators [12]:
+We apply two deterministic post-hoc operators, which are different kinds of operation [12]. We call a design "unrepaired" when neither has been applied.
 
-- **Scale:** Bisect to utilisation = 1.0 (capacity constraint satisfied by construction)
-- **Scale+thin:** Reduce plate thicknesses toward EC3 Class 3 limits, then scale to utilisation = 1.0
+- **`scale` (constraint-boundary projection):** Uniformly scale (h, b, tf, tw) and bisect to utilisation = 1.0 (capacity constraint satisfied by construction; section class unchanged). For an infeasible design this restores feasibility; for a feasible, under-utilised design (mean utilisation 0.84) it removes capacity slack and therefore lowers cost.
+- **`scale+thin` (cost-improving local search):** Evaluate the `scale` candidate together with candidates whose plate thicknesses are first reduced toward the EC3 Class 1, 2 and 3 slenderness limits and then scaled to utilisation = 1.0, and return the cheapest feasible one. It changes section class purely to reduce cost; it is not a feasibility repair.
 
-The repair operator reduces PPO mean gap from 30.15% to 8.53% while maintaining 100% feasibility, at cost of 73 additional EC3 evaluations per design [12].
+Under corrected costing (five seeds, best PPO arm) the mean cost gap falls from 30.15% (unrepaired) to 17.33% with `scale` (18 additional EC3 evaluations per design) and to 8.53% with `scale+thin` (73 additional evaluations), at 100% feasibility [12]. Only the `scale` column supports a claim of projecting policy outputs onto the active constraint boundary; the further gain of `scale+thin` is cost improvement.
 
 ### 3.6 Algorithms and Training
 
@@ -169,42 +169,42 @@ All 142 contexts feasible (utilisation ≤1.0 achievable). Six contexts at envel
 
 ### 4.3 Ground Truth Generation
 
-Genetic algorithm generates optima for 1,728 contexts (12 spans × 12 loads × 12 grades) under manufacturability-aware costing:
+Ground-truth references are generated by a genetic algorithm run separately for each (span, load, grade, section type) combination: 12 spans × 12 loads × 6 grades × 2 section types = 1,728 combinations, of which 1,623 are feasible, under manufacturability-aware costing:
 
-- Population: 60, Generations: 80, Evaluations: 4,800 per context
+- Reference GA: population 50, 80 generations, 2 restarts over (h, b, tf, tw) with grade and section type fixed; a span-load context's reference is the cheapest of its 12 (grade, type) results, giving 142 feasible contexts out of the 144 grid points
 - Cost reference inflation: +7.9% mean relative to unconstrained costing
-- Section type: 138/142 optima costed as welded
+- Section type: of the 142 reference optima, 138 are rolled (inside the manufacturability envelope) and 4 are welded
 - Median web slenderness: 72.9ε (active constraint at 75ε limit)
-- GA control achieves 1.47% mean / 0.54% median cost gap (optimizer noise floor ~1.7%) [11]
+- GA baseline: a single GA (population 60 × 80 generations = 4,800 evaluations, all six variables free) reaches a 1.72% mean / 0.73% median gap to the reference with no post-hoc operator, and 1.47% mean / 0.54% median with `scale+thin`. The reference uses roughly 20× more evaluations (about 96,000 per context), so these values are the gap of a fixed-budget GA to a larger-budget search, not a repeat-run noise floor [11]
 
 ### 4.4 Evaluation Protocol
 
-All RL arms evaluated deterministically on 142 shared contexts. Primary metric: mean relative cost gap to ground-truth optimum under scale+thin repair. Statistical analysis uses paired bootstrap (20,000 resamples) for 95% confidence intervals [13,14].
+All RL arms evaluated deterministically on 142 shared contexts. Primary metric: mean relative cost gap to ground-truth optimum with the `scale+thin` operator applied (unrepaired and `scale` results are reported alongside where stated). Statistical analysis uses paired bootstrap (20,000 resamples) for 95% confidence intervals [13,14].
 
 ---
 
 ## 5. Results
 
-### 5.1 Experiment E0: Repair Operator Development
+### 5.1 Experiment E0: Post-hoc Operator Development
 
-The post-hoc repair operator reduces PPO mean gap substantially [12]:
+The post-hoc operators reduce PPO mean gap substantially [12]:
 
-**Table 1: PPO repair operator results (5 seeds, 142 contexts) [12].**
+**Table 1: PPO post-hoc operator results (pre-correction costing and ground truth; 5 seeds, 142 contexts; ± is the 95% t-interval half-width over seeds) [12].**
 
-| Repair mode | Mean gap | Median gap | Feasibility | EC3 evals/design |
+| Post-hoc operator | Mean gap | Median gap | Feasibility | EC3 evals/design |
 |-------------|----------|------------|-------------|------------------|
 | None (raw policy) | 25.51% ± 6.06 | 24.0% | 1.000 | 1 |
 | Scale | 13.88% ± 2.65 | 13.1% | 1.000 | 18 |
 | Scale+thin | **5.79% ± 0.82** | 5.0% | 1.000 | 73 |
 
 Key findings:
-- Repair erases reward engineering differences: advantage between best and worst reward formulations collapses from 45 pp (unrepaired) to 8 pp (repaired) [12]
-- Repair prefers Class 1 stocky sections under corrected costing (variant choice shifts from 2,551 Class 3 to 289 Class 1) [11]
-- Operator is non-degrading: zero regressions on feasible baselines across 3,834 arm-context pairs [12]
+- Post-hoc operators erase reward engineering differences: advantage between best and worst reward formulations collapses from 45 pp (unrepaired) to 8 pp (with `scale+thin`) [12]
+- Under corrected costing the `scale+thin` operator's winning variant shifts from Class 3 thinning (2,551 of 3,834 arm-context pairs, 67%, all arms, pre-correction) to Class 1 stocky sections (289 of 710 pairs, 41%, best arm, corrected) [11]
+- Both operators are non-degrading: zero regressions on feasible baselines across 3,834 arm-context pairs [12]
 
 ### 5.2 Experiment E1: Manufacturability Correction
 
-Manufacturability-aware costing corrects a fundamental defect where 98.8% of "rolled" labeled ground-truth designs violated physical feasibility [11]:
+Manufacturability-aware costing corrects a fundamental defect where 98.8% of rolled-labelled ground-truth rows (827 of 837) lay outside the hot-rolled manufacturability envelope, i.e. would have to be welded plate girders [11]:
 
 **Table 2: Manufacturability correction impact [11].**
 
@@ -212,8 +212,8 @@ Manufacturability-aware costing corrects a fundamental defect where 98.8% of "ro
 |--------|----------------|-----------|--------|
 | Best PPO arm (unrepaired) | 25.51% | **30.15%** | +4.64 pp |
 | Best PPO arm (scale+thin) | 5.79% | **8.53%** | +2.75 pp |
-| GA noise floor | 1.31% | **1.72%** | +0.41 pp |
-| Optima costed as welded | 139/142 (97.9%) | **4/142 (2.8%)** | −95.1 pp |
+| GA reference gap (unrepaired, 4,800 evals) | 1.31% | **1.72%** | +0.41 pp |
+| Optima that must be welded (outside rolled envelope) | 139/142 (97.9%), yet costed as rolled | **4/142 (2.8%)** | −95.1 pp |
 | Median web slenderness | 122.6ε | **72.9ε** | −49.7ε |
 
 Key findings:
@@ -235,8 +235,8 @@ Corrected EC3 evaluation accounting reveals PPO uses 43×· fewer evaluations th
 | Random search (40 evals) | scale+thin | 33.22% | 113 |
 
 Key findings:
-- PPO + scale+thin reaches 8.53% at 112 evals, beating random search at 4,801 evals (23.77%) by 15.2 pp while using 43×· fewer evaluations [12]
-- Amortization threshold: PPO + repair (1.3M training + 112/design) undercuts GA (4,868/design) beyond N ≈ 277 designs [12]
+- PPO + scale+thin reaches 8.53% at 112 evals; random search with the same operator and 4,800 evals reaches 11.60% (3.06 pp worse) while using 43×· more evaluations, and unrepaired random search at 4,801 evals reaches 23.77% [12]
+- Amortization threshold: PPO + scale+thin (1.3M training + 112/design) undercuts GA (4,868/design) beyond N ≈ 277 designs [12]
 
 ### 5.4 Experiment E3: Retraining Under Corrected Costing
 
@@ -260,12 +260,12 @@ Key findings:
 
 Four RL algorithms evaluated against GA baseline [13]:
 
-**Table 5: Algorithm comparison (scale+thin repair, 142 contexts) [13,14].**
+**Table 5: Algorithm comparison (`scale+thin` applied to every arm, 142 contexts; ± is the sample SD over 3 seeds; PPO median is the mean of per-seed medians; DDPG, SAC and TD3 are single-seed) [13,14].**
 
 | Arm | Mean gap | Median gap | Feasibility | EC3 evals/design | Grade match |
 |-----|----------|------------|-------------|------------------|-------------|
-| **GA (reference)** | **1.47** | 0.54 | 1.000 | 4,868 | 0.880 |
-| **PPO (3-seed mean ± SD)** | **10.94 ± 1.28** | 6.41 | 1.000 | 112 | 0.810 |
+| **GA baseline (4,800 evals)** | **1.47** | 0.54 | 1.000 | 4,868 | 0.880 |
+| **PPO (3-seed mean ± SD)** | **10.94 ± 1.28** | 5.66 | 1.000 | 112 | 0.810 |
 | DDPG (seed 42) | 12.65 | 6.64 | 1.000 | 114 | 0.817 |
 | SAC (seed 42) | 22.24 | 20.89 | 1.000 | 84 | 0.310 |
 | TD3 (seed 42) | 48.07 | 40.84 | 1.000 | 93 | 0.211 |
@@ -297,13 +297,13 @@ Key findings:
 
 Blind sampling in reparameterized space and k-NN predictor outperform trained policies [11]:
 
-**Table 7: Reparameterized space uniform sampling (no training) [11].**
+**Table 7: Reparameterized space uniform sampling (no training; corrected costing; all 142 contexts in a single run, seed 0; each proposal is sized to utilisation = 1.0 by bisection, 24 EC3 evaluations per proposal; `research/results/c1_reparam_budget_table.csv`) [11].**
 
-| Proposals | EC3 evals | Mean gap | Median gap |
-|-----------|-----------|----------|------------|
-| 40 | 960 | 14.5% | 8.2% |
-| 200 | 4,800 | **5.9%** | 3.1% |
-| 1,000 | 24,000 | 3.1% | 2.4% |
+| Proposals | EC3 evals | Mean gap | Median gap | p90 | Feasibility |
+|-----------|-----------|----------|------------|-----|-------------|
+| 40 | 960 | 11.7% | 10.6% | 21.7% | 1.000 |
+| 200 | 4,800 | **5.3%** | 4.2% | 12.0% | 1.000 |
+| 1,000 | 24,000 | 2.3% | 1.5% | 5.7% | 1.000 |
 
 **Table 8: k-NN one-shot predictor (leave-one-out, no training) [11].**
 
@@ -314,9 +314,9 @@ Blind sampling in reparameterized space and k-NN predictor outperform trained po
 | 5 | 2.83% | 1.01% | 0.99 |
 
 Key findings:
-- Blind sampling at 4,800 evals (5.9%) beats fully trained PPO (6.34% after 1.3M steps) [11]
-- k-NN k=1 achieves median gap 0.64% (below GA median 0.54%) with no training [11]
-- Interior contexts (136/142): k-NN achieves 0.97% mean (inside GA noise floor); envelope corners (6/142): 37.16% mean (extrapolation failure) [11]
+- Blind sampling at 4,800 evals (5.34% mean) is below every PPO + `scale+thin` result reported here (6.34% single seed at 1M steps; 6.63% at 1.3M steps; 8.53% five-seed transfer mean), but uses 43×· more EC3 evaluations than PPO's 112 [11]
+- k-NN k=1 achieves median gap 0.64% with no training and 24 EC3 evaluations per design: below the unrepaired GA median (0.73%), above the GA + `scale+thin` median (0.54%) [11]
+- Interior contexts (136/142): k-NN achieves 0.97% mean (below the unrepaired GA reference gap of 1.72%); envelope corners (6/142): 37.16% mean (extrapolation failure) [11]
 
 ---
 
@@ -326,7 +326,7 @@ Key findings:
 
 Three lines of evidence converge on MDP formulation as binding constraint:
 
-1. **Blind sampling outperforms trained policy:** Uniform sampling in reparameterized space achieves 5.9% at 4,800 evals, outperforming PPO's 6.34% after 1.3M steps [11,14]
+1. **Blind sampling outperforms trained policy:** Uniform sampling in reparameterized space achieves 5.34% at 4,800 evals, below PPO's 6.34% (seed 43, 1M steps, 112 evals), at 43×· PPO's evaluation budget [11,14]
 
 2. **Algorithm swaps do not close gap:** SAC (maximum entropy), DDPG (deterministic), TD3 (twin-critic) all trail PPO [13]
 
@@ -354,13 +354,13 @@ SAC exposes reward/objective misalignment: auto-tuned entropy collapses (0.967 �
 
 This work establishes several important results for RL in structural design:
 
-1. **Manufacturability-aware costing is essential:** Correction inflates gaps by +2.75 pp for best PPO arm; 98.8% of "rolled" labeled optima violated physical feasibility [11]
+1. **Manufacturability-aware costing is essential:** Correction inflates gaps by +2.75 pp for best PPO arm; 98.8% of rolled-labelled ground-truth rows lay outside the hot-rolled manufacturability envelope [11]
 
-2. **Repair operators provide substantial improvement:** Scale+thin reduces PPO gap from 30.15% to 8.53% while maintaining 100% feasibility, at cost of 73 EC3 evals/design [12]
+2. **Post-hoc operators provide substantial improvement:** `scale` (projection) reduces the best PPO arm's gap from 30.15% to 17.33% and `scale+thin` (cost-improving search) to 8.53%, at 100% feasibility and 18 / 73 additional EC3 evals per design [12]
 
 3. **Configuration matters critically:** Missing log_std annealing understates PPO by 5.50 pp (CI [−8.98, −2.44])—largest single effect in study [14]
 
-4. **Action space formulation is bottleneck:** Blind sampling in reparameterized space (5.9%) and k-NN predictor (2.00% mean / 0.64% median) outperform fully trained incremental-refinement policies [11]
+4. **Action space formulation is bottleneck:** Blind sampling in reparameterized space (5.3% at 4,800 evals) and k-NN predictor (2.00% mean / 0.64% median) outperform fully trained incremental-refinement policies [11]
 
 5. **Statistical rigor is essential:** Paired bootstrap CIs frequently include zero for mean differences; distributional analysis (median, p90, worst-case) often more informative than mean alone [11,13,14]
 
@@ -376,9 +376,9 @@ This work has several important limitations that should be acknowledged:
 
 4. **CPU-bound evaluation:** Wall-clock timing varies 2.57×· between hosts (0.47 s vs. 1.21 s per GA run) due to CPU contention. EC3 evaluation count is portable currency; seconds per design should be reported with host specifications and standard deviations [12].
 
-5. **Repair operator cost not in training:** The repair operator (73 EC3 evals) is applied post-hoc, not during training. The policy itself never experiences the repaired designs, creating train-test mismatch. Integrating repair into training loop is future work [12].
+5. **Post-hoc operator cost not in training:** The operators (18 EC3 evals for `scale`, 73 for `scale+thin`) are applied post-hoc, not during training. The policy itself never experiences the operator-modified designs, creating train-test mismatch. Integrating the operators into the training loop is future work [12].
 
-6. **Amortization threshold:** PPO + repair (1.3M training + 112/design) undercuts GA (4,868/design) only beyond N ≈ 277 designs. For single-beam design, GA remains superior in both quality and total cost [12].
+6. **Amortization threshold:** PPO + `scale+thin` (1.3M training + 112/design) undercuts GA (4,868/design) only beyond N ≈ 277 designs. For single-beam design, GA remains superior in both quality and total cost [12].
 
 7. **Discrete catalog not fully explored:** Catalog arm (19.26% corrected gap) remains behind continuous arm (8.53%) but was not pursued further. Replacing procedurally generated 62-section catalog with 132 real British Steel UB sections is worthwhile future work [11].
 
@@ -390,7 +390,7 @@ Based on findings from this comprehensive experimental program, we identify seve
 
 1. **Multi-seed manufacturability-aware train:** Run 5-seed PPO retrain under corrected costing to establish confidence intervals on 6.34% point estimate. Cost: ~40 CPU-hours for PPO. This would separate seed variance from formulation limits [11,14].
 
-2. **Reformulated action space:** Train PPO/SAC on reparameterized one-shot space (h, b/h, λf, λw, grade, type) with feasibility-by-construction (slenderness capped at Class 3 limits, scaled to utilisation = 1.0). Hypothesis: this closes 4.5 pp gap to GA. This is highest-priority direction based on blind sampling results (5.9% at 4,800 evals) [11].
+2. **Reformulated action space:** Train PPO/SAC on reparameterized one-shot space (h, b/h, λf, λw, grade, type) with feasibility-by-construction (slenderness capped at Class 3 limits, scaled to utilisation = 1.0). Hypothesis: this closes 4.5 pp gap to GA. This is highest-priority direction based on blind sampling results (5.3% at 4,800 evals) [11].
 
 3. **Soften Class-4 cliff:** Replace discontinuous mass = 4000 penalty with continuous penalty increasing as section class exceeds 3. This may enable gradient-based optimizers to approach vertex optimum without retreating. Requires reward function modification and retraining [11,13].
 
@@ -400,7 +400,7 @@ Based on findings from this comprehensive experimental program, we identify seve
 
 6. **Entropy coefficient sweep:** E5 suggests log_std annealing compensates for high ent_coef = 0.03. Sweep ent_coef ∈ {0.0, 0.005, 0.01} without annealing to find optimal value. Cost: ~0.36 CPU-hours for 3 seeds. This would eliminate hand-tuned annealing schedule [14].
 
-7. **Integrate repair into training:** Apply repair operator during training (not just evaluation) to eliminate train-test mismatch. This requires modifying environment to return repaired designs as episode outcomes. Expected to improve policy learning by exposing it to higher-quality designs [12].
+7. **Integrate post-hoc operators into training:** Apply the `scale` and `scale+thin` operators during training (not just evaluation) to eliminate train-test mismatch. This requires modifying environment to return operator-modified designs as episode outcomes. Expected to improve policy learning by exposing it to higher-quality designs [12].
 
 8. **Real section catalog:** Replace procedurally generated 62-section catalog with 132 real British Steel UB sections. This would make catalog arm more practically relevant and test whether coverage mismatch (catalog max d/tw = 59.9ε vs. GA optima median 72.9ε) is fundamental limitation [11].
 
@@ -414,7 +414,7 @@ For practitioners considering RL for structural design, our results suggest:
 
 1. **Start with manufacturability-aware costing:** Idealized cost models that ignore physical feasibility produce misleading results. Integrate manufacturability constraints from the start [11].
 
-2. **Use repair operators:** Deterministic post-hoc operators provide substantial improvement (30.15% → 8.53%) at modest computational cost (73 EC3 evals). They are cheap insurance against policy failures [12].
+2. **Use post-hoc operators:** Deterministic post-hoc operators provide substantial improvement (30.15% → 17.33% with `scale`, → 8.53% with `scale+thin`) at modest computational cost (18 / 73 EC3 evals). `scale` is cheap insurance against policy under-utilisation and infeasibility; `scale+thin` is a cost-improving search, not a repair [12].
 
 3. **Validate configuration carefully:** Missing log_std annealing cost 5.50 pp—larger than any algorithm difference. Monitor action variance, clip fraction, and entropy during training [14].
 
@@ -422,7 +422,7 @@ For practitioners considering RL for structural design, our results suggest:
 
 5. **Report matched-budget comparisons:** PPO's 10.94% looks poor against GA's 1.47%, but PPO uses 43×· fewer EC3 evaluations. Report both absolute quality and inference cost [12,13].
 
-6. **Amortization matters:** For N < 277 designs, GA is cheaper and better. For N > 277, PPO + repair is cheaper and better than random search but still 5×· worse than GA. State amortization threshold clearly [12].
+6. **Amortization matters:** For N < 277 designs, GA is cheaper and better. For N > 277, PPO + `scale+thin` is cheaper and better than random search but still 5×· worse than GA. State amortization threshold clearly [12].
 
 ---
 
@@ -433,9 +433,9 @@ This paper presents a comprehensive experimental program investigating reinforce
 Key findings:
 
 - Manufacturability-aware costing is essential: correction inflates gaps by +2.75 pp for best PPO arm
-- Repair operators provide substantial improvement: 30.15% → 8.53% mean gap with 100% feasibility
+- Post-hoc operators provide substantial improvement: 30.15% → 17.33% (`scale`) → 8.53% (`scale+thin`) mean gap with 100% feasibility
 - Configuration matters critically: missing log_std annealing understates PPO by 5.50 pp
-- Action space formulation is bottleneck: blind sampling (5.9%) and k-NN (2.00% mean / 0.64% median) outperform fully trained policies
+- Action space formulation is bottleneck: blind sampling (5.3% at 4,800 evals) and k-NN (2.00% mean / 0.64% median) outperform fully trained policies
 - GA achieves best absolute quality (1.47% mean gap); PPO achieves best inference efficiency (43×· fewer EC3 evaluations than GA)
 
 We conclude that future RL formulations for structural design should prioritize feasibility-by-construction parameterizations over generic incremental-refinement action spaces. Amortized inference via trained policies or nearest-neighbor lookup remains a valid efficiency claim, but absolute design quality is limited by MDP formulation, not optimizer choice.
@@ -452,7 +452,7 @@ This research was conducted independently without external funding. Compute reso
 
 ## Data Availability
 
-All training logs, evaluation results, and ground-truth datasets are available at [repository URL, anonymized for review]. The HSSBeamEnv environment is implemented in `code/hss_env.py`, manufacturability constraints in `code/manufacturability.py`, repair operator in `code/repair.py`, and evaluation harnesses in `code/evaluate_with_repair.py`.
+All training logs, evaluation results, and ground-truth datasets are available at [repository URL, anonymized for review]. The HSSBeamEnv environment is implemented in `research/envs/hss_env.py`, manufacturability constraints in `research/envs/manufacturability.py`, post-hoc operators (`scale`, `scale+thin`) in `research/algo/repair.py`, and evaluation harnesses in `research/scripts/evaluate_with_repair.py`.
 
 ---
 
@@ -527,25 +527,27 @@ python research/scripts/regenerate_ground_truth.py \
 cp research/pretrain_data/ec3_optimal_designs_mass.csv research/pretrain_data_corrected/
 ```
 
-### A.3 Train PPO (Best Configuration)
+### A.3 Train PPO (E5-A configuration; source of the 6.34% result)
 
 ```bash
 python research/scripts/train.py --env_type continuous \
   --reward_mode feasibility_gated --economy_metric cost \
-  --run_name ppo_seed43 --seed 43 --timesteps 1302528 --n_envs 8 \
+  --run_name e5_ppo_s43_anneal_logrel --seed 43 --timesteps 1000000 --n_envs 8 \
   --log_std_anneal --economy_reward_mode log_relative
 ```
 
-### A.4 Evaluate with Repair
+The 1.3M-step retrain in Table 4 (6.63%, `corrcost_gated_merged_seed43`) uses the same flags with `--timesteps 1300000` (rounded up to 1,302,528 by the rollout size).
+
+### A.4 Evaluate with the `scale+thin` operator
 
 ```bash
 python research/scripts/evaluate_with_repair.py \
-  --models research/models/ppo_seed43/checkpoint_1302528_steps.zip \
+  --models research/models/e5_ppo_s43_anneal_logrel/checkpoint_1000000_steps.zip \
   --algo ppo --economy_metric cost \
   --reward_mode_for_env feasibility_gated \
   --ground_truth_dir research/pretrain_data_corrected \
-  --modes none scale+thin --n_contexts 142 --seed 0 \
-  --out_prefix results/ppo_seed43
+  --modes none scale scale+thin --n_contexts 142 --seed 0 \
+  --out_prefix research/results/e5_ppo_s43_anneal_logrel_curve_1000000
 ```
 
 ### A.5 Statistical Analysis
@@ -583,7 +585,8 @@ print(f"Delta mean: {np.mean(gap_a - gap_b):.2f} pp, 95% CI: [{ci.confidence_int
 | λf, λw | Normalized flange and web slenderness (EC3 Table 5.2) |
 | util | Utilisation ratio (demand/capacity) |
 | ROLLED_LIMITS | Manufacturability constraint thresholds |
-| scale+thin | Repair operator variant (scale to util=1.0, thin to Class 3 limits) |
+| scale | Constraint-boundary projection (uniform scaling to util = 1.0) |
+| scale+thin | Cost-improving local search (thin plates toward Class 1–3 limits, then scale to util = 1.0) |
 | EC3 | Eurocode 3: Design of steel structures |
 | GA | Genetic algorithm |
 | PPO | Proximal Policy Optimization |

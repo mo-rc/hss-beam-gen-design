@@ -1,8 +1,32 @@
 """
 research/algo/repair.py
 ================================================================
-DETERMINISTIC POST-HOC FEASIBILITY / OPTIMALITY REPAIR OPERATORS
+DETERMINISTIC POST-HOC OPERATORS: A CONSTRAINT-BOUNDARY PROJECTION
+(`scale`) AND A COST-IMPROVING LOCAL SEARCH (`scale+thin`)
 (experiment "E0" from the 2026-09-02 bottleneck diagnosis)
+
+TERMINOLOGY (Comment 1 -- use these terms in every write-up)
+------------------------------------------------------------
+These are two DIFFERENT kinds of operation. Do not call both "repair".
+
+  `scale`       = uniform-scaling CONSTRAINT-BOUNDARY PROJECTION.
+                  For an infeasible input it restores feasibility (grows s).
+                  For a feasible, under-utilised input it removes capacity
+                  slack (shrinks s to util = 1.0), which REDUCES COST -- so
+                  it is only strictly a "feasibility repair" on infeasible
+                  inputs. Never changes section class (c/tf, d/tw invariant).
+
+  `scale+thin`  = COST-IMPROVING LOCAL SEARCH. It evaluates the plain `scale`
+                  candidate plus thinned candidates (plate slenderness pushed
+                  toward Class 1/2/3 limits, then rescaled to util = 1.0) and
+                  returns the cheapest feasible one. Any feasibility recovery
+                  in this mode comes from its embedded `scale` candidate; the
+                  THINNING step changes section class purely to cut cost, so
+                  the mode as a whole must never be described as "repairing"
+                  a design.
+
+Measured decomposition (5 seeds, corrected costing, results/c1_number_ledger.csv):
+unrepaired 30.15% -> `scale` 17.33% -> `scale+thin` 8.53%.
 
 WHY THIS EXISTS
 ---------------

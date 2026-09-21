@@ -1,0 +1,71 @@
+manuscript_location,quantity,quoted,recomputed,status,source,note
+"Abstract, S4.3, T3, T5, Concl.","GA mean gap, scale+thin (corrected GT)",1.47,1.4739,PASS,results/e4_nonrl_baselines_summary.csv,"config = GA(4,800 evals)+scale+thin; NOT the unrepaired GA"
+"S4.3, T5","GA median gap, scale+thin",0.54,0.5396,PASS,results/e4_nonrl_baselines_summary.csv,
+"S4.3, T2 ('noise floor')","GA mean gap, unrepaired (corrected GT)",1.72,1.72,PASS,results/e4_nonrl_baselines_summary.csv,"config = GA(4,800 evals), no operator"
+T2 (pre-correction),"GA mean gap, unrepaired (original GT)",1.31,1.3129,PASS,results/ga_cost_summary.json,config = original costing + original ground truth
+T1,none: mean gap,25.51,25.5117,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,pre-correction costing; 5 seeds
+T1,none: '+-' value,6.06,6.0607,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,IS the 95% t-CI half-width over seeds (T5 uses sample SD instead)
+T1,none: median gap,24.0,23.988,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,mean of per-seed medians
+T1,none: EC3 evals/design (repair part),1.0,1.0,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,
+T1,scale: mean gap,13.88,13.8836,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,pre-correction costing; 5 seeds
+T1,scale: '+-' value,2.65,2.6446,PASS(1u),perplexity_docs/results/e0_repair_gated_merged_summary.csv,IS the 95% t-CI half-width over seeds (T5 uses sample SD instead)
+T1,scale: median gap,13.1,13.177,PASS(1u),perplexity_docs/results/e0_repair_gated_merged_summary.csv,mean of per-seed medians
+T1,scale: EC3 evals/design (repair part),18.0,18.0,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,
+T1,scale+thin: mean gap,5.79,5.7873,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,pre-correction costing; 5 seeds
+T1,scale+thin: '+-' value,0.82,0.8149,PASS(1u),perplexity_docs/results/e0_repair_gated_merged_summary.csv,IS the 95% t-CI half-width over seeds (T5 uses sample SD instead)
+T1,scale+thin: median gap,5.0,5.04,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,mean of per-seed medians
+T1,scale+thin: EC3 evals/design (repair part),73.0,72.65,PASS,perplexity_docs/results/e0_repair_gated_merged_summary.csv,
+"T2, S3.5, S7.1, S7.4","best PPO arm unrepaired, corrected costing",30.15,30.1469,PASS,perplexity_docs/results/corrgt_gated_merged_summary.csv,5-seed transfer
+"T2, S3.5, S7.1, S7.4","best PPO arm scale+thin, corrected costing",8.53,8.5336,PASS,perplexity_docs/results/corrgt_gated_merged_summary.csv,5-seed transfer
+T2,change unrepaired (pp),4.64,4.6352,PASS,perplexity_docs/results/corrgt_gated_merged_summary.csv,
+T2,change scale+thin (pp),2.75,2.7464,PASS,perplexity_docs/results/corrgt_gated_merged_summary.csv,unrounded difference is 2.74
+T2,GA floor change (pp),0.41,0.4071,PASS,ga rows,
+S3.5 (NEW),decomposition of 30.15 -> 8.53,,none 30.15 -> scale 17.33 -> scale+thin 8.53,INFO,perplexity_docs/results/corrgt_gated_merged_summary.csv,scale (projection) accounts for 12.82 pp; thinning for a further 8.79 pp
+T2 / S4.3,original GT: stored label / physically-welded count,139/142,label rolled=142/142; welded-under-rule=139/142; rolled-under-rule=3/142,PASS,research/pretrain_data,139 = designs that would have to be WELDED but were COSTED as rolled
+T2,"median web slenderness d/(tw*eps), original GT",122.6,122.555,PASS,research/pretrain_data,
+T2 / S4.3,corrected GT: stored label / physically-welded count,4/142 (T2) vs 138/142 (S4.3),label rolled=142/142; welded-under-rule=4/142; rolled-under-rule=138/142,PASS,research/pretrain_data_corrected,S4.3's '138/142 costed as welded' is inverted: 138 are rolled
+T2,"median web slenderness d/(tw*eps), corrected GT",72.9,72.924,PASS,research/pretrain_data_corrected,
+T4,transfer unrepaired,23.2,23.2022,PASS,e3_transfer_seed43_summary.csv,
+T4,retrained unrepaired,22.65,22.651,PASS,results/e3_corrcost_retrain_summary.csv,
+T4,transfer scale+thin,7.53,7.5269,PASS,e3_transfer_seed43_summary.csv,
+T4,retrained scale+thin,6.63,6.6313,PASS,results/e3_corrcost_retrain_summary.csv,
+T4,transfer mean utilisation (unrepaired),0.838,0.83775,PASS,e3_transfer_seed43_summary.csv,
+T4,retrained mean utilisation (unrepaired),0.841,0.84104,PASS,results/e3_corrcost_retrain_summary.csv,
+T5,PPO 3-seed mean gap,10.94,10.9392,PASS,results/e4_*_summary.csv,
+T5,PPO 3-seed '+-' (sample SD),1.28,1.2758,PASS,results/e4_*_summary.csv,T5 '+-' is a sample SD; T1 '+-' is a 95% CI
+T5,PPO median gap,6.41,5.6612,FAIL,results/e4_*_summary.csv,UNTRACEABLE: mean of per-seed medians = 5.66; pooled-426 median = 5.42
+T5,DDPG seed 42 mean gap,12.65,12.6461,PASS,e4_ddpg_seed42_summary.csv,
+T5,DDPG seed 42 median gap,6.64,6.6394,PASS,e4_ddpg_seed42_summary.csv,
+T5,SAC seed 42 mean gap,22.24,22.2433,PASS,e4_sac_seed42_summary.csv,
+T5,SAC seed 42 median gap,20.89,20.8892,PASS,e4_sac_seed42_summary.csv,
+T5,TD3 seed 42 mean gap,48.07,48.0669,PASS,e4_td3_seed42_summary.csv,
+T5,TD3 seed 42 median gap,40.84,40.8405,PASS,e4_td3_seed42_summary.csv,
+"T3, T5","random search 4,800 + scale+thin, mean",11.6,11.5958,PASS,results/e4_*_summary.csv,
+T5,"random search 4,800 + scale+thin, median",7.01,7.0053,PASS,results/e4_*_summary.csv,
+T3,"random search 40 + scale+thin, mean",33.22,33.2248,PASS,results/e4_*_summary.csv,
+S5.3 key finding,'beats random search (23.77%) by 15.2 pp',15.2,15.232,PASS,results/e4_*_summary.csv,MIXED CONFIG: 23.77 is UNREPAIRED random search vs PPO+scale+thin; like-for-like (both scale+thin) is 3.06 pp
+S5.3,"unrepaired random search 4,800 mean",23.77,23.7658,PASS,results/e4_*_summary.csv,
+T6,no-anneal (E4 seed 43),12.36,12.3575,PASS,e4_ppo_seed43_summary.csv,
+T6,anneal + linear economy (E5-B),6.86,6.8587,PASS,e5_ppo_s43_anneal_linear_curve_1000000_summary.csv,
+T6,anneal + log_relative (E5-A),6.34,6.3426,PASS,e5_ppo_s43_anneal_logrel_curve_1000000_summary.csv,
+T6,delta E5-B vs none (pp),5.5,5.4988,PASS,e5 + e4,"the 5.50 pp isolates annealing; the headline 6.34 (E5-A) also changes the economy reward, so its delta is 6.01"
+T8,k=1 mean,2.0,2.0044,PASS,e3_knn_oneshot_corrected_summary.csv,
+T8,k=1 median,0.64,0.6358,PASS,e3_knn_oneshot_corrected_summary.csv,
+T8,k=1 feasibility,0.99,0.9859,PASS,e3_knn_oneshot_corrected_summary.csv,
+T8,k=3 mean,2.56,2.56,PASS,e3_knn_oneshot_corrected_summary.csv,
+T8,k=3 median,0.83,0.8256,PASS,e3_knn_oneshot_corrected_summary.csv,
+T8,k=3 feasibility,0.99,0.9859,PASS,e3_knn_oneshot_corrected_summary.csv,
+T8,k=5 mean,2.83,2.83,PASS,e3_knn_oneshot_corrected_summary.csv,
+T8,k=5 median,1.01,1.0056,PASS,e3_knn_oneshot_corrected_summary.csv,
+T8,k=5 feasibility,0.99,0.9859,PASS,e3_knn_oneshot_corrected_summary.csv,
+S5.7 key finding,'k-NN median 0.64% is BELOW GA median 0.54%',claim: 0.64 < 0.54,False,FAIL,e3_knn... vs e4_nonrl...,"FALSE as written. It is below the UNREPAIRED GA median (0.73%) - and the k-NN designs are analytically sized to util=1 (a `scale`-type step), so compare configs explicitly"
+S5.7,k-NN interior (136) / corner (6) mean gap,0.97% / 37.16%,corner(span>=14 & load>=100) n=6: interior 0.97% ; corner 37.16%,INFO,e3_knn_oneshot_corrected_per_context.csv,corner definition not stated in repo; reported for the record
+T7,40 proposals: mean,14.5,14.468,PASS,e3_reparam_probe_costing_ab_n40.csv,"corrected costing, 40 contexts"
+T7,40 proposals: median,8.2,16.134,FAIL,e3_reparam_probe_costing_ab_n40.csv,corrected-costing median = 16.1; original-costing median = 8.5 -> quoted value matches NEITHER
+T7,200 proposals: mean,5.9,5.862,PASS,e3_reparam_probe_costing_ab_n20.csv,"corrected costing, 20 contexts"
+T7,200 proposals: median,3.1,3.992,FAIL,e3_reparam_probe_costing_ab_n20.csv,corrected-costing median = 4.0; original-costing median = 3.0 -> quoted value matches NEITHER
+T7,1000 proposals: mean,3.1,3.093,PASS,e3_reparam_probe_costing_ab_n20.csv,"corrected costing, 20 contexts"
+T7,1000 proposals: median,2.4,2.427,PASS,e3_reparam_probe_costing_ab_n20.csv,corrected costing
+T7 (REPLACEMENT),40 proposals: mean / median / p90 / worst / feas,,11.67% / 10.63% / 21.65% / 37.9% / 1.000,INFO,results/c1_reparam_budget_table.csv,"corrected costing, n=142 contexts, 960 EC3 evals/context, one run"
+T7 (REPLACEMENT),200 proposals: mean / median / p90 / worst / feas,,5.34% / 4.16% / 12.04% / 20.0% / 1.000,INFO,results/c1_reparam_budget_table.csv,"corrected costing, n=142 contexts, 4800 EC3 evals/context, one run"
+T7 (REPLACEMENT),1000 proposals: mean / median / p90 / worst / feas,,2.30% / 1.49% / 5.67% / 12.3% / 1.000,INFO,results/c1_reparam_budget_table.csv,"corrected costing, n=142 contexts, 24000 EC3 evals/context, one run"

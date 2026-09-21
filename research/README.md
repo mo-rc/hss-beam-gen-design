@@ -192,6 +192,57 @@ return_best_feasible=True)` (default), which tracks the best **feasible**
 design the trajectory happened to end on. This means the training-
 termination band's exact width does not bias reported results.
 
+## 6a. Step-size schedule (exact -- cosine, NOT linear)
+
+`HSSBeamEnv._update_design` scales the per-step change of (h, b, tf, tw) by
+
+```
+step_scale(t) = 0.30 + 0.70 * 0.5 * (1 + cos(pi * min(t / H, 1)))      t = 1..max_steps, H = step_scale_horizon (= max_steps = 40)
+delta_h = a0 * 50 mm * step_scale,  delta_b = a1 * 28 mm * step_scale,
+delta_tf = a2 * 3 mm * step_scale,  delta_tw = a3 * 2.5 mm * step_scale        (a_i in [-1, 1])
+```
+
+- Cosine half-period from 1.0 to 0.30; step 1 uses 0.9989 (`curr_step` is
+  incremented before the update), step 20 uses 0.650, step 40 uses 0.300, and
+  it stays at 0.300 for any step beyond H.
+- Full-scale / end-of-episode increments: h 50 -> 15 mm, b 28 -> 8.4 mm,
+  tf 3 -> 0.9 mm, tw 2.5 -> 0.75 mm. Grade and section type are not scaled.
+- All trained models use max_steps = H = 40 (train.py default; no script
+  overrides it).
+- Three unrelated things in this repo are called "linear": the
+  `economy_reward_mode="linear"` reward transform (run names such as
+  `e5_ppo_s43_anneal_linear`), the `log_std` ceiling anneal (linear in
+  log-space, `algo/log_std_anneal.py`), and nothing about the step size.
+
+## 6b. Post-hoc operators: terminology (do not call both "repair")
+
+- `scale` -- uniform-scaling **constraint-boundary projection**. Restores
+  feasibility for infeasible inputs; for feasible, under-utilised inputs it
+  removes capacity slack (util -> 1.0), which lowers cost.
+- `scale+thin` -- **cost-improving local search** (evaluates `scale` plus
+  thinned candidates, keeps the cheapest feasible). Not a feasibility repair.
+- Measured (5 seeds, corrected costing): unrepaired 30.15% -> `scale` 17.33%
+  -> `scale+thin` 8.53% mean cost gap (`results/c1_number_ledger.csv`).
+
+## 6c. What "GA gap" means (four different numbers exist -- always label them)
+
+The reference (ground truth) is a per-(span, load, grade, section type) GA,
+pop 50 x 80 generations x 2 restarts (4 continuous genes), minimised over
+the 12 (grade, type) combinations. The **GA baseline** is one GA, pop 60 x 80
+= 4,800 evaluations, searching all 6 genes at once. Its gap to the reference
+therefore measures "4,800-evaluation GA vs. a reference searched with roughly
+20x more evaluations (12 combinations x 2 restarts x 50 x 80 = 96,000)", and can be negative for individual contexts (37/142).
+
+| Config | Mean / median gap | Source |
+|---|---|---|
+| GA 4,800, no operator, corrected costing + corrected GT | 1.72% / 0.73% | `results/e4_nonrl_baselines_summary.csv` (re-run from scratch, bit-identical) |
+| same GA + `scale+thin`, corrected | 1.47% / 0.54% | same |
+| GA 4,800, no operator, original costing + original GT | 1.31% / 0.81% | `results/ga_cost_summary.json` |
+| ground-truth residual vs ~9x larger GA (n=100) | 0.86-0.89% | README Section 3 (no stored output file) |
+
+Compare like with like: PPO+`scale+thin` against GA+`scale+thin` (1.47%),
+unrepaired against unrepaired (1.72%).
+
 ## 7. Catalog, cost, and CO2 assumptions
 
 **Rolled-section catalog** (`envs/rolled_catalog.py`): procedurally

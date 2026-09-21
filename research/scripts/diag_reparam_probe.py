@@ -142,19 +142,32 @@ def search_reparam(env, span_m, load, budget, rng, metric="cost", n_bisect=18):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--metric", default="cost")
-    p.add_argument("--gt_dir", default="research/pretrain_data")
+    # Costing and ground truth MUST be paired (Comment 1 fix). Previously the
+    # env used the class default (corrected costing) while --gt_dir defaulted
+    # to the ORIGINAL ground truth, silently scoring a corrected-cost search
+    # against an original-cost reference (13.5% instead of 5.9% at 200 proposals).
+    p.add_argument("--costing", choices=["corrected", "original"], default="corrected",
+                   help="corrected: enforce_rolled_manufacturability=True + pretrain_data_corrected; "
+                        "original: enforce_rolled_manufacturability=False + pretrain_data")
+    p.add_argument("--gt_dir", default=None,
+                   help="override the ground-truth dir (only if you know it matches --costing)")
     p.add_argument("--budgets", type=int, nargs="+", default=[10, 20, 40, 100])
     p.add_argument("--raw_budgets", type=int, nargs="+", default=[40, 400, 4000])
     p.add_argument("--n_contexts", type=int, default=142)
     p.add_argument("--seed", type=int, default=0)
     a = p.parse_args()
+    enforce = a.costing == "corrected"
+    if a.gt_dir is None:
+        a.gt_dir = "research/pretrain_data_corrected" if enforce else "research/pretrain_data"
 
     gt = pd.read_csv(os.path.join(a.gt_dir, f"ec3_optimal_designs_{a.metric}.csv"))
     opt = gt.loc[gt.groupby(["span_m", "load_kNm"])[a.metric].idxmin()].reset_index(drop=True)
     if a.n_contexts < len(opt):
         opt = opt.sample(a.n_contexts, random_state=a.seed).reset_index(drop=True)
-    env = HSSBeamEnv(reward_mode="feasibility_gated", economy_metric=a.metric)
+    env = HSSBeamEnv(reward_mode="feasibility_gated", economy_metric=a.metric,
+                     enforce_rolled_manufacturability=enforce)
 
+    print(f"costing = {a.costing}   gt_dir = {a.gt_dir}")
     print(f"n_contexts = {len(opt)}   metric = {a.metric}\n")
     print(f"{'space':<10}{'proposals':>10}{'EC3 evals':>11}{'gap mean':>10}{'median':>9}{'p90':>8}{'worst':>8}{'feas':>7}")
     print("-" * 66)
@@ -168,7 +181,9 @@ def main():
         g = np.array(gaps); f = np.isfinite(g)
         print(f"{'RAW':<10}{bud:>10}{bud:>11}{np.nanmean(g)*100:>9.1f}%{np.nanmedian(g)*100:>8.1f}%"
               f"{np.nanpercentile(g[f],90)*100:>7.1f}%{np.nanmax(g[f])*100:>7.1f}%{f.mean():>7.2f}")
-        out.append(dict(space="raw", proposals=bud, ec3=bud, gap_mean=np.nanmean(g)))
+        out.append(dict(costing=a.costing, space="raw", proposals=bud, ec3=bud, n_contexts=len(opt),
+                        gap_mean=np.nanmean(g), gap_median=np.nanmedian(g),
+                        gap_p90=np.nanpercentile(g[f], 90), gap_worst=np.nanmax(g[f]), feasibility=f.mean()))
     for bud in a.budgets:
         rng = np.random.default_rng(a.seed)
         gaps = []; calls = 0
@@ -179,8 +194,10 @@ def main():
         g = np.array(gaps); f = np.isfinite(g)
         print(f"{'REPARAM':<10}{bud:>10}{calls:>11}{np.nanmean(g)*100:>9.1f}%{np.nanmedian(g)*100:>8.1f}%"
               f"{np.nanpercentile(g[f],90)*100:>7.1f}%{np.nanmax(g[f])*100:>7.1f}%{f.mean():>7.2f}")
-        out.append(dict(space="reparam", proposals=bud, ec3=calls, gap_mean=np.nanmean(g)))
-    pd.DataFrame(out).to_csv(f"research/results/diag_reparam_probe_{a.metric}.csv", index=False)
+        out.append(dict(costing=a.costing, space="reparam", proposals=bud, ec3=calls, n_contexts=len(opt),
+                        gap_mean=np.nanmean(g), gap_median=np.nanmedian(g),
+                        gap_p90=np.nanpercentile(g[f], 90), gap_worst=np.nanmax(g[f]), feasibility=f.mean()))
+    pd.DataFrame(out).to_csv(f"research/results/diag_reparam_probe_{a.metric}_{a.costing}.csv", index=False)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,5 @@
+region,n_seeds,n_points_per_seed,feasible_pct_mean,feasible_pct_std,feasible_pct_min,feasible_pct_max,in_band_pct_mean,in_band_pct_std,mean_util_feasible_mean
+in_distribution,5,100,98.8,0.4472135954999579,98.0,99.0,11.0,2.0,0.7448742314764971
+span_extrapolation,5,100,35.0,2.7386127875258306,31.0,38.0,22.2,5.215361924162119,0.8858659791349943
+load_extrapolation,5,100,73.0,0.0,73.0,73.0,26.2,4.32434966208793,0.848432536833229
+joint_extrapolation,5,100,0.0,0.0,0.0,0.0,0.0,0.0,

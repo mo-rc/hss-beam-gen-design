@@ -1,0 +1,32 @@
+{
+  "cmaes|raw": {
+    "pop_mult": 0.5
+  },
+  "cmaes|reparam": {
+    "pop_mult": 0.5
+  },
+  "de|raw": {
+    "pop_mult": 1.0
+  },
+  "de|reparam": {
+    "pop_mult": 1.0
+  },
+  "ga|raw": {
+    "pop_mult": 1.0
+  },
+  "ga|reparam": {
+    "pop_mult": 0.5
+  },
+  "ms_nm|raw": {
+    "start_evals": 100
+  },
+  "ms_nm|reparam": {
+    "start_evals": 25
+  },
+  "ms_slsqp|raw": {
+    "start_evals": 25
+  },
+  "ms_slsqp|reparam": {
+    "start_evals": 25
+  }
+}

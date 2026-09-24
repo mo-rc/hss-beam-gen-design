@@ -1,0 +1,136 @@
+{
+  "created_utc": "2026-09-24T08:05:20.118379+00:00",
+  "args": {
+    "metric": "cost",
+    "gt_dir": "research/pretrain_data_corrected",
+    "out_dir": "research/results/expA",
+    "tag": "full",
+    "methods": "ga,de,cmaes,ms_nm,ms_slsqp",
+    "spaces": "raw,reparam",
+    "budgets": "25,50,100,400,1600,4800",
+    "n_seeds": 5,
+    "n_contexts": null,
+    "context_seed": 0,
+    "base_seed": 0,
+    "size_tol": 0.003,
+    "size_max": 10,
+    "n_jobs": 4,
+    "hp_json": null,
+    "tune": false,
+    "tune_contexts": 12,
+    "tune_context_seed": 777,
+    "tune_seeds": 2,
+    "tune_base_seed": 1000,
+    "tune_budgets": "100,400,1600",
+    "resume": true,
+    "aggregate_only": false,
+    "skip_gt_check": false
+  },
+  "git_commit": "eca5ca6631aaa052264181d595c6f7f33ac472ed",
+  "python": "3.13.15",
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+  "versions": {
+    "numpy": "2.1.3",
+    "scipy": "1.16.3",
+    "pandas": "2.2.3",
+    "cma": "4.5.0"
+  },
+  "gt_check": {
+    "n_contexts": 142,
+    "max_rel_dev_gt_reeval": 6.661338147750939e-16,
+    "gt_designs_infeasible": 0,
+    "gt_optima_outside_reparam_box": 0
+  },
+  "n_contexts": 142,
+  "hp_table": {
+    "ga|raw": {
+      "pop_mult": 1.0
+    },
+    "ga|reparam": {
+      "pop_mult": 0.5
+    },
+    "de|raw": {
+      "pop_mult": 1.0
+    },
+    "de|reparam": {
+      "pop_mult": 1.0
+    },
+    "cmaes|raw": {
+      "pop_mult": 0.5
+    },
+    "cmaes|reparam": {
+      "pop_mult": 0.5
+    },
+    "ms_nm|raw": {
+      "start_evals": 100
+    },
+    "ms_nm|reparam": {
+      "start_evals": 25
+    },
+    "ms_slsqp|raw": {
+      "start_evals": 25
+    },
+    "ms_slsqp|reparam": {
+      "start_evals": 25
+    }
+  },
+  "hyperparameters": {
+    "ga": {
+      "pop": "clip(round(pop_mult*sqrt(B)),6,200)",
+      "tournament": 3,
+      "blx_alpha": 0.3,
+      "mut_rate": 0.25,
+      "mut_sigma": 0.1,
+      "cat_reset": 0.2,
+      "elitism": 2,
+      "constraint_handling": "Deb rules"
+    },
+    "de": {
+      "strategy": "best1bin",
+      "pop": "6*round(NP/6), NP=clip(round(pop_mult*sqrt(B)),6,200)",
+      "F": "(0.5,1.0)",
+      "CR": 0.9,
+      "init": "latinhypercube",
+      "updating": "immediate",
+      "polish": false
+    },
+    "cmaes": {
+      "sigma0": 0.3,
+      "popsize": "clip(round(pop_mult*sqrt(B)),6,96)",
+      "restarts": "IPOP x2 (cap 128)"
+    },
+    "ms": {
+      "n_starts_target": "clip(B//start_evals,1,64)",
+      "per_start_cap": "ceil(B/n_starts)",
+      "nm": "bounded adaptive Nelder-Mead",
+      "slsqp_fd_eps": {
+        "raw": 0.001,
+        "reparam": 0.02
+      }
+    },
+    "reparam": {
+      "box": {
+        "bh": [
+          0.1,
+          0.8
+        ],
+        "lf": [
+          3.0,
+          14.0
+        ],
+        "lw": [
+          30.0,
+          124.0
+        ]
+      },
+      "size_tol": 0.003,
+      "size_max": 10,
+      "sizing": "safeguarded log-log secant, all evals counted"
+    },
+    "objective": {
+      "scale": 1000.0,
+      "infeasible_base": 100.0,
+      "feasibility_tol": 0.001
+    }
+  }
+}

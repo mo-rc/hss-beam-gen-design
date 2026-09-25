@@ -1,0 +1,29 @@
+{
+  "created_utc": "2026-09-25T04:46:32.535072+00:00",
+  "args": {
+    "metric": "cost",
+    "gt_dir": "research/pretrain_data_ood_span",
+    "region": "span_extrapolation",
+    "labels_csv": "research/results/expA3/expA3_full_labels.csv",
+    "out_dir": "research/results/expA5_ood/span_extrapolation",
+    "tag": "span",
+    "models": "knn,gp,poly3,mlp",
+    "N": 208,
+    "topk": 3,
+    "n_label_sets": 3,
+    "size_tol": 0.003,
+    "size_max": 10,
+    "n_contexts": null,
+    "a2_runs": "research/results/expA5_ood/span_extrapolation/expA2_span_runs.csv",
+    "rl_csv": [
+      "research/results/expA5_ood/span_extrapolation/ppo_ood_span_per_context.csv"
+    ],
+    "rl_label": "ppo_ood_span",
+    "compare_gen_budget": 40
+  },
+  "python": "3.13.15",
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+  "n_ood_contexts": 26,
+  "label_source": "research/results/expA3/expA3_full_labels.csv",
+  "region": "span_extrapolation"
+}

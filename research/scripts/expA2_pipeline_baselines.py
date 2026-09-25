@@ -179,11 +179,16 @@ def load_rl(globs, gt_opt, metric, label):
     files = sorted({f for g in globs for f in glob.glob(g)})
     if not files:
         sys.exit(f"--rl_csv matched no files: {globs}")
+    gt_opt = gt_opt.copy()
+    gt_opt["span_m"] = gt_opt["span_m"].round(6)
+    gt_opt["load_kNm"] = gt_opt["load_kNm"].round(6)
     gt = gt_opt[["span_m", "load_kNm", metric]].rename(columns={metric: "gt_val"})
     out = []
     ci_map = gt_opt.reset_index().set_index(["span_m", "load_kNm"])["index"]
     for f in files:
         d = pd.read_csv(f)
+        d["span_m"] = d["span_m"].round(6)
+        d["load_kNm"] = d["load_kNm"].round(6)
         seed = int(re.search(r"_s(\d+)_", os.path.basename(f)).group(1)) if re.search(r"_s(\d+)_", os.path.basename(f)) else len(out)
         m = d.merge(gt, on=["span_m", "load_kNm"], how="inner")
         assert len(m) == len(d) and abs(m.optimal - m.gt_val).max() < 1e-9, f"GT mismatch in {f}"
@@ -197,8 +202,6 @@ def load_rl(globs, gt_opt, metric, label):
         r["gap"] = np.where(feas, m.achieved / m.gt_val - 1.0, np.nan)
         out.append(r[r["mode"].isin(MODES)])
     return pd.concat(out, ignore_index=True), files
-
-
 # ----------------------------------------------------------------------------
 # Summaries / comparisons
 # ----------------------------------------------------------------------------

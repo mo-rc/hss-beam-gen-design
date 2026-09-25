@@ -1,0 +1,87 @@
+{
+  "created_utc": "2026-09-25T05:40:48.685181+00:00",
+  "args": {
+    "metric": "cost",
+    "gt_dir": "research/pretrain_data_ood_load",
+    "out_dir": "research/results/expA5_ood/load_extrapolation",
+    "tag": "load",
+    "methods": "ga,de,cmaes,rand",
+    "spaces": "raw,reparam",
+    "gen_budgets": "10,25,40,100,400,1600",
+    "n_seeds": 5,
+    "n_contexts": null,
+    "context_seed": 0,
+    "base_seed": 0,
+    "size_tol": 0.003,
+    "size_max": 10,
+    "hp_json": null,
+    "n_jobs": 4,
+    "resume": false,
+    "aggregate_only": false,
+    "rl_csv": [
+      "research/results/expA5_ood/load_extrapolation/ppo_ood_load_per_context.csv"
+    ],
+    "rl_label": "ppo_ood_load",
+    "rl_train_evals": 1000000.0,
+    "match_G": 40,
+    "expA_runs": "research/results/expA/expA_full_runs.csv"
+  },
+  "git_commit": "47d847e16b61e15c6fa53591dacc145641d2fc7a",
+  "python": "3.13.15",
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+  "gt_check": {
+    "n_contexts": 47,
+    "max_rel_dev_gt_reeval": 4.440892098500626e-16,
+    "gt_designs_infeasible": 0,
+    "gt_optima_outside_reparam_box": 0
+  },
+  "versions": {
+    "numpy": "2.1.3",
+    "scipy": "1.16.3",
+    "pandas": "2.2.3",
+    "cma": "4.5.0"
+  },
+  "hp_table": {
+    "ga|raw": {
+      "pop_mult": 1.0
+    },
+    "ga|reparam": {
+      "pop_mult": 0.5
+    },
+    "de|raw": {
+      "pop_mult": 1.0
+    },
+    "de|reparam": {
+      "pop_mult": 1.0
+    },
+    "cmaes|raw": {
+      "pop_mult": 0.5
+    },
+    "cmaes|reparam": {
+      "pop_mult": 0.5
+    },
+    "ms_nm|raw": {
+      "start_evals": 100
+    },
+    "ms_nm|reparam": {
+      "start_evals": 25
+    },
+    "ms_slsqp|raw": {
+      "start_evals": 25
+    },
+    "ms_slsqp|reparam": {
+      "start_evals": 25
+    },
+    "rand|raw": {},
+    "rand|reparam": {}
+  },
+  "operator": {
+    "fn": "research.algo.repair.repair",
+    "modes": [
+      "scale",
+      "scale+thin"
+    ],
+    "storey": 20,
+    "input": "best feasible design else least-violation design"
+  }
+}

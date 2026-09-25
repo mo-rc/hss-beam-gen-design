@@ -1,0 +1,29 @@
+{
+  "created_utc": "2026-09-25T11:57:18.987546+00:00",
+  "args": {
+    "metric": "cost",
+    "gt_dir": "research/pretrain_data_ood_load",
+    "region": "load_extrapolation",
+    "labels_csv": "research/results/expA3/expA3_full_labels.csv",
+    "out_dir": "research/results/expA5_ood/load_extrapolation",
+    "tag": "load",
+    "models": "knn,gp,poly3,mlp",
+    "N": 208,
+    "topk": 3,
+    "n_label_sets": 3,
+    "size_tol": 0.003,
+    "size_max": 10,
+    "n_contexts": null,
+    "a2_runs": "research/results/expA5_ood/load_extrapolation/expA2_load_runs.csv",
+    "rl_csv": [
+      "research/results/expA5_ood/load_extrapolation/ppo_ood_load_per_context.csv"
+    ],
+    "rl_label": "ppo_ood_load",
+    "compare_gen_budget": 40
+  },
+  "python": "3.13.15",
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+  "n_ood_contexts": 47,
+  "label_source": "research/results/expA3/expA3_full_labels.csv",
+  "region": "load_extrapolation"
+}

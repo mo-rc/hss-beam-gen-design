@@ -1,0 +1,21 @@
+{
+  "label": "h1_reparam_ppo_cost_s42",
+  "n_contexts": 142,
+  "feasibility_rate": 1.0,
+  "gap_mean_frac": 0.13368510675313314,
+  "gap_mean_pct": 13.368510675313313,
+  "gap_median_pct": 14.207938790880295,
+  "gap_std_pct": 7.728130092327421,
+  "gap_p90_pct": 21.468629849276873,
+  "gap_p95_pct": 22.94253745535765,
+  "gap_worst_pct": 50.90521306242858,
+  "pct_within_1pct": 0.007042253521126761,
+  "pct_within_5pct": 0.176056338028169,
+  "pct_within_10pct": 0.34507042253521125,
+  "wall_time_s_total": 0.8286676406860352,
+  "wall_time_s_per_context": 0.005835687610465036,
+  "gap_mass_mean_pct": 22.12025098589009,
+  "gap_mass_median_pct": 21.606470560600066,
+  "gap_co2_mean_pct": 50.68726483441958,
+  "gap_co2_median_pct": 51.45623928172598
+}

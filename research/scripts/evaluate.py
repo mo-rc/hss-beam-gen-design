@@ -53,6 +53,7 @@ import pandas as pd
 
 from research.envs.hss_env import HSSBeamEnv
 from research.envs.hss_catalog_env import HSSBeamCatalogEnv
+from research.envs.hss_reparam_env import HSSReparamEnv
 
 
 # ================================================================
@@ -209,7 +210,13 @@ def evaluate_policy_vs_ground_truth(policy_fn, economy_metric: str, ground_truth
     if n_contexts is not None and n_contexts < len(opt):
         opt = opt.sample(n=n_contexts, random_state=seed).reset_index(drop=True)
 
-    cls = HSSBeamCatalogEnv if env_type == "catalog" else HSSBeamEnv
+    cls = {"catalog": HSSBeamCatalogEnv, "reparam": HSSReparamEnv}.get(env_type, HSSBeamEnv)
+    # NOTE: reward_mode_for_env is accepted (inherited constructor arg) but
+    # IGNORED by HSSReparamEnv -- its step() always uses reward = -economy
+    # (or -infeasible_penalty), since it's a one-shot, feasible-by-construction
+    # env with no multi-step Lagrangian/feasibility-gated shaping to select
+    # between. Passed uniformly below only so this call site doesn't need an
+    # env_type branch; it has no effect for env_type="reparam".
     env = cls(reward_mode=reward_mode_for_env, economy_metric=economy_metric)
 
     rows = []
@@ -318,12 +325,14 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--model_path", type=str, default=None)
     p.add_argument("--algo", choices=["ppo", "ddpg", "td3", "sac"], default="ppo")
-    p.add_argument("--env_type", choices=["continuous", "catalog"], default="continuous",
+    p.add_argument("--env_type", choices=["continuous", "catalog", "reparam"], default="continuous",
                     help="Must match the env_type the model at --model_path was TRAINED "
-                         "with (see train.py --env_type) -- a catalog-trained policy has a "
-                         "MultiDiscrete action space and will silently produce garbage "
-                         "actions if evaluated against the continuous HSSBeamEnv, or vice "
-                         "versa. Not auto-detected from the checkpoint; get this right.")
+                         "with (see train.py --env_type, or train_reparam_ppo.py which always "
+                         "trains 'reparam') -- action spaces are not interchangeable across "
+                         "env types and will silently produce garbage actions if mismatched. "
+                         "Not auto-detected from the checkpoint; get this right. Use 'reparam' "
+                         "for models trained with train_reparam_ppo.py (H1 experiment, "
+                         "one-shot reparameterized action space, see hss_reparam_env.py).")
     p.add_argument("--ga_baseline", action="store_true")
     p.add_argument("--economy_metric", choices=["mass", "cost", "co2"], default="cost")
     p.add_argument("--ground_truth_dir", type=str, default="pretrain_data",

@@ -1,0 +1,2 @@
+label,n_contexts,feasibility_rate,gap_mean_frac,gap_mean_pct,gap_median_pct,gap_std_pct,gap_p90_pct,gap_p95_pct,gap_worst_pct,pct_within_1pct,pct_within_5pct,pct_within_10pct,wall_time_s_total,wall_time_s_per_context,gap_mass_mean_pct,gap_mass_median_pct,gap_co2_mean_pct,gap_co2_median_pct
+reparam_es,142,0.971830985915493,0.36070984832122444,36.07098483212244,34.53339843351323,8.549934394814578,48.02240769965471,50.99824407430042,56.22647323703765,0.0,0.0,0.0,0.3354616165161133,0.0023624057501134737,15.245195017753915,15.275099910450043,27.425293336495287,26.699220873204393

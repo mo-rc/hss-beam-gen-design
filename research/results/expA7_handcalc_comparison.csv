@@ -1,0 +1,20 @@
+source,grade,name,mass,cost,feasible
+hand_calc,355,UKB 457x191x74 (rolled),666.0,952.4,
+hand_calc,460,UKB 457x152x67 (rolled),603.0,1070.3,
+hand_calc,550,"welded bf=162,hw=374,tf=15,tw=8",554.7,1432.0,
+hand_calc,690,"welded bf=152,hw=334,tf=15,tw=8",510.9,1623.7,
+ppo_gated_cost_merged_seed42,355,"mode=none, n_ec3=41",815.0,1165.5,True
+ppo_gated_cost_merged_seed42,355,"mode=scale, n_ec3=58",795.1,1137.0,True
+ppo_gated_cost_merged_seed42,355,"mode=scale+thin, n_ec3=113",771.6,1103.4,True
+ppo_gated_cost_merged_seed43,355,"mode=none, n_ec3=41",836.2,1195.7,True
+ppo_gated_cost_merged_seed43,355,"mode=scale, n_ec3=58",771.1,1102.7,True
+ppo_gated_cost_merged_seed43,355,"mode=scale+thin, n_ec3=111",770.5,1101.9,True
+ppo_gated_cost_merged_seed44,355,"mode=none, n_ec3=41",959.8,1372.6,True
+ppo_gated_cost_merged_seed44,355,"mode=scale, n_ec3=58",834.0,1192.6,True
+ppo_gated_cost_merged_seed44,355,"mode=scale+thin, n_ec3=112",798.3,1141.5,True
+ppo_gated_cost_merged_seed45,355,"mode=none, n_ec3=41",882.3,1261.7,True
+ppo_gated_cost_merged_seed45,355,"mode=scale, n_ec3=58",782.4,1118.9,True
+ppo_gated_cost_merged_seed45,355,"mode=scale+thin, n_ec3=111",780.6,1116.3,True
+ppo_gated_cost_merged_seed46,355,"mode=none, n_ec3=41",855.5,1223.3,True
+ppo_gated_cost_merged_seed46,355,"mode=scale, n_ec3=58",848.5,1213.4,True
+ppo_gated_cost_merged_seed46,355,"mode=scale+thin, n_ec3=115",770.7,1102.1,True

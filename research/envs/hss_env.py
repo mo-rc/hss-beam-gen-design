@@ -844,7 +844,7 @@ class HSSBeamEnv(gym.Env):
         else:
             eff_type = self.section_type
 
-        material_cost_factor = {355: 1.00, 460: 1.15, 500: 1.28, 550: 1.42, 620: 1.60, 690: 1.85}
+        material_cost_factor = {355: 1.00, 460: 1.30, 500: 1.38, 550: 1.48, 620: 1.61, 690: 1.75}
         material_co2_factor = {355: 2.30, 460: 2.10, 500: 1.98, 550: 1.88, 620: 1.75, 690: 1.63}
         cost_factor = material_cost_factor.get(fy_key, 1.00)
         co2_factor = material_co2_factor.get(fy_key, 2.30)

@@ -11,8 +11,5 @@ dependencies = []  # pinned in requirements.txt
 [tool.setuptools.packages.find]
 include = ["hssbeamgen*"]
 
-[tool.setuptools.package-data]
-hssbeamgen = ["envs/rolled_catalog.csv"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]

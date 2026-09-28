@@ -1,5 +1,5 @@
 """
-hssbeamgen/algo/repair.py
+hssbeamgen/algo/posthoc_operators.py
 ================================================================
 DETERMINISTIC POST-HOC OPERATORS: A CONSTRAINT-BOUNDARY PROJECTION
 (`scale`) AND A COST-IMPROVING LOCAL SEARCH (`scale+thin`)

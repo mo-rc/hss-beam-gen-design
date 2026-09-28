@@ -1,0 +1,77 @@
+{
+  "input_sha256": {
+    "ec3_optimal_designs_mass.csv": "8cbed09e7cf3a299449490f678680862828da526b5fe659066f8421c46492b89",
+    "ec3_optimal_designs_cost.csv": "1a2d606a722e340563c5781adaa055ed7f96cacc1f9a5b298a21574b82e371be",
+    "ec3_optimal_designs_co2.csv": "2ff5fd1babe00001f50b6e819cabd3a05e14d5e45460a2dfa2d387c85a34d5e3"
+  },
+  "per_objective": {
+    "mass": {
+      "rows_own_search": 470,
+      "rows_pooled": 470,
+      "rows_added": 0,
+      "rows_improved": 177,
+      "row_improvement_max": 0.06378195223337402,
+      "rows_from_other_search": 177,
+      "source_of_foreign_rows": {
+        "cost": 94,
+        "co2": 83
+      },
+      "contexts_feasible_before": 47,
+      "contexts_feasible_after": 47,
+      "contexts_improved": 34,
+      "context_improvement_mean": 0.004871200577492123,
+      "context_improvement_max": 0.049916567609992635,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {
+        "620": 4,
+        "690": 43
+      }
+    },
+    "cost": {
+      "rows_own_search": 470,
+      "rows_pooled": 470,
+      "rows_added": 0,
+      "rows_improved": 193,
+      "row_improvement_max": 0.060395649339111124,
+      "rows_from_other_search": 193,
+      "source_of_foreign_rows": {
+        "co2": 120,
+        "mass": 73
+      },
+      "contexts_feasible_before": 47,
+      "contexts_feasible_after": 47,
+      "contexts_improved": 26,
+      "context_improvement_mean": 0.0016568669208675256,
+      "context_improvement_max": 0.00828972712813636,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {
+        "355": 34,
+        "460": 6,
+        "500": 2,
+        "620": 3,
+        "690": 2
+      }
+    },
+    "co2": {
+      "rows_own_search": 470,
+      "rows_pooled": 470,
+      "rows_added": 0,
+      "rows_improved": 203,
+      "row_improvement_max": 0.055041500291971746,
+      "rows_from_other_search": 203,
+      "source_of_foreign_rows": {
+        "cost": 130,
+        "mass": 73
+      },
+      "contexts_feasible_before": 47,
+      "contexts_feasible_after": 47,
+      "contexts_improved": 33,
+      "context_improvement_mean": 0.006507207575677439,
+      "context_improvement_max": 0.037160584609589264,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {
+        "690": 47
+      }
+    }
+  }
+}

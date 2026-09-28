@@ -1,0 +1,57 @@
+{
+  "input_sha256": {
+    "ec3_optimal_designs_mass.csv": "9b92eb7d1cf82a19241bf2b474644fe4722cdbd037152b294b956f8c3577aea6",
+    "ec3_optimal_designs_cost.csv": "9b92eb7d1cf82a19241bf2b474644fe4722cdbd037152b294b956f8c3577aea6",
+    "ec3_optimal_designs_co2.csv": "9b92eb7d1cf82a19241bf2b474644fe4722cdbd037152b294b956f8c3577aea6"
+  },
+  "per_objective": {
+    "mass": {
+      "rows_own_search": 0,
+      "rows_pooled": 0,
+      "rows_added": 0,
+      "rows_improved": 0,
+      "row_improvement_max": NaN,
+      "rows_from_other_search": 0,
+      "source_of_foreign_rows": {},
+      "contexts_feasible_before": 0,
+      "contexts_feasible_after": 0,
+      "contexts_improved": 0,
+      "context_improvement_mean": NaN,
+      "context_improvement_max": NaN,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {}
+    },
+    "cost": {
+      "rows_own_search": 0,
+      "rows_pooled": 0,
+      "rows_added": 0,
+      "rows_improved": 0,
+      "row_improvement_max": NaN,
+      "rows_from_other_search": 0,
+      "source_of_foreign_rows": {},
+      "contexts_feasible_before": 0,
+      "contexts_feasible_after": 0,
+      "contexts_improved": 0,
+      "context_improvement_mean": NaN,
+      "context_improvement_max": NaN,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {}
+    },
+    "co2": {
+      "rows_own_search": 0,
+      "rows_pooled": 0,
+      "rows_added": 0,
+      "rows_improved": 0,
+      "row_improvement_max": NaN,
+      "rows_from_other_search": 0,
+      "source_of_foreign_rows": {},
+      "contexts_feasible_before": 0,
+      "contexts_feasible_after": 0,
+      "contexts_improved": 0,
+      "context_improvement_mean": NaN,
+      "context_improvement_max": NaN,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {}
+    }
+  }
+}

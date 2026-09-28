@@ -1,0 +1,488 @@
+{
+  "directory": "/content/drive/MyDrive/hss-beam-gen-design/data/ground_truth/ood_load",
+  "n_fail": 0,
+  "n_warn": 2,
+  "summary": {
+    "mass": {
+      "rows": 470,
+      "contexts_feasible": 47,
+      "contexts_in_grid": 64,
+      "optimal_grade_counts": {
+        "620": 5,
+        "690": 42
+      },
+      "optimal_section_type_counts": {
+        "rolled": 47
+      },
+      "infeasible_contexts": [
+        [
+          12.428571428571429,
+          228.57142857142856
+        ],
+        [
+          12.428571428571429,
+          244.28571428571428
+        ],
+        [
+          12.428571428571429,
+          260.0
+        ],
+        [
+          13.714285714285715,
+          181.42857142857142
+        ],
+        [
+          13.714285714285715,
+          197.14285714285714
+        ],
+        [
+          13.714285714285715,
+          212.85714285714286
+        ],
+        [
+          13.714285714285715,
+          228.57142857142856
+        ],
+        [
+          13.714285714285715,
+          244.28571428571428
+        ],
+        [
+          13.714285714285715,
+          260.0
+        ],
+        [
+          15.0,
+          150.0
+        ],
+        [
+          15.0,
+          165.71428571428572
+        ],
+        [
+          15.0,
+          181.42857142857142
+        ],
+        [
+          15.0,
+          197.14285714285714
+        ],
+        [
+          15.0,
+          212.85714285714286
+        ],
+        [
+          15.0,
+          228.57142857142856
+        ],
+        [
+          15.0,
+          244.28571428571428
+        ],
+        [
+          15.0,
+          260.0
+        ]
+      ]
+    },
+    "cost": {
+      "rows": 470,
+      "contexts_feasible": 47,
+      "contexts_in_grid": 64,
+      "optimal_grade_counts": {
+        "355": 34,
+        "460": 6,
+        "500": 2,
+        "620": 3,
+        "690": 2
+      },
+      "optimal_section_type_counts": {
+        "rolled": 47
+      },
+      "infeasible_contexts": [
+        [
+          12.428571428571429,
+          228.57142857142856
+        ],
+        [
+          12.428571428571429,
+          244.28571428571428
+        ],
+        [
+          12.428571428571429,
+          260.0
+        ],
+        [
+          13.714285714285715,
+          181.42857142857142
+        ],
+        [
+          13.714285714285715,
+          197.14285714285714
+        ],
+        [
+          13.714285714285715,
+          212.85714285714286
+        ],
+        [
+          13.714285714285715,
+          228.57142857142856
+        ],
+        [
+          13.714285714285715,
+          244.28571428571428
+        ],
+        [
+          13.714285714285715,
+          260.0
+        ],
+        [
+          15.0,
+          150.0
+        ],
+        [
+          15.0,
+          165.71428571428572
+        ],
+        [
+          15.0,
+          181.42857142857142
+        ],
+        [
+          15.0,
+          197.14285714285714
+        ],
+        [
+          15.0,
+          212.85714285714286
+        ],
+        [
+          15.0,
+          228.57142857142856
+        ],
+        [
+          15.0,
+          244.28571428571428
+        ],
+        [
+          15.0,
+          260.0
+        ]
+      ]
+    },
+    "co2": {
+      "rows": 470,
+      "contexts_feasible": 47,
+      "contexts_in_grid": 64,
+      "optimal_grade_counts": {
+        "690": 47
+      },
+      "optimal_section_type_counts": {
+        "rolled": 45,
+        "welded": 2
+      },
+      "infeasible_contexts": [
+        [
+          12.428571428571429,
+          228.57142857142856
+        ],
+        [
+          12.428571428571429,
+          244.28571428571428
+        ],
+        [
+          12.428571428571429,
+          260.0
+        ],
+        [
+          13.714285714285715,
+          181.42857142857142
+        ],
+        [
+          13.714285714285715,
+          197.14285714285714
+        ],
+        [
+          13.714285714285715,
+          212.85714285714286
+        ],
+        [
+          13.714285714285715,
+          228.57142857142856
+        ],
+        [
+          13.714285714285715,
+          244.28571428571428
+        ],
+        [
+          13.714285714285715,
+          260.0
+        ],
+        [
+          15.0,
+          150.0
+        ],
+        [
+          15.0,
+          165.71428571428572
+        ],
+        [
+          15.0,
+          181.42857142857142
+        ],
+        [
+          15.0,
+          197.14285714285714
+        ],
+        [
+          15.0,
+          212.85714285714286
+        ],
+        [
+          15.0,
+          228.57142857142856
+        ],
+        [
+          15.0,
+          244.28571428571428
+        ],
+        [
+          15.0,
+          260.0
+        ]
+      ]
+    }
+  },
+  "checks": [
+    {
+      "level": "PASS",
+      "name": "meta.json present",
+      "detail": "grid=ood_load commit=88ff5471"
+    },
+    {
+      "level": "PASS",
+      "name": "generated from a clean git tree",
+      "detail": "git_dirty=False"
+    },
+    {
+      "level": "PASS",
+      "name": "envs/hss_env.py unchanged since generation",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "algo/ga_search.py unchanged since generation",
+      "detail": ""
+    },
+    {
+      "level": "INFO",
+      "name": "environment at generation",
+      "detail": "python=3.13.15 numpy=2.3.5 pandas=2.3.3"
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] columns",
+      "detail": "470 rows"
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] no NaN",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] no duplicate keys",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] grades valid",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] section types valid",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] geometry inside design box",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] util <= 1.001",
+      "detail": "max util 1.00100"
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] row count matches meta.json",
+      "detail": "csv=470 meta=470"
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] columns",
+      "detail": "470 rows"
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] no NaN",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] no duplicate keys",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] grades valid",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] section types valid",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] geometry inside design box",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] util <= 1.001",
+      "detail": "max util 1.00100"
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] row count matches meta.json",
+      "detail": "csv=470 meta=470"
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] columns",
+      "detail": "470 rows"
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] no NaN",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] no duplicate keys",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] grades valid",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] section types valid",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] geometry inside design box",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] util <= 1.001",
+      "detail": "max util 1.00100"
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] row count matches meta.json",
+      "detail": "csv=470 meta=470"
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] re-evaluation reproduces stored values",
+      "detail": "200 rows, worst relative deviation 0.00e+00"
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] re-evaluated designs are feasible",
+      "detail": "0/200 infeasible"
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] re-evaluation reproduces stored values",
+      "detail": "200 rows, worst relative deviation 0.00e+00"
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] re-evaluated designs are feasible",
+      "detail": "0/200 infeasible"
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] re-evaluation reproduces stored values",
+      "detail": "200 rows, worst relative deviation 0.00e+00"
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] re-evaluated designs are feasible",
+      "detail": "0/200 infeasible"
+    },
+    {
+      "level": "WARN",
+      "name": "[cost] cost-optimal <= mass-optimal design's cost (tol 2%)",
+      "detail": "16/470 exceed; worst +6.04% (GA search noise if small)"
+    },
+    {
+      "level": "WARN",
+      "name": "[co2] co2-optimal <= mass-optimal design's co2 (tol 2%)",
+      "detail": "18/470 exceed; worst +5.05% (GA search noise if small)"
+    },
+    {
+      "level": "INFO",
+      "name": "[mass] feasible contexts",
+      "detail": "47/64"
+    },
+    {
+      "level": "INFO",
+      "name": "[mass] optimal grade counts",
+      "detail": "{620: 5, 690: 42}"
+    },
+    {
+      "level": "INFO",
+      "name": "[mass] contexts with no feasible design (17)",
+      "detail": "(12.4 m, 229), (12.4 m, 244), (12.4 m, 260), (13.7 m, 181), (13.7 m, 197), (13.7 m, 213), (13.7 m, 229), (13.7 m, 244), (13.7 m, 260), (15.0 m, 150), (15.0 m, 166), (15.0 m, 181), (15.0 m, 197), (15.0 m, 213), (15.0 m, 229), (15.0 m, 244), (15.0 m, 260)"
+    },
+    {
+      "level": "INFO",
+      "name": "[cost] feasible contexts",
+      "detail": "47/64"
+    },
+    {
+      "level": "INFO",
+      "name": "[cost] optimal grade counts",
+      "detail": "{355: 34, 460: 6, 500: 2, 620: 3, 690: 2}"
+    },
+    {
+      "level": "INFO",
+      "name": "[cost] contexts with no feasible design (17)",
+      "detail": "(12.4 m, 229), (12.4 m, 244), (12.4 m, 260), (13.7 m, 181), (13.7 m, 197), (13.7 m, 213), (13.7 m, 229), (13.7 m, 244), (13.7 m, 260), (15.0 m, 150), (15.0 m, 166), (15.0 m, 181), (15.0 m, 197), (15.0 m, 213), (15.0 m, 229), (15.0 m, 244), (15.0 m, 260)"
+    },
+    {
+      "level": "INFO",
+      "name": "[co2] feasible contexts",
+      "detail": "47/64"
+    },
+    {
+      "level": "INFO",
+      "name": "[co2] optimal grade counts",
+      "detail": "{690: 47}"
+    },
+    {
+      "level": "INFO",
+      "name": "[co2] contexts with no feasible design (17)",
+      "detail": "(12.4 m, 229), (12.4 m, 244), (12.4 m, 260), (13.7 m, 181), (13.7 m, 197), (13.7 m, 213), (13.7 m, 229), (13.7 m, 244), (13.7 m, 260), (15.0 m, 150), (15.0 m, 166), (15.0 m, 181), (15.0 m, 197), (15.0 m, 213), (15.0 m, 229), (15.0 m, 244), (15.0 m, 260)"
+    }
+  ]
+}

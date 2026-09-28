@@ -1,0 +1,79 @@
+{
+  "directory": "/content/drive/MyDrive/hss-beam-gen-design/data/ground_truth/ood_joint",
+  "n_fail": 0,
+  "n_warn": 0,
+  "summary": {
+    "mass": {
+      "rows": 0,
+      "contexts_feasible": 0,
+      "contexts_in_grid": 64
+    },
+    "cost": {
+      "rows": 0,
+      "contexts_feasible": 0,
+      "contexts_in_grid": 64
+    },
+    "co2": {
+      "rows": 0,
+      "contexts_feasible": 0,
+      "contexts_in_grid": 64
+    }
+  },
+  "checks": [
+    {
+      "level": "PASS",
+      "name": "meta.json present",
+      "detail": "grid=ood_joint commit=88ff5471"
+    },
+    {
+      "level": "PASS",
+      "name": "generated from a clean git tree",
+      "detail": "git_dirty=False"
+    },
+    {
+      "level": "PASS",
+      "name": "envs/hss_env.py unchanged since generation",
+      "detail": ""
+    },
+    {
+      "level": "PASS",
+      "name": "algo/ga_search.py unchanged since generation",
+      "detail": ""
+    },
+    {
+      "level": "INFO",
+      "name": "environment at generation",
+      "detail": "python=3.13.15 numpy=2.3.5 pandas=2.3.3"
+    },
+    {
+      "level": "PASS",
+      "name": "[mass] columns",
+      "detail": "0 rows"
+    },
+    {
+      "level": "INFO",
+      "name": "[mass] empty file",
+      "detail": "no feasible design on this grid (expected for ood_joint)"
+    },
+    {
+      "level": "PASS",
+      "name": "[cost] columns",
+      "detail": "0 rows"
+    },
+    {
+      "level": "INFO",
+      "name": "[cost] empty file",
+      "detail": "no feasible design on this grid (expected for ood_joint)"
+    },
+    {
+      "level": "PASS",
+      "name": "[co2] columns",
+      "detail": "0 rows"
+    },
+    {
+      "level": "INFO",
+      "name": "[co2] empty file",
+      "detail": "no feasible design on this grid (expected for ood_joint)"
+    }
+  ]
+}

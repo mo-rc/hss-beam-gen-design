@@ -6,7 +6,7 @@ sections (rolled/welded, S355-S690, compact and non-compact).
 Provenance of the pinned numbers
 --------------------------------
 * util, mass, chi_lt, section class, co2 (cases 0-3): unchanged from the original
-  research-branch goldens (pure EC3 physics; not affected by any later fix).
+  original research-branch goldens (pure EC3 physics; not affected by any later fix).
 * cost, cases 1 (S460) and 3 (S690): updated for the 2026-09-26 material-cost-factor
   calibration (S460 1.15 -> 1.30, S690 1.85 -> 1.75; anchored to the supervisor's
   reference data). Case 0/2 (S355, factor 1.00) are unchanged.

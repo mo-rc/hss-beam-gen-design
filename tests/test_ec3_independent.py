@@ -1,5 +1,5 @@
 """
-research/tests/ec3_independent_verification.py
+tests/test_ec3_independent.py
 ================================================================
 Independent re-derivation of EC3 (EN 1993-1-1) member checks, written
 from the specification clauses directly, NOT copy-pasted from
@@ -39,7 +39,7 @@ E = 210_000.0  # MPa
 G = 81_000.0   # MPa
 
 
-def independent_ec3_check(h, b, tf, tw, fy, span_mm, load_kNm_per_m, section_type,
+def independent_ec3_check(h, b, tf, tw, fy, span_mm, load_kN_per_m, section_type,
                             ltb_restraint_factor=0.40, sls_load_factor=0.50):
     """Fresh, from-spec implementation. Returns a dict of everything needed
     to compare against the environment's _ec3_analysis()."""
@@ -109,8 +109,8 @@ def independent_ec3_check(h, b, tf, tw, fy, span_mm, load_kNm_per_m, section_typ
 
     # --- Applied actions, simply supported UDL ---
     L_m = span_mm / 1000.0
-    Ved = load_kNm_per_m * L_m / 2.0
-    Med = load_kNm_per_m * L_m**2 / 8.0
+    Ved = load_kN_per_m * L_m / 2.0
+    Med = load_kN_per_m * L_m**2 / 8.0
 
     # --- Shear-moment interaction (simplified, EN1993-1-1 6.2.8) ---
     shear_ratio = Ved / Vpl_rd
@@ -124,7 +124,7 @@ def independent_ec3_check(h, b, tf, tw, fy, span_mm, load_kNm_per_m, section_typ
     shear_util = Ved / Vpl_rd
 
     # --- Deflection (SLS, elementary beam theory) ---
-    w_sls = load_kNm_per_m * sls_load_factor
+    w_sls = load_kN_per_m * sls_load_factor
     delta = 5 * w_sls * span_mm**4 / (384 * E * Iy)
     delta_limit = span_mm / 250.0
     deflection_util = delta / delta_limit
@@ -140,7 +140,7 @@ def independent_ec3_check(h, b, tf, tw, fy, span_mm, load_kNm_per_m, section_typ
 
 
 TEST_CASES = [
-    # (label, h, b, tf, tw, fy, span_mm, load_kNm_per_m, section_type)
+    # (label, h, b, tf, tw, fy, span_mm, load_kN_per_m, section_type)
     ("Low demand, rolled, S355",      300, 150, 12, 8,  355, 6000,  25, "rolled"),
     ("Medium demand, rolled, S460",   450, 190, 18, 11, 460, 9000,  55, "rolled"),
     ("High demand, welded h/b<=2, S355", 600, 320, 22, 14, 355, 12000, 90, "welded"),

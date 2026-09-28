@@ -150,7 +150,7 @@ def main():
         script="pipeline/01_generate_ground_truth.py", grid=a.grid, grid_definition=g,
         args=vars(a), argv=sys.argv, generated_utc=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         wall_time_min=round((time.time() - t0) / 60, 2),
-        git_commit=_git("rev-parse", "HEAD"), git_dirty=bool(_git("status", "--porcelain")),
+        git_commit=_git("rev-parse", "HEAD"), git_dirty=bool(_git("status", "--porcelain", "--untracked-files=no")),
         sha256=dict(hss_env=_sha256(env_file), ga_search=_sha256(ga_file)),
         python=platform.python_version(), numpy=np.__version__, pandas=pd.__version__,
         load_unit="kN/m (factored UDL); M_Ed = w L^2 / 8", summary=summary,

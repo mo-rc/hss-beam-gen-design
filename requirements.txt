@@ -1,0 +1,12 @@
+# Runtime dependencies (pinned to the environment used for the final results)
+# Python 3.12
+numpy==2.3.5
+pandas==2.3.3
+scipy==1.17.1
+scikit-learn==1.8.0
+cma==4.5.0
+torch==2.5.1          # CPU build: pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+stable-baselines3==2.7.1
+gymnasium==1.2.2
+tensorboard==2.20.0
+matplotlib==3.10.8

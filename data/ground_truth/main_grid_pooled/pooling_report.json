@@ -1,0 +1,80 @@
+{
+  "input_sha256": {
+    "ec3_optimal_designs_mass.csv": "a74b55a39b0acf969a1928814d42d1b1d72a175c979c2d85aa4a2c8bb78b408c",
+    "ec3_optimal_designs_cost.csv": "091712e59f7bf439172d9a93a27b6de6be131b5dbdb46086accd74e1a4b61938",
+    "ec3_optimal_designs_co2.csv": "0af2128f09c1cfbe3ab6445a6f95300818b317dafab410e8114ec033a6102515"
+  },
+  "per_objective": {
+    "mass": {
+      "rows_own_search": 1623,
+      "rows_pooled": 1623,
+      "rows_added": 0,
+      "rows_improved": 563,
+      "row_improvement_max": 0.09447868104967916,
+      "rows_from_other_search": 563,
+      "source_of_foreign_rows": {
+        "cost": 285,
+        "co2": 278
+      },
+      "contexts_feasible_before": 142,
+      "contexts_feasible_after": 142,
+      "contexts_improved": 78,
+      "context_improvement_mean": 0.003216628149313065,
+      "context_improvement_max": 0.02679326100182844,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {
+        "460": 12,
+        "500": 17,
+        "550": 25,
+        "620": 13,
+        "690": 75
+      }
+    },
+    "cost": {
+      "rows_own_search": 1623,
+      "rows_pooled": 1623,
+      "rows_added": 0,
+      "rows_improved": 669,
+      "row_improvement_max": 0.06946890777179648,
+      "rows_from_other_search": 669,
+      "source_of_foreign_rows": {
+        "co2": 387,
+        "mass": 282
+      },
+      "contexts_feasible_before": 142,
+      "contexts_feasible_after": 142,
+      "contexts_improved": 72,
+      "context_improvement_mean": 0.004129359857015144,
+      "context_improvement_max": 0.06946890777179648,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {
+        "355": 134,
+        "460": 5,
+        "500": 1,
+        "620": 1,
+        "690": 1
+      }
+    },
+    "co2": {
+      "rows_own_search": 1623,
+      "rows_pooled": 1623,
+      "rows_added": 0,
+      "rows_improved": 704,
+      "row_improvement_max": 0.14500521168829006,
+      "rows_from_other_search": 704,
+      "source_of_foreign_rows": {
+        "cost": 399,
+        "mass": 305
+      },
+      "contexts_feasible_before": 142,
+      "contexts_feasible_after": 142,
+      "contexts_improved": 99,
+      "context_improvement_mean": 0.004304184373638999,
+      "context_improvement_max": 0.03547459458037072,
+      "max_reevaluation_deviation": 0.0,
+      "optimal_grade_counts": {
+        "690": 142
+      }
+    }
+  }
+}

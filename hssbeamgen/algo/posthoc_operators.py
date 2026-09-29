@@ -76,11 +76,11 @@ THE OPERATORS
 
 NON-DEGRADATION GUARANTEE
 -------------------------
-Every operator returns the ORIGINAL design unless the repaired one is both
+Every operator returns the ORIGINAL design unless the adjusted one is both
 feasible and strictly cheaper on the active economy metric. A reported
-"repaired" number can therefore never be better than the operator's true
-merit, and can never be worse than the unrepaired baseline. `n_ec3` counts
-every EC3 analysis the operator consumed, so the cost of the repair is
+"adjusted" flag can therefore never claim a change that wasn't a genuine
+improvement, and never hides a worse result behind the unadjusted baseline. `n_ec3` counts
+every EC3 analysis the operator consumed, so the cost of applying it is
 reported alongside its benefit instead of being hidden.
 ================================================================
 """
@@ -247,9 +247,9 @@ def uniform_scale(env, span_mm, load, design, metric="cost", storey=20,
     return best, n, s_hi
 
 
-def repair(env, span_mm, load, design, metric="cost", storey=20, mode="scale",
+def apply_operator(env, span_mm, load, design, metric="cost", storey=20, mode="scale",
            n_bisect=16, class_targets=(3, 2, 1)):
-    """Apply a repair operator to one design at one context.
+    """Apply one post-hoc operator (see module docstring) to one design at one context.
 
     mode = "none"        : no-op passthrough (baseline column).
     mode = "scale"       : E0 uniform scaling to utilisation 1.0.
@@ -258,12 +258,13 @@ def repair(env, span_mm, load, design, metric="cost", storey=20, mode="scale",
                            `class_targets` (plus plain scaling) wins.
     mode = "scale+thin_rolled" : as above, but thinning is capped at the
                            ROLLED-MANUFACTURABILITY envelope instead of
-                           the EC3 class limits, so the repaired design
+                           the EC3 class limits, so the adjusted design
                            remains a section a mill could actually roll.
 
     Returns a dict with the chosen design's info plus:
       n_ec3      -- EC3 analyses consumed by the operator
-      repaired   -- True if the operator's output was accepted
+      adjusted   -- True if the operator changed the design from its input (False for
+                    "none", or when no candidate beat the baseline)
       scale      -- accepted uniform scale factor (None if not applicable)
       variant    -- which candidate won ("original" / "scale" / "thin_cN")
     """
@@ -271,7 +272,7 @@ def repair(env, span_mm, load, design, metric="cost", storey=20, mode="scale",
                             design["tf"], design["tw"], design["fy"],
                             design["section_type"], storey)
     n_total = 1
-    best = dict(base, n_ec3=n_total, repaired=False, scale=None,
+    best = dict(base, n_ec3=n_total, adjusted=False, scale=None,
                 variant="original", feasible_before=base_ok)
     # Only an already-feasible baseline can be "beaten"; an infeasible one
     # must be replaced by anything feasible at all.
@@ -308,7 +309,7 @@ def repair(env, span_mm, load, design, metric="cost", storey=20, mode="scale",
         n_total += n
         if info is not None and info["feasible"] and info[metric] < best_cost - 1e-9:
             best_cost = info[metric]
-            best = dict(info, n_ec3=0, repaired=True, scale=s,
+            best = dict(info, n_ec3=0, adjusted=True, scale=s,
                         variant=name, feasible_before=base_ok)
     best["n_ec3"] = n_total
     return best

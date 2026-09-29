@@ -17,7 +17,7 @@ ENV_SHAPING_KEYS = ("reward_mode", "economy_metric", "lagrange_init", "ltb_restr
 
 @pytest.mark.parametrize("reward_mode", ["feasibility_gated", "lagrangian", "shaped"])
 def test_env_kwargs_identical_across_algorithms(reward_mode):
-    kwargs_by_algo = {a: env_kwargs(resolve_config("configs/ppo_final.yaml", a), reward_mode)
+    kwargs_by_algo = {a: env_kwargs(resolve_config("configs/rl_final.yaml", a), reward_mode)
                       for a in ALGOS}
     reference = kwargs_by_algo["ppo"]
     assert set(reference) == set(ENV_SHAPING_KEYS)
@@ -27,33 +27,33 @@ def test_env_kwargs_identical_across_algorithms(reward_mode):
 
 def test_offpolicy_gets_single_env_by_default():
     for algo in OFFPOLICY:
-        cfg = resolve_config("configs/ppo_final.yaml", algo)
+        cfg = resolve_config("configs/rl_final.yaml", algo)
         assert cfg["n_envs"] == 1, (
             f"{algo}: n_envs must default to 1 (parallel envs silently divide "
-            f"gradient-updates-per-env-step for off-policy algorithms; see configs/ppo_final.yaml)")
+            f"gradient-updates-per-env-step for off-policy algorithms; see configs/rl_final.yaml)")
 
 
 def test_log_std_anneal_is_ppo_only():
-    assert resolve_config("configs/ppo_final.yaml", "ppo")["log_std_anneal"] is True
+    assert resolve_config("configs/rl_final.yaml", "ppo")["log_std_anneal"] is True
     for algo in OFFPOLICY:
-        assert resolve_config("configs/ppo_final.yaml", algo)["log_std_anneal"] is False
+        assert resolve_config("configs/rl_final.yaml", algo)["log_std_anneal"] is False
     with pytest.raises(ValueError):
-        resolve_config("configs/ppo_final.yaml", "sac", overrides={"log_std_anneal": True})
+        resolve_config("configs/rl_final.yaml", "sac", overrides={"log_std_anneal": True})
 
 
 def test_gradient_steps_defaults_preserve_updates_per_env_step():
     """n_envs * gradient_steps should be the invariant regardless of how many envs are used."""
     for algo in OFFPOLICY:
-        cfg = resolve_config("configs/ppo_final.yaml", algo, overrides={"n_envs": 4})
+        cfg = resolve_config("configs/rl_final.yaml", algo, overrides={"n_envs": 4})
         assert cfg["gradient_steps"] == 4 * cfg["train_freq"]
 
 
 def test_unknown_config_key_rejected():
     with pytest.raises(ValueError):
-        resolve_config("configs/ppo_final.yaml", "ppo", overrides={"totally_made_up_key": 1})
+        resolve_config("configs/rl_final.yaml", "ppo", overrides={"totally_made_up_key": 1})
 
 
 def test_manufacturability_cannot_be_disabled():
     with pytest.raises(ValueError):
-        resolve_config("configs/ppo_final.yaml", "ppo",
+        resolve_config("configs/rl_final.yaml", "ppo",
                        overrides={"enforce_rolled_manufacturability": False})

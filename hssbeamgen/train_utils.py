@@ -1,4 +1,4 @@
-"""Shared training code for pipeline/02_train_ppo.py (PPO, SAC, TD3, DDPG).
+"""Shared training code for pipeline/02_train_agent.py (PPO, SAC, TD3, DDPG).
 
 Everything that must be IDENTICAL across algorithms lives here, once:
 

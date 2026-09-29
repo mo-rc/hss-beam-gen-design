@@ -1,4 +1,4 @@
-# Frozen RL training configuration for the paper (read by pipeline/02_train_ppo.py).
+# Frozen RL training configuration for the paper (read by pipeline/02_train_agent.py).
 #
 # Provenance of every value (audit trail -> docs/archive/full_experimental_history.md):
 #   * "carried over" = the value train.py / train_baseline_offpolicy.py have used unchanged

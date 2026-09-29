@@ -156,7 +156,7 @@ class LagrangianCallback(BaseCallback):
         return pd.DataFrame(self.lambda_history)
 
     # ------------------------------------------------------------------
-    # Resume support (added for pipeline/02_train_ppo.py --resume).
+    # Resume support (added for pipeline/02_train_agent.py --resume).
     # Purely additive: nothing above depends on these two methods.
     # ------------------------------------------------------------------
     def state_dict(self) -> dict:

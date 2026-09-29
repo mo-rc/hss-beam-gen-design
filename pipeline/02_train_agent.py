@@ -1,4 +1,5 @@
-"""Step 2 - train one RL run (PPO / SAC / TD3 / DDPG).
+"""Step 2 - train one RL run (PPO / SAC / TD3 / DDPG). One entrypoint, one CLI, for every
+algorithm -- there is no per-algorithm script to keep in sync.
 
 Merges the old train.py, train_baseline_offpolicy.py, resume_training.py and
 manual_resume_from_checkpoint.py into one entrypoint. run_multiseed.py's seed loop is now a
@@ -6,7 +7,7 @@ shell loop (see pipeline plan sections 2a/2b/2c); its own train/evaluate/compare
 are dropped, since evaluation and statistics now live in steps 03 and 09.
 
 Every setting not passed on the command line comes from --config (default
-configs/ppo_final.yaml), which is the paper's single frozen, cited configuration. Passing a
+configs/rl_final.yaml), which is the paper's single frozen, cited configuration. Passing a
 flag overrides that file for this run only; the file itself is never modified by this script.
 
 Ground truth is NOT read during training (contexts are sampled on the fly each episode);
@@ -18,18 +19,18 @@ what already finished; pass --force to discard it and start over from scratch, o
 continue an interrupted one.
 
 Usage:
-    python pipeline/02_train_ppo.py --algo ppo --reward_mode feasibility_gated --seed 42 \
+    python pipeline/02_train_agent.py --algo ppo --reward_mode feasibility_gated --seed 42 \
         --out runs/2a_reward_mode/feasibility_gated/seed42
-    python pipeline/02_train_ppo.py --algo sac --reward_mode feasibility_gated --seed 42 \
+    python pipeline/02_train_agent.py --algo sac --reward_mode feasibility_gated --seed 42 \
         --out runs/2b_algo/sac/seed42
-    python pipeline/02_train_ppo.py --out runs/.../seed42 --resume   # continue an interrupted run
-    python pipeline/02_train_ppo.py --out runs/.../seed42 --force    # discard and restart
-    python pipeline/02_train_ppo.py --out runs/.../seed42 --set n_epochs=4   # one-off override
-    python pipeline/02_train_ppo.py --algo ppo --reward_mode lagrangian --seed 42 \
+    python pipeline/02_train_agent.py --out runs/.../seed42 --resume   # continue an interrupted run
+    python pipeline/02_train_agent.py --out runs/.../seed42 --force    # discard and restart
+    python pipeline/02_train_agent.py --out runs/.../seed42 --set n_epochs=4   # one-off override
+    python pipeline/02_train_agent.py --algo ppo --reward_mode lagrangian --seed 42 \
         --out /tmp/check --dry_run   # print the resolved config only, no torch/sb3 import
 
 Smoke test (~1-2 min, no GPU needed):
-    python pipeline/02_train_ppo.py --algo ppo --reward_mode feasibility_gated --seed 0 \
+    python pipeline/02_train_agent.py --algo ppo --reward_mode feasibility_gated --seed 0 \
         --timesteps 2048 --n_envs 2 --checkpoint_every 1024 --out /tmp/train_smoke
 """
 import argparse
@@ -73,7 +74,7 @@ def write_meta(run_dir, cfg, args, extra):
     import hssbeamgen
     env_file = os.path.join(os.path.dirname(hssbeamgen.__file__), "envs", "hss_env.py")
     meta = dict(
-        script="pipeline/02_train_ppo.py", args=vars(args), config=cfg_for_json(cfg),
+        script="pipeline/02_train_agent.py", args=vars(args), config=cfg_for_json(cfg),
         generated_utc=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         git_commit=_git("rev-parse", "HEAD"), git_dirty=bool(_git("status", "--porcelain", "--untracked-files=no")),
         sha256=dict(hss_env=_sha256(env_file)), python=platform.python_version(), **extra,
@@ -88,7 +89,7 @@ def main():
     p.add_argument("--algo", choices=("ppo", "sac", "td3", "ddpg"))
     p.add_argument("--reward_mode", choices=REWARD_MODES)
     p.add_argument("--seed", type=int)
-    p.add_argument("--config", default="configs/ppo_final.yaml")
+    p.add_argument("--config", default="configs/rl_final.yaml")
     p.add_argument("--set", nargs="*", default=[], metavar="KEY=VALUE",
                    help="override one frozen-config value for this run only")
     p.add_argument("--resume", action="store_true", help="continue from this --out directory")

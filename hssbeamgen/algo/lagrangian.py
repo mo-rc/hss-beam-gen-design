@@ -154,3 +154,27 @@ class LagrangianCallback(BaseCallback):
     def get_history_dataframe(self):
         import pandas as pd
         return pd.DataFrame(self.lambda_history)
+
+    # ------------------------------------------------------------------
+    # Resume support (added for pipeline/02_train_ppo.py --resume).
+    # Purely additive: nothing above depends on these two methods.
+    # ------------------------------------------------------------------
+    def state_dict(self) -> dict:
+        """JSON-serialisable snapshot of the callback's own dual-ascent bookkeeping.
+
+        The multiplier VALUES live inside each environment (see
+        HSSBeamEnv.get/set_lagrange_multipliers) and are saved/restored separately by the
+        training driver; this covers everything else needed to continue a run seamlessly.
+        """
+        return dict(
+            violation_buffer={k: [float(x) for x in v] for k, v in self._violation_buffer.items()},
+            update_count=int(self._update_count),
+            last_update_at=int(self._last_update_at),
+            lambda_history=list(self.lambda_history),
+        )
+
+    def load_state_dict(self, state: dict) -> None:
+        self._violation_buffer = {k: list(state["violation_buffer"].get(k, [])) for k in self.constraint_names}
+        self._update_count = int(state["update_count"])
+        self._last_update_at = int(state["last_update_at"])
+        self.lambda_history = list(state["lambda_history"])

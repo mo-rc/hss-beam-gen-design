@@ -1,0 +1,64 @@
+# Frozen RL training configuration for the paper (read by pipeline/02_train_ppo.py).
+#
+# Provenance of every value (audit trail -> docs/archive/full_experimental_history.md):
+#   * "carried over" = the value train.py / train_baseline_offpolicy.py have used unchanged
+#     for every run in the project (E4, E5 and earlier). These were NOT tuned here.
+#   * E4 = algorithm comparison; E5 = log_std-anneal ablation (seed 43, 1M steps).
+# Nothing in this file changes EC3 physics or objective definitions.
+
+common:
+  timesteps: 1000000          # carried over
+  gamma: 0.99                 # carried over; identical for PPO and off-policy arms (E4 parity)
+  checkpoint_every: 200000    # carried over: shared step grid for learning curves
+  device: cpu                 # small MLP policies; CPU is the SB3-recommended device for PPO
+  reward_norm_clip: 50.0      # VecNormalize(norm_obs=False, norm_reward=True); carried over
+
+env:
+  economy_metric: cost        # every trained checkpoint so far used cost (audit finding 3)
+  economy_reward_mode: linear # E5, single seed (43), no CI computed: linear 6.86% vs
+                              # log_relative 6.34% gap, feasibility 100% either way. Too small
+                              # a difference on one seed to call it an established effect either
+                              # way (see results_validation_draft.md Sec.5); 'linear' is used
+                              # here because it is what the authoritative e5_ppo_s42..46 batch
+                              # was actually trained with, not because it was shown better.
+  ltb_factor: 0.40            # carried over
+  sls_factor: 0.50            # carried over
+  max_steps: 40               # carried over (episode truncation)
+  enforce_rolled_manufacturability: true   # E1 fix; must stay true (rejected otherwise)
+
+lagrangian:                   # used only when --reward_mode lagrangian; carried over
+  eta_util: 5.0
+  eta_class: 5.0
+  eta_geom: 2.0
+  lambda_max: 200.0
+  budget_util: 0.0
+  update_freq: 8192           # env timesteps between dual-ascent updates (= PPO n_steps*n_envs)
+
+ppo:
+  n_envs: 8                   # carried over
+  lr: 3.0e-4                  # carried over
+  n_steps: 1024               # carried over
+  batch_size: 256             # carried over
+  n_epochs: 8                 # carried over
+  gae_lambda: 0.95            # carried over
+  clip_range: 0.15            # carried over
+  ent_coef: 0.03              # carried over
+  vf_coef: 0.5                # carried over
+  max_grad_norm: 0.5          # carried over
+  net_arch: [256, 256, 128]   # carried over; identical for the off-policy arms
+  log_std_anneal: true        # E5: the anneal explains the whole E3/E4 discrepancy
+                              # (12.36% -> 6.86% gap, paired -5.50 pp, CI [-8.98, -2.44])
+  log_std_ceiling_start: 8.0  # E5
+  log_std_ceiling_end: 1.0    # E5
+  log_std_anneal_start_frac: 0.5   # E5
+
+offpolicy:                    # SAC / TD3 / DDPG (E4 parity fixes)
+  n_envs: 1                   # E4 audit: n_envs>1 silently divides gradient updates per env step
+  train_freq: 1
+  gradient_steps: null        # null -> n_envs * train_freq (updates-per-env-step invariant)
+  lr: null                    # null -> algorithm's own value (1e-3 DDPG/TD3, 3e-4 SAC)
+  buffer_size: 1000000        # SB3 default; E4 audit removed the old 200k cap
+  batch_size: 256
+  learning_starts: 10000
+  action_noise_sigma: 0.2     # DDPG/TD3 only; SAC explores via its entropy term
+  net_arch: [256, 256, 128]

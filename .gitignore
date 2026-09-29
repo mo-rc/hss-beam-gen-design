@@ -15,7 +15,3 @@ venv/
 .idea/
 .vscode/
 .ipynb_checkpoints/
-
-# Large or regenerable artifacts (final ones get archived on Zenodo, not in git)
-runs/
-models/

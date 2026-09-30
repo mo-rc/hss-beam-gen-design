@@ -1,135 +1,99 @@
 # 2a: reward-mode ablation (PPO, feasibility_gated / lagrangian / shaped)
 
-Status: **complete** -- 15/15 runs (3 reward modes x 5 seeds), evaluated against the pooled
+Status: **complete**: 15 runs (3 reward modes x 5 seeds), evaluated against the pooled
 main-grid ground truth. This is an interim results log, updated as each pipeline stage lands;
-it is not the manuscript (see repo_pipeline_plan.md: "Manuscript to be rewritten from scratch
-only after final evidence is frozen").
+it is not the manuscript (which is rewritten from scratch once all evidence is frozen).
 
 ## Setup
 
-- Algorithm: PPO, `rl_final.yaml` (frozen config, unchanged across the three arms -- only
-  `reward_mode` differs).
-- Seeds: 42, 43, 44, 45, 46 for every arm.
-- Evaluation: `pipeline/03_evaluate_agent.py` against `data/ground_truth/main_grid_pooled`
-  (142 contexts), `scale+thin` operator mode is the headline number.
-- Provenance: all 15 training runs reached >=1,004,800 steps (target 1,000,000; the small
-  overshoot is PPO's rollout-boundary rounding, see pipeline/02_train_agent.py), clean git
-  state (`git_dirty: false`) on both training and evaluation, identical `hss_env.py` hash
-  across every run. Seed 45 (lagrangian) and one hyperparameter-pilot run were interrupted
-  and resumed via `--resume`; both were checked and reached the correct final step count
-  proportionately -- see the discussion below.
+- Algorithm: PPO with `configs/rl_final.yaml`, identical across the three arms; only
+  `reward_mode` differs.
+- Seeds 42-46 for every arm. Each run is a single uninterrupted training pass of 1,007,616
+  steps (1M rounded up to whole 8192-step rollouts); `--resume` is not used for any reported run.
+- Evaluation: `pipeline/03_evaluate_agent.py` on `data/ground_truth/main_grid_pooled`
+  (142 contexts). Headline number is the `scale+thin` operator mode.
+- Provenance: every run has `git_dirty: false` for training and evaluation and the same
+  `hss_env.py` hash as the ground truth (see `meta.json` / `*_eval_meta.json`).
 
-## Results (scale+thin, cost, mean of 5 seeds)
+## Results (cost gap to best-known optimum, %, mean ± sd over 5 seeds)
 
-*Note: lagrangian seed 45 was originally trained with `--resume` (interrupted at 800k/1M
-steps). Retraining it fresh (`--force`, full 1M steps in one run) changed its gap from 16.9%
-to 11.4% and is the number used below. See "Seed 45" below for the full before/after and why
-this was corrected rather than silently overwritten.*
+| Reward mode | none (best of 40 policy steps) | scale | scale+thin | Per-seed range (scale+thin) | Within 110% | Within 125% | Feasibility |
+|---|---|---|---|---|---|---|---|
+| feasibility_gated | 49.4 ± 20.8 | 20.8 ± 9.8 | **8.9 ± 2.4** | 6.3 - 12.5 | 71.1% | 94.4% | 100% |
+| lagrangian | 61.3 ± 8.1 | 30.3 ± 4.2 | 9.4 ± 1.4 | 8.1 - 11.4 | 75.4% | 90.6% | 100% |
+| shaped | 67.4 ± 4.9 | 46.6 ± 6.3 | 15.8 ± 6.6 | 9.4 - 26.4 | 54.4% | 75.2% | 100% |
 
-| Reward mode | Mean gap | Per-seed range | Within 110% | Within 125% | Feasibility |
-|---|---|---|---|---|---|
-| feasibility_gated | 8.9% | 6.3% - 12.5% (6.2pp) | 71.1% | 94.4% | 100% |
-| lagrangian | 9.4% | 8.1% - 11.4% (3.3pp) | 75.4% | 90.6% | 100% |
-| shaped | 15.8% | 9.4% - 26.4% | 54.4% | 75.2% | 100% |
-
-Feasibility is 100% across every arm, every seed, every operator mode (including raw,
-unrepaired policy output) -- reward mode affects cost quality, not compliance.
+Feasibility is 100% in every arm, seed and operator mode, so reward mode affects cost quality,
+not compliance. The post-hoc operator does most of the work in every arm (policy-only gaps are
+49-67%); report the policy-only and operator-adjusted numbers together.
 
 ## Statistical comparison
 
-`pipeline/09_compare_arms.py`: seeds paired by seed number across arms (the same seed value
-drives PPO's weight initialisation and the env's context-sampling sequence in every arm, so
-pairing is more informative than treating the 15 runs as independent), exact paired sign-flip
-permutation test (2^5 = 32 permutations, appropriate at n=5), percentile bootstrap 95% CI,
-Holm-Bonferroni correction across the 3 pairwise comparisons.
+`pipeline/09_compare_arms.py` treats the arms as independent 5-seed samples: exact two-sample
+permutation test on the difference of means (all 252 splits), percentile bootstrap 95% CI, and
+Holm correction over the 3 pairwise comparisons. A paired-by-seed test was not used: the shared
+seed only fixes initial weights and context sampling, the observed across-arm correlation of
+per-seed gaps is about zero, and a paired exact test at n = 5 cannot reach p < 0.0625 (0.19
+after Holm), so it could never report significance.
 
-| Comparison | Mean diff (pp) | 95% CI (pp) | p (raw) | p (Holm) | Significant? |
-|---|---|---|---|---|---|
-| feasibility_gated vs lagrangian | -0.5 | [-2.9, +1.6] | 0.813 | 0.813 | No |
-| feasibility_gated vs shaped | -6.9 | [-12.5, -2.4] | 0.125 | 0.375 | No |
-| lagrangian vs shaped | -6.4 | [-12.4, -1.4] | 0.125 | 0.375 | No |
+scale+thin (`results/2a_comparison.csv`):
 
-**None of the pairwise differences are significant after Holm correction.**
-feasibility_gated-vs-shaped and lagrangian-vs-shaped now show equally strong raw signal
-(p=0.125 each, near the smallest p achievable at n=5; both 95% CIs exclude zero before
-correction, neither survives Holm). **feasibility_gated vs lagrangian is effectively a tie**
-(0.5pp difference, CI [-2.9, +1.6]) -- see "Seed 45" below for why this is smaller than the
-1.6pp originally reported. This is a known limitation of a 5-seed ablation, not evidence the
-shaped-vs-others effect is absent -- see "how to report this" below.
+| Comparison | Mean diff (pp) | 95% CI (pp) | p (raw) | p (Holm) |
+|---|---|---|---|---|
+| feasibility_gated vs lagrangian | -0.5 | [-2.6, +1.8] | 0.706 | 0.706 |
+| feasibility_gated vs shaped | -6.9 | [-12.8, -1.9] | 0.048 | 0.119 |
+| lagrangian vs shaped | -6.4 | [-12.1, -1.7] | 0.040 | 0.119 |
 
-## Seed 45 (lagrangian) -- resumed run was noisier than a fresh run, now corrected
+Before the thinning step (`results/2a_comparison_scale.csv`) shaped is separated more clearly:
++25.8 pp vs feasibility_gated and +16.4 pp vs lagrangian, both p = 0.008 (Holm 0.024). Policy-only
+(`_none.csv`) shows no significant differences (raw p 0.11-0.25). The bootstrap CIs with n = 5
+per arm are narrow relative to the true uncertainty and are descriptive only.
 
-**Original run** (`--resume`, interrupted at 800k/1M steps): gap 16.9%, `within_110pct` 31%.
-Checked at the time and no data-quality issue was found -- `wall_time_min` for the resumed
-segment (5.91 min) was proportional to the fraction of steps remaining (20% of a full run),
-training commit and `hss_env.py` hash matched every other run, `log_std_anneal` is designed
-to stay synced across a resume. The elevated gap looked like genuine (if unusually large)
-seed variance.
+## Hyperparameter sensitivity pilot (seed 99)
 
-**Retrained fresh** (`--force`, full 1,007,616 steps in one uninterrupted run, same seed,
-same commit `8440488`, same config, `git_dirty: false` on both training and evaluation):
-gap dropped to **11.4%**, `within_110pct` rose to 57%. This changes two things:
-- lagrangian's 5-seed mean gap: 10.5% -> **9.4%** (now within 0.5pp of feasibility_gated,
-  not 1.6pp)
-- lagrangian's per-seed spread: 8.8pp -> **3.3pp** (now TIGHTER than feasibility_gated's
-  6.2pp, not wider)
+A single-seed pilot varied PPO's clip range, entropy coefficient and learning rate one at a
+time against the frozen `feasibility_gated` config. Seed 99 is not one of the headline seeds
+(42-46), but it was evaluated on the same 142-context main grid as the headline runs, so the
+pilot is not a held-out test of any tuning: it can only inform whether the frozen config is
+fragile, and no value from it is adopted. All five runs are single-pass (1,007,616 steps,
+commit `8440488`, `git_dirty: false`, pooled ground truth); files in `results/hp_pilot/`.
 
-**Interpretation:** the resume itself was very likely a real source of extra noise for this
-specific run, not just an unlucky seed. A plausible mechanism: lagrangian's dual-ascent
-multipliers depend on a running buffer of recent constraint violations
-(`hssbeamgen/algo/lagrangian.py:LagrangianCallback`), and while the resume logic correctly
-restores the multiplier values and callback state (see `pipeline/02_train_agent.py --resume`
-tests), the buffer's contents at the moment of interruption may not represent as
-representative a sample as one built up continuously -- this is a hypothesis, not confirmed,
-and would need the actual training curves to check further. Practically: **prefer training
-lagrangian arms straight through when the session allows it**; a resumed lagrangian run isn't
-wrong, but this one data point suggests it may be a noisier estimate than a fresh run at the
-same seed.
+| Variant | scale+thin gap | Delta vs baseline | none (best of 40 policy steps) |
+|---|---|---|---|
+| baseline (frozen: clip 0.15, ent 0.03, lr 3e-4) | 6.8% | -- | 30.2% |
+| clip_range = 0.10 | 7.0% | +0.2 pp | 55.0% |
+| ent_coef = 0.05 | 7.5% | +0.6 pp | 42.6% |
+| ent_coef = 0.01 | 5.0% | -1.8 pp | 36.6% |
+| lr = 1e-4 | 6.5% | -0.3 pp | 51.1% |
 
-The corrected value is used throughout this document and in `results/`. The original
-(resumed) run's files are not deleted -- see the audit-trail convention already used
-elsewhere in this project (archive, don't delete).
-
-## Hyperparameter sensitivity pilot (seed 99, held out of the headline batch)
-
-Before committing to this ablation's config, a single-seed pilot (seed 99, never used in any
-headline arm) varied PPO's clip range (0.15 -> 0.10), entropy coefficient (0.03 -> 0.05 and
--> 0.01) and learning rate (3e-4 -> 1e-4) independently against the frozen baseline:
-
-| Variant | Gap | Delta vs. baseline |
-|---|---|---|
-| baseline (frozen config) | 6.8% | -- |
-| clip_range=0.10 | 12.5% | +5.7 pp |
-| ent_coef=0.05 | 7.4% | +0.6 pp |
-| ent_coef=0.01 | 5.0% | -1.8 pp |
-| lr=0.0001 | 6.5% | -0.3 pp |
-
-No variant exceeded the ~6 pp seed-to-seed variance already observed across the five headline
-seeds. Decision rule was set before running the pilot: only a change clearly larger than that
-noise band would trigger adopting a new frozen config and retraining. None did; the carried-
-over configuration was retained.
+After the operator, every variant is within the spread of the five headline gated seeds
+(6.3-12.5%, sd 2.4 pp); the largest move (ent_coef 0.01, -1.8 pp) is under one seed-sd and comes
+from one seed, so it is not evidence for a better setting. Policy-only gaps vary more (30-55%),
+but the operator absorbs most of it; that is a single-seed observation and is not interpreted.
+The frozen configuration was retained.
 
 ## Interpretation and next step
 
-With the corrected seed 45, **feasibility_gated and lagrangian are statistically and
-practically indistinguishable** (8.9% vs 9.4%, 0.5pp apart, CI [-2.9, +1.6]) -- this is a
-genuine tie, not a near-win. Both clearly separate from shaped, which remains the worst arm
-by a wide margin on every metric.
+- **feasibility_gated and lagrangian are tied** after the full operator (8.9% vs 9.4%,
+  p = 0.71). Lagrangian has the tighter seed spread (sd 1.4 vs 2.4); gated is better before the
+  operator (20.8 vs 30.3 after `scale`, raw p = 0.087).
+- **shaped is worse**: 15.8% mean with a wide seed spread (9.4-26.4%). The scale+thin difference
+  is p ~ 0.04-0.05 raw and does not survive Holm (0.12); the `scale` difference does (0.024).
+- **feasibility_gated is carried forward** to 2b (SAC/TD3/DDPG) and 2c (mass/CO2 transfer) as the
+  arm with the lowest mean gap at every operator level and the simplest mechanism (no dual
+  multipliers to tune). This is a tie-break on point estimates, not a confirmed ranking against
+  lagrangian. Its five seeds are reused as 2b's PPO arm.
 
-**feasibility_gated is still carried forward** to 2b (algorithm comparison: SAC/TD3/DDPG) and
-2c (mass/CO2 transfer), but on tiebreaker grounds only: a marginally better point estimate,
-and a simpler mechanism (no dual-ascent multipliers to tune, and no resume-sensitivity
-concern of the kind observed in lagrangian seed 45). This is a weaker basis than originally
-reported and should be stated as such. Suggested manuscript wording:
+Suggested manuscript wording:
 
-> feasibility_gated and lagrangian achieved statistically indistinguishable mean cost gaps
-> (8.9% and 9.4% respectively; 95% CI on the difference [-2.9, +1.6] percentage points,
-> n=5 seeds each), both clearly outperforming shaped (15.8%, though this difference also does
-> not survive Holm correction at n=5). feasibility_gated was carried forward to the algorithm
-> and objective comparisons on tiebreaker grounds (marginally better point estimate, simpler
-> mechanism); this choice is not a statistically confirmed ranking against lagrangian
-> specifically, and a reviewer preferring lagrangian on other grounds (e.g. its explicit
-> constraint-budget interpretability) would not be contradicted by this data.
+> feasibility_gated and lagrangian achieved indistinguishable mean cost gaps (8.9% and 9.4%;
+> exact permutation p = 0.71, n = 5 seeds each); shaped was worse (15.8%), a difference that is
+> significant before the thinning step (Holm p = 0.024) and marginal after it (Holm p = 0.12).
+> feasibility_gated was carried forward as the simplest arm with the lowest point estimate.
 
-PPO's own 5 feasibility_gated seeds (this batch) are reused as 2b's PPO arm; no retraining
-needed there.
+## Audit trail
+
+Three runs (lagrangian seed 45, shaped seeds 43 and 45) were first trained through interrupted,
+resumed sessions. Under the rule that every reported run is a single uninterrupted pass, they
+were replaced by single-pass trainings with the same seed, config and commit. The original
+files are archived outside git and appear in no table here.

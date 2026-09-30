@@ -1,0 +1,82 @@
+{
+  "script": "pipeline/03_evaluate_agent.py",
+  "args": {
+    "model": "runs/hp_pilot/lr_low/final_model",
+    "ground_truth_dir": "data/ground_truth/main_grid_pooled",
+    "economy_metric": "cost",
+    "n_contexts": null,
+    "seed": 0,
+    "storey": 20,
+    "max_steps": null,
+    "allow_incomplete": false,
+    "out": "results/2a_lr_low_seed99_eval.csv",
+    "out_detail": null
+  },
+  "n_contexts_used": 142,
+  "wall_time_s": 8.6,
+  "generated_utc": "2026-09-30T10:58:37+00:00",
+  "git_commit": "844048850cb67847d37481dc79f9ce6428d8c722",
+  "git_dirty": false,
+  "sha256": {
+    "hss_env": "1a2e85d98d4aae83cf209f9840348a64874c6c7fd861aa437a185fc747840a52"
+  },
+  "python": "3.13.15",
+  "trained_run_meta": {
+    "script": "pipeline/02_train_agent.py",
+    "args": {
+      "algo": "ppo",
+      "reward_mode": "feasibility_gated",
+      "seed": 99
+    },
+    "config": {
+      "timesteps": 1000000,
+      "gamma": 0.99,
+      "checkpoint_every": 200000,
+      "device": "cuda",
+      "reward_norm_clip": 50.0,
+      "economy_metric": "cost",
+      "economy_reward_mode": "linear",
+      "ltb_factor": 0.4,
+      "sls_factor": 0.5,
+      "max_steps": 40,
+      "enforce_rolled_manufacturability": true,
+      "eta_util": 5.0,
+      "eta_class": 5.0,
+      "eta_geom": 2.0,
+      "lambda_max": 200.0,
+      "budget_util": 0.0,
+      "update_freq": 8192,
+      "n_envs": 8,
+      "lr": 0.0001,
+      "n_steps": 1024,
+      "batch_size": 256,
+      "n_epochs": 8,
+      "gae_lambda": 0.95,
+      "clip_range": 0.15,
+      "ent_coef": 0.03,
+      "vf_coef": 0.5,
+      "max_grad_norm": 0.5,
+      "net_arch": [
+        256,
+        256,
+        128
+      ],
+      "log_std_anneal": true,
+      "log_std_ceiling_start": 8.0,
+      "log_std_ceiling_end": 1.0,
+      "log_std_anneal_start_frac": 0.5,
+      "algo": "ppo"
+    },
+    "generated_utc": "2026-09-29T14:16:47+00:00",
+    "git_commit": "844048850cb67847d37481dc79f9ce6428d8c722",
+    "git_dirty": false,
+    "sha256": {
+      "hss_env": "1a2e85d98d4aae83cf209f9840348a64874c6c7fd861aa437a185fc747840a52"
+    },
+    "python": "3.13.15",
+    "status": "complete",
+    "resumed_from_steps": 0,
+    "final_num_timesteps": 1007616,
+    "wall_time_min": 19.65
+  }
+}

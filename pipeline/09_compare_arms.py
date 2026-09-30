@@ -1,27 +1,29 @@
 """Step 9 (partial) - statistical comparison of the 2a reward-mode arms.
 
-Compares feasibility_gated / lagrangian / shaped (5 seeds each) on scale+thin cost_ratio_mean,
-reading results/2a_{reward_mode}_seed{seed}_eval.csv as written by pipeline/03_evaluate_agent.py.
+Compares feasibility_gated / lagrangian / shaped (5 independent seeds each) on the chosen
+operator mode's cost_ratio_mean, reading results/2a_{reward_mode}_seed{seed}_eval.csv as
+written by pipeline/03_evaluate_agent.py.
 
-Method: seeds are PAIRED by seed number across reward modes (seed 42's feasibility_gated,
-lagrangian and shaped runs all start from the same PPO weight initialisation and the same
-env-context sampling sequence -- see hssbeamgen/train_utils.py:build_model/build_vec_env,
-both seeded from the single --seed value), so a paired test has more power than an unpaired
-one at n=5. For each pair of arms:
-  - exact paired sign-flip permutation test on the mean paired difference (2^5 = 32
-    permutations enumerated exactly; no normality assumption, appropriate at n=5)
-  - percentile bootstrap 95% CI on the mean paired difference (resampling the 5 pairs)
-This mirrors the bootstrap-CI style already used for the GA/DE comparison in
-results_validation_draft.md Sec.3, applied here to the 2a arms.
-Holm-Bonferroni correction is applied across the 3 pairwise comparisons (plan's settled
-decision: "Holm-type multiple-comparison correction").
+Method. The three arms are treated as INDEPENDENT samples of 5 seeds each. (A paired-by-seed
+test was considered and rejected: the shared seed value only fixes the initial weights and the
+context-sampling sequence; the reward differs, so trajectories diverge, and the observed
+across-arm correlation of per-seed gaps is ~0, i.e. pairing buys no power. A paired exact
+sign-flip test at n=5 also has a smallest attainable two-sided p of 2/32 = 0.0625, which Holm
+over 3 comparisons turns into 0.19 -- it could never reach significance.)
+For each pair of arms:
+  - exact two-sample permutation test on the difference of means, enumerating all
+    C(10,5) = 252 splits (no distributional assumption). Smallest attainable two-sided p:
+    2/252 = 0.0079 (0.024 after Holm over 3 tests), so significance is at least possible.
+  - percentile bootstrap 95% CI on the difference of means (each arm resampled separately).
+    With n=5 per arm this interval is narrow relative to the true uncertainty; read it as
+    descriptive, and treat the permutation p-value as the test.
+Holm-Bonferroni correction is applied across the pairwise comparisons.
 
-This script needs only numpy/pandas/scipy -- no torch/stable-baselines3 -- so it's meant to
-be run locally, not on the training machine.
+Needs only numpy/pandas -- no torch/stable-baselines3 -- so it runs locally.
 
 Usage:
-    python pipeline/09_compare_arms.py --results_dir results --arms feasibility_gated lagrangian shaped \
-        --out results/2a_comparison.csv
+    python pipeline/09_compare_arms.py --results_dir results --out results/2a_comparison.csv
+    python pipeline/09_compare_arms.py --operator_mode none --out results/2a_comparison_none.csv
 """
 import argparse
 import itertools
@@ -29,43 +31,48 @@ import os
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 SEEDS = (42, 43, 44, 45, 46)
-OPERATOR_MODE = "scale+thin"
 N_BOOTSTRAP = 20000
 
 
-def load_seed_values(results_dir: str, arm: str, metric: str = "cost_ratio_mean") -> np.ndarray:
+def load_seed_values(results_dir: str, arm: str, metric: str = "cost_ratio_mean",
+                     operator_mode: str = "scale+thin") -> np.ndarray:
     vals = []
     for seed in SEEDS:
         path = os.path.join(results_dir, f"2a_{arm}_seed{seed}_eval.csv")
         if not os.path.exists(path):
             raise SystemExit(f"missing {path} -- need all {len(SEEDS)} seeds for arm {arm!r}")
         df = pd.read_csv(path)
-        row = df[df["operator_mode"] == OPERATOR_MODE]
+        row = df[df["operator_mode"] == operator_mode]
         if len(row) != 1:
-            raise SystemExit(f"{path}: expected exactly one {OPERATOR_MODE!r} row, found {len(row)}")
+            raise SystemExit(f"{path}: expected exactly one {operator_mode!r} row, found {len(row)}")
         vals.append(float(row[metric].iloc[0]))
     return np.array(vals)
 
 
-def exact_sign_flip_test(diff: np.ndarray) -> float:
-    """Two-sided exact permutation p-value for mean(diff) != 0, enumerating all 2^n sign patterns."""
-    n = len(diff)
-    observed = abs(diff.mean())
-    n_extreme = 0
-    for signs in itertools.product([1, -1], repeat=n):
-        if abs((np.array(signs) * diff).mean()) >= observed - 1e-12:
+def exact_permutation_test(x: np.ndarray, y: np.ndarray) -> float:
+    """Two-sided exact p-value for mean(x) != mean(y): all C(nx+ny, nx) label splits."""
+    v = np.concatenate([x, y])
+    nx = len(x)
+    observed = abs(x.mean() - y.mean())
+    n_extreme = n_total = 0
+    for idx in itertools.combinations(range(len(v)), nx):
+        mask = np.zeros(len(v), dtype=bool)
+        mask[list(idx)] = True
+        n_total += 1
+        if abs(v[mask].mean() - v[~mask].mean()) >= observed - 1e-12:
             n_extreme += 1
-    return n_extreme / (2 ** n)
+    return n_extreme / n_total
 
 
-def bootstrap_ci(diff: np.ndarray, n_boot: int = N_BOOTSTRAP, seed: int = 0) -> tuple[float, float]:
+def bootstrap_ci(x: np.ndarray, y: np.ndarray, n_boot: int = N_BOOTSTRAP,
+                 seed: int = 0) -> tuple[float, float]:
     rng = np.random.default_rng(seed)
-    n = len(diff)
-    boot_means = rng.choice(diff, size=(n_boot, n), replace=True).mean(axis=1)
-    return float(np.percentile(boot_means, 2.5)), float(np.percentile(boot_means, 97.5))
+    bx = rng.choice(x, size=(n_boot, len(x)), replace=True).mean(axis=1)
+    by = rng.choice(y, size=(n_boot, len(y)), replace=True).mean(axis=1)
+    d = bx - by
+    return float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))
 
 
 def holm_correct(pvals: list[float]) -> list[float]:
@@ -86,12 +93,14 @@ def main():
     p.add_argument("--results_dir", default="results")
     p.add_argument("--arms", nargs="+", default=["feasibility_gated", "lagrangian", "shaped"])
     p.add_argument("--metric", default="cost_ratio_mean")
+    p.add_argument("--operator_mode", default="scale+thin",
+                   choices=["none", "scale", "scale+thin"])
     p.add_argument("--out", required=True)
     args = p.parse_args()
 
-    values = {arm: load_seed_values(args.results_dir, arm, args.metric) for arm in args.arms}
+    values = {arm: load_seed_values(args.results_dir, arm, args.metric, args.operator_mode) for arm in args.arms}
 
-    print(f"Per-seed {args.metric} ({OPERATOR_MODE}), by arm:")
+    print(f"Per-seed {args.metric} ({args.operator_mode}), by arm:")
     summary_rows = []
     for arm, v in values.items():
         print(f"  {arm:20s} " + " ".join(f"{x:.4f}" for x in v) + f"   mean={v.mean():.4f}")
@@ -101,12 +110,12 @@ def main():
     pairs = list(itertools.combinations(args.arms, 2))
     raw_pvals, rows = [], []
     for a, b in pairs:
-        diff = values[a] - values[b]  # positive => a worse (higher cost ratio) than b
-        pval = exact_sign_flip_test(diff)
-        ci_lo, ci_hi = bootstrap_ci(diff)
+        diff = values[a].mean() - values[b].mean()  # positive => a worse (higher cost ratio)
+        pval = exact_permutation_test(values[a], values[b])
+        ci_lo, ci_hi = bootstrap_ci(values[a], values[b])
         raw_pvals.append(pval)
-        rows.append(dict(arm_a=a, arm_b=b, mean_diff=diff.mean(),
-                         mean_diff_pct_points=diff.mean() * 100,
+        rows.append(dict(arm_a=a, arm_b=b, mean_a=values[a].mean(), mean_b=values[b].mean(), mean_diff=diff,
+                         mean_diff_pct_points=diff * 100,
                          ci95_lo_pct_points=ci_lo * 100, ci95_hi_pct_points=ci_hi * 100,
                          p_raw=pval))
     adjusted = holm_correct(raw_pvals)

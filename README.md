@@ -17,6 +17,14 @@ pip install -r requirements-dev.txt
 
 (Package installation and usage instructions will be added with the first code release.)
 
+## Progress log
+
+Interim results are logged in `docs/` as each pipeline stage completes, separate from the
+eventual manuscript (which is rewritten from scratch once all evidence is frozen):
+
+- [`docs/results_2a_reward_mode.md`](docs/results_2a_reward_mode.md) -- reward-mode ablation
+  (PPO, feasibility_gated / lagrangian / shaped), complete.
+
 ## License
 
 MIT. See `LICENSE`.

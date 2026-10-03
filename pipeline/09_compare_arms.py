@@ -24,6 +24,11 @@ Needs only numpy/pandas -- no torch/stable-baselines3 -- so it runs locally.
 Usage:
     python pipeline/09_compare_arms.py --results_dir results --out results/2a_comparison.csv
     python pipeline/09_compare_arms.py --operator_mode none --out results/2a_comparison_none.csv
+    # 2b: PPO (= the 2a feasibility_gated runs) vs SAC / TD3 / DDPG, 4 arms -> 6 pairs.
+    # Smallest attainable Holm p over 6 tests is 6 * 2/252 = 0.048, so significance is only just
+    # possible: only a complete separation of two arms' 5 seeds can reach it.
+    python pipeline/09_compare_arms.py --arms ppo=2a_feasibility_gated sac=2b_sac td3=2b_td3 \
+        ddpg=2b_ddpg --out results/2b_comparison.csv
 """
 import argparse
 import itertools
@@ -36,13 +41,14 @@ SEEDS = (42, 43, 44, 45, 46)
 N_BOOTSTRAP = 20000
 
 
-def load_seed_values(results_dir: str, arm: str, metric: str = "cost_ratio_mean",
+def load_seed_values(results_dir: str, stem: str, metric: str = "cost_ratio_mean",
                      operator_mode: str = "scale+thin") -> np.ndarray:
+    """stem is the file stem before '_seed{N}_eval.csv', e.g. '2a_shaped' or '2b_sac'."""
     vals = []
     for seed in SEEDS:
-        path = os.path.join(results_dir, f"2a_{arm}_seed{seed}_eval.csv")
+        path = os.path.join(results_dir, f"{stem}_seed{seed}_eval.csv")
         if not os.path.exists(path):
-            raise SystemExit(f"missing {path} -- need all {len(SEEDS)} seeds for arm {arm!r}")
+            raise SystemExit(f"missing {path} -- need all {len(SEEDS)} seeds for arm stem {stem!r}")
         df = pd.read_csv(path)
         row = df[df["operator_mode"] == operator_mode]
         if len(row) != 1:
@@ -91,14 +97,25 @@ def holm_correct(pvals: list[float]) -> list[float]:
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--results_dir", default="results")
-    p.add_argument("--arms", nargs="+", default=["feasibility_gated", "lagrangian", "shaped"])
+    p.add_argument("--prefix", default="2a",
+                   help="file-stem prefix for bare arm names: {prefix}_{arm}_seed{N}_eval.csv")
+    p.add_argument("--arms", nargs="+", default=["feasibility_gated", "lagrangian", "shaped"],
+                   help="arm names. A bare name 'x' reads {prefix}_x_seed*_eval.csv; 'label=stem' "
+                        "reads {stem}_seed*_eval.csv under that label (used by 2b to reuse the "
+                        "2a PPO runs: ppo=2a_feasibility_gated sac=2b_sac td3=2b_td3 ddpg=2b_ddpg)")
     p.add_argument("--metric", default="cost_ratio_mean")
     p.add_argument("--operator_mode", default="scale+thin",
                    choices=["none", "scale", "scale+thin"])
     p.add_argument("--out", required=True)
     args = p.parse_args()
 
-    values = {arm: load_seed_values(args.results_dir, arm, args.metric, args.operator_mode) for arm in args.arms}
+    arm_stems = {}
+    for spec in args.arms:
+        label, _, stem = spec.partition("=")
+        arm_stems[label] = stem or f"{args.prefix}_{label}"
+    args.arms = list(arm_stems)
+    values = {arm: load_seed_values(args.results_dir, stem, args.metric, args.operator_mode)
+              for arm, stem in arm_stems.items()}
 
     print(f"Per-seed {args.metric} ({args.operator_mode}), by arm:")
     summary_rows = []

@@ -1,6 +1,6 @@
 # Frozen RL training configuration for the paper (read by pipeline/02_train_agent.py).
 #
-# Provenance of every value (audit trail -> docs/archive/full_experimental_history.md):
+# Provenance of every value (audit trail -> docs/archive/research_audit.md):
 #   * "carried over" = the value train.py / train_baseline_offpolicy.py have used unchanged
 #     for every run in the project (E4, E5 and earlier). These were NOT tuned here.
 #   * E4 = algorithm comparison; E5 = log_std-anneal ablation (seed 43, 1M steps).

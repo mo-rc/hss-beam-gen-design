@@ -9,7 +9,7 @@ feasibility_gated, 38.69% +/- 6.72% cost gap, 100% feasibility, 5
 seeds -- so this callback changes nothing about that baseline's
 exploration mechanism except this one, explicitly-scoped intervention).
 
-WHY THIS EXISTS (see docs/archive/full_experimental_history.md for the full
+WHY THIS EXISTS (see docs/archive/research_audit.md for the full
 chain of evidence; summarised here so this file is self-contained)
 --------------------------------------------------------------------
 1. A corrected episode-truncation diagnostic (`diagnose_step_scale_timing.py`,

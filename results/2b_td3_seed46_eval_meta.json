@@ -1,0 +1,77 @@
+{
+  "script": "pipeline/03_evaluate_agent.py",
+  "args": {
+    "model": "runs/2b_algorithm/td3/seed46/final_model",
+    "ground_truth_dir": "data/ground_truth/main_grid_pooled",
+    "economy_metric": "cost",
+    "n_contexts": null,
+    "seed": 0,
+    "storey": 20,
+    "max_steps": null,
+    "allow_incomplete": false,
+    "out": "results/2b_algorithm/2b_td3_seed46_eval.csv",
+    "out_detail": null
+  },
+  "n_contexts_used": 142,
+  "wall_time_s": 4.3,
+  "generated_utc": "2026-10-03T06:53:17+00:00",
+  "git_commit": "e1a0afa00fccb8a0efa3b19e4e83305da3d56cda",
+  "git_dirty": false,
+  "sha256": {
+    "hss_env": "1a2e85d98d4aae83cf209f9840348a64874c6c7fd861aa437a185fc747840a52"
+  },
+  "python": "3.13.15",
+  "trained_run_meta": {
+    "script": "pipeline/02_train_agent.py",
+    "args": {
+      "algo": "td3",
+      "reward_mode": "feasibility_gated",
+      "seed": 46
+    },
+    "config": {
+      "timesteps": 1000000,
+      "gamma": 0.99,
+      "checkpoint_every": 200000,
+      "device": "cpu",
+      "reward_norm_clip": 50.0,
+      "economy_metric": "cost",
+      "economy_reward_mode": "linear",
+      "ltb_factor": 0.4,
+      "sls_factor": 0.5,
+      "max_steps": 40,
+      "enforce_rolled_manufacturability": true,
+      "eta_util": 5.0,
+      "eta_class": 5.0,
+      "eta_geom": 2.0,
+      "lambda_max": 200.0,
+      "budget_util": 0.0,
+      "update_freq": 8192,
+      "n_envs": 1,
+      "train_freq": 1,
+      "gradient_steps": 1,
+      "lr": 0.001,
+      "buffer_size": 1000000,
+      "batch_size": 256,
+      "learning_starts": 10000,
+      "action_noise_sigma": 0.2,
+      "net_arch": [
+        256,
+        256,
+        128
+      ],
+      "log_std_anneal": false,
+      "algo": "td3"
+    },
+    "generated_utc": "2026-10-03T06:32:02+00:00",
+    "git_commit": "9bb39c1fb68f3935528d1932e5d721ef699b7c7e",
+    "git_dirty": false,
+    "sha256": {
+      "hss_env": "9426c8c1e89dfc451690c09c8d488874bcfaf2153c2376475604a3c4eb43b968"
+    },
+    "python": "3.12.14",
+    "status": "complete",
+    "resumed_from_steps": 0,
+    "final_num_timesteps": 1000000,
+    "wall_time_min": 301.39
+  }
+}

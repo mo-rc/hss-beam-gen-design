@@ -1,0 +1,82 @@
+{
+  "script": "pipeline/03_evaluate_agent.py",
+  "args": {
+    "model": "runs/2a_reward_mode/feasibility_gated/seed46/final_model",
+    "ground_truth_dir": "data/ground_truth/ood_span_pooled",
+    "economy_metric": "cost",
+    "n_contexts": null,
+    "seed": 0,
+    "storey": 20,
+    "max_steps": null,
+    "allow_incomplete": false,
+    "out": "results/ood_span_cost_seed46_eval.csv",
+    "out_detail": null
+  },
+  "n_contexts_used": 26,
+  "wall_time_s": 0.9,
+  "generated_utc": "2026-10-05T10:47:02+00:00",
+  "git_commit": "4060dc31083a6aac26d4b85a0723840de0d45499",
+  "git_dirty": false,
+  "sha256": {
+    "hss_env": "1a2e85d98d4aae83cf209f9840348a64874c6c7fd861aa437a185fc747840a52"
+  },
+  "python": "3.13.15",
+  "trained_run_meta": {
+    "script": "pipeline/02_train_ppo.py",
+    "args": {
+      "algo": "ppo",
+      "reward_mode": "feasibility_gated",
+      "seed": 46
+    },
+    "config": {
+      "timesteps": 1000000,
+      "gamma": 0.99,
+      "checkpoint_every": 200000,
+      "device": "cpu",
+      "reward_norm_clip": 50.0,
+      "economy_metric": "cost",
+      "economy_reward_mode": "linear",
+      "ltb_factor": 0.4,
+      "sls_factor": 0.5,
+      "max_steps": 40,
+      "enforce_rolled_manufacturability": true,
+      "eta_util": 5.0,
+      "eta_class": 5.0,
+      "eta_geom": 2.0,
+      "lambda_max": 200.0,
+      "budget_util": 0.0,
+      "update_freq": 8192,
+      "n_envs": 8,
+      "lr": 0.0003,
+      "n_steps": 1024,
+      "batch_size": 256,
+      "n_epochs": 8,
+      "gae_lambda": 0.95,
+      "clip_range": 0.15,
+      "ent_coef": 0.03,
+      "vf_coef": 0.5,
+      "max_grad_norm": 0.5,
+      "net_arch": [
+        256,
+        256,
+        128
+      ],
+      "log_std_anneal": true,
+      "log_std_ceiling_start": 8.0,
+      "log_std_ceiling_end": 1.0,
+      "log_std_anneal_start_frac": 0.5,
+      "algo": "ppo"
+    },
+    "generated_utc": "2026-09-29T06:46:32+00:00",
+    "git_commit": "a608941dff7b33c69a42e76f95b92b1af0f46c16",
+    "git_dirty": false,
+    "sha256": {
+      "hss_env": "1a2e85d98d4aae83cf209f9840348a64874c6c7fd861aa437a185fc747840a52"
+    },
+    "python": "3.13.15",
+    "status": "complete",
+    "resumed_from_steps": 0,
+    "final_num_timesteps": 1007616,
+    "wall_time_min": 27.0
+  }
+}

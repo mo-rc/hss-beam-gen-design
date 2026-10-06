@@ -48,8 +48,8 @@ k sensitivity (LOO gap, k = 1 / 3 / 5): cost 0.9 / 1.1 / 0.8, mass 1.3 / 1.0 / 0
 0.2. On OOD span, k = 5 is lower than k = 3 for mass (3.8 vs 4.8) and CO2 (3.4 vs 3.8) but higher
 for cost (1.9 vs 1.5). The conclusions do not depend on k.
 
-Evaluations per design: kNN needs 1 (`none`), about 18 (`scale`) and about 60 (`scale+thin`)
-EC3 evaluations; the policy needs about 40, 57 and 100-112 respectively.
+Evaluations per design: kNN needs 1 (`none`), about 18 (`scale`) and 40-63 (`scale+thin`; cost 63,
+mass and CO2 about 41) EC3 evaluations; the policy needs about 40, 57 and 100-112 respectively.
 
 Before any operator, a single kNN prediction is feasible for only 39-44% of in-distribution
 contexts (cost 44.4%, mass 39.4%, CO2 42.3%) and about 0-11% on OOD sets; the operators supply
@@ -60,13 +60,13 @@ about 40 steps, so the two are not comparable.
 
 - Under the same operators and the same reference, the kNN gives a lower mean gap than PPO on
   every objective and every set tested (about 0.5-1.7% in distribution versus 4.6-8.9% for PPO;
-  1.2-4.8% on OOD versus 4.5-9.7%), with about 40% fewer evaluations per design. On the
+  1.2-4.8% on OOD versus 4.5-9.7%), with roughly 45-60% fewer evaluations per design at `scale+thin`. On the
   within-110%-of-all-contexts measure the kNN is also ahead everywhere, though by only 2-6 points
   on cost OOD.
 - The kNN's weakness is feasibility, not quality. On cost it fails in 4.9% of in-distribution
   contexts (LOO) and in 21-31% of OOD contexts, where PPO reaches 90-100%. The infeasible
   in-distribution cost contexts (LOO, k = 3) lie in the high-demand corner and the kNN predicts a
-  grade one step too low there; uniform scaling cannot recover within the box limits.
+  lower grade than the reference there (7 of 142 contexts, one to three grades lower); uniform scaling cannot recover within the box limits.
 - Mass and CO2 are easier for the kNN: their references are mostly or entirely S690, and it is 100%
   feasible in distribution and on OOD load; on OOD span 88.5%.
 - The labelled data are not free. At about 96,000 evaluations per labelled context and objective,

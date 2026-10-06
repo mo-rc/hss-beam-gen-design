@@ -98,3 +98,22 @@ def test_roundtrip_against_real_physics_and_ground_truth():
     for m in ("scale", "scale+thin"):          # operators may only improve or hold an exact optimum
         assert res[m].feasible.all()
         assert np.nanmax(res[m].gap.to_numpy(float)) < 1e-3
+
+
+def test_meta_git_dirty_ignores_the_runs_own_untracked_outputs():
+    """Outputs written under the repo are untracked; they must not make git_dirty True (as in 02/03)."""
+    import json
+    out = os.path.join(REPO, "results", "_pytest_knn_meta_check.csv")
+    try:
+        r = subprocess.run([sys.executable, os.path.join(REPO, "pipeline", "05_baseline_knn.py"), "--protocol", "loo",
+                            "--train_gt_dir", GT, "--n_contexts", "4", "--k", "1", "--headline_k", "1", "--out", out],
+                           cwd=REPO, capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr
+        tracked_dirty = bool(subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=REPO,
+                                            capture_output=True, text=True).stdout.strip())
+        assert json.load(open(out.replace(".csv", "_meta.json")))["git_dirty"] == tracked_dirty
+    finally:
+        for s in (".csv", "_per_rep.csv", "_meta.json"):
+            p = out.replace(".csv", s)
+            if os.path.exists(p):
+                os.remove(p)

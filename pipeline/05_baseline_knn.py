@@ -270,7 +270,7 @@ def main():
         if d and os.path.exists(os.path.join(d, "meta.json")):
             gt_meta[d] = json.load(open(os.path.join(d, "meta.json")))
     json.dump(dict(args=vars(a), git_commit=_git("rev-parse", "HEAD"),
-                   git_dirty=bool(_git("status", "--porcelain")), wall_time_s=wall,
+                   git_dirty=bool(_git("status", "--porcelain", "--untracked-files=no")), wall_time_s=wall,
                    n_train_pool=len(train_opt), generated_utc=datetime.now(timezone.utc).isoformat(),
                    python=platform.python_version(), numpy=np.__version__, pandas=pd.__version__,
                    ground_truth_meta=gt_meta), open(stem + "_meta.json", "w"), indent=1, default=str)

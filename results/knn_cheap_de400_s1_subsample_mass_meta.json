@@ -1,0 +1,169 @@
+{
+ "args": {
+  "protocol": "subsample",
+  "economy_metric": "mass",
+  "train_gt_dir": "data/ground_truth/main_grid_pooled",
+  "test_gt_dir": null,
+  "k": [
+   1,
+   3,
+   5
+  ],
+  "headline_k": 3,
+  "sizes": [
+   36,
+   72,
+   108
+  ],
+  "reps": 10,
+  "seed0": 0,
+  "storey": 20,
+  "n_contexts": null,
+  "label_source": "search",
+  "label_method": "de",
+  "label_budget": 400,
+  "label_seed": 1,
+  "labels_out": null,
+  "labels_in": "results/knn_labels_de400_s1_mass.csv",
+  "out": "results/knn_cheap_de400_s1_subsample_mass.csv",
+  "out_detail": null
+ },
+ "git_commit": "bdd214a47119dadf1f419a9ade23e0b549922b3d",
+ "git_dirty": false,
+ "wall_time_s": 23.359728813171387,
+ "n_train_pool": 142,
+ "label_source": "search",
+ "n_labels_dropped": 0,
+ "labels_sha256": "fe3972187b726f5262126866be4cdd20c01164a6e9cd871f9884d6f4449949df",
+ "labelling_evals": 56800,
+ "generated_utc": "2026-10-07T13:57:59.614624+00:00",
+ "python": "3.12.14",
+ "numpy": "2.3.5",
+ "pandas": "2.3.3",
+ "ground_truth_meta": {
+  "data/ground_truth/main_grid_pooled": {
+   "script": "pipeline/01c_pool_ground_truth.py",
+   "grid": "main",
+   "grid_definition": {
+    "span_min_m": 6.0,
+    "span_max_m": 15.0,
+    "load_min": 20.0,
+    "load_max": 140.0,
+    "n_spans": 12,
+    "n_loads": 12
+   },
+   "source_dir": "/content/drive/MyDrive/hss-beam-gen-design/data/ground_truth/main_grid",
+   "source_meta": {
+    "script": "pipeline/01_generate_ground_truth.py",
+    "grid": "main",
+    "grid_definition": {
+     "span_min_m": 6.0,
+     "span_max_m": 15.0,
+     "load_min": 20.0,
+     "load_max": 140.0,
+     "n_spans": 12,
+     "n_loads": 12
+    },
+    "args": {
+     "grid": "main",
+     "out": "data/ground_truth/main_grid",
+     "span_min_m": null,
+     "span_max_m": null,
+     "load_min": null,
+     "load_max": null,
+     "n_spans": null,
+     "n_loads": null,
+     "pop_size": 50,
+     "n_generations": 80,
+     "n_restarts": 2,
+     "metrics": [
+      "mass",
+      "cost",
+      "co2"
+     ],
+     "seed": 0,
+     "workers": 4
+    },
+    "argv": [
+     "pipeline/01_generate_ground_truth.py",
+     "--grid",
+     "main",
+     "--out",
+     "data/ground_truth/main_grid",
+     "--workers",
+     "4"
+    ],
+    "generated_utc": "2026-09-28T10:17:38+00:00",
+    "wall_time_min": 87.47,
+    "git_commit": "e5de1725befdc6212df8cada498fac0ec4e68243",
+    "git_dirty": false,
+    "sha256": {
+     "hss_env": "1a2e85d98d4aae83cf209f9840348a64874c6c7fd861aa437a185fc747840a52",
+     "ga_search": "f2ab7c009746d2a6e74851fc5e9e7a15dab9d760f46b7959c945ccb8f6a13a5c"
+    },
+    "python": "3.13.15",
+    "numpy": "2.3.5",
+    "pandas": "2.3.3",
+    "load_unit": "kN/m (factored UDL); M_Ed = w L^2 / 8",
+    "summary": {
+     "mass": {
+      "rows": 1623,
+      "searches": 1728,
+      "contexts_with_feasible_design": 142,
+      "contexts_in_grid": 144
+     },
+     "cost": {
+      "rows": 1623,
+      "searches": 1728,
+      "contexts_with_feasible_design": 142,
+      "contexts_in_grid": 144
+     },
+     "co2": {
+      "rows": 1623,
+      "searches": 1728,
+      "contexts_with_feasible_design": 142,
+      "contexts_in_grid": 144
+     }
+    },
+    "note": ""
+   },
+   "input_sha256": {
+    "ec3_optimal_designs_mass.csv": "a74b55a39b0acf969a1928814d42d1b1d72a175c979c2d85aa4a2c8bb78b408c",
+    "ec3_optimal_designs_cost.csv": "091712e59f7bf439172d9a93a27b6de6be131b5dbdb46086accd74e1a4b61938",
+    "ec3_optimal_designs_co2.csv": "0af2128f09c1cfbe3ab6445a6f95300818b317dafab410e8114ec033a6102515"
+   },
+   "generated_utc": "2026-09-28T13:54:55+00:00",
+   "git_commit": "88ff5471c7fcaad91a171332a59a655001310236",
+   "git_dirty": false,
+   "sha256": {
+    "hss_env": "1a2e85d98d4aae83cf209f9840348a64874c6c7fd861aa437a185fc747840a52",
+    "ga_search": "f2ab7c009746d2a6e74851fc5e9e7a15dab9d760f46b7959c945ccb8f6a13a5c"
+   },
+   "python": "3.13.15",
+   "numpy": "2.3.5",
+   "pandas": "2.3.3",
+   "load_unit": "kN/m (factored UDL); M_Ed = w L^2 / 8",
+   "summary": {
+    "mass": {
+     "rows": 1623,
+     "searches": 1728,
+     "contexts_with_feasible_design": 142,
+     "contexts_in_grid": 144
+    },
+    "cost": {
+     "rows": 1623,
+     "searches": 1728,
+     "contexts_with_feasible_design": 142,
+     "contexts_in_grid": 144
+    },
+    "co2": {
+     "rows": 1623,
+     "searches": 1728,
+     "contexts_with_feasible_design": 142,
+     "contexts_in_grid": 144
+    }
+   },
+   "note": "Best-known reference: per-objective minimum over the designs found by all objective searches."
+  }
+ }
+}

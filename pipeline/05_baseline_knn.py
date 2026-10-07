@@ -38,7 +38,17 @@ PROTOCOLS (--protocol)
 k: --k takes several values (default 1 3 5). The headline k is --headline_k (default 3), fixed in
 advance and NOT chosen on the test results; other k are a sensitivity table.
 
-Labelling cost: the labels are the pooled ground truth, i.e. every training context was solved
+LABEL SOURCE (--label_source)
+-----------------------------
+  ground_truth  (default) labels = the pooled best-known optimum: the BEST-CASE labels, costing
+                about 96,000 EC3 evaluations per context and objective.
+  search        REALISTIC labels: each labelled context is solved by one free-grade search
+                (--label_method de|ga, --label_budget B evaluations, seed --label_seed), exactly the
+                searches of pipeline/04. A context whose search ends infeasible is dropped from the
+                labelled pool (its cost is still paid). Test contexts, references and operators are
+                unchanged: only what the kNN learns from changes. Labelling cost = n_labelled x B.
+
+Labelling cost (ground_truth labels): the labels are the pooled ground truth, i.e. every training context was solved
 by search (see the ground-truth meta.json for the per-context evaluation budget). Report
 n_train x that budget as the kNN counterpart of RL's one-time training cost.
 
@@ -55,6 +65,11 @@ USAGE
     # in-distribution, secondary
     python pipeline/05_baseline_knn.py --protocol loo --economy_metric cost \
         --train_gt_dir data/ground_truth/main_grid_pooled --out results/knn_loo_cost.csv
+    # realistic labels (one DE search of 4800 evaluations per labelled context), all protocols
+    # sharing one label file: first run writes it, the others reuse it
+    python pipeline/05_baseline_knn.py --protocol loo --economy_metric cost --label_source search \
+        --label_method de --label_budget 4800 --labels_out results/knn_labels_de4800_cost.csv \
+        --train_gt_dir data/ground_truth/main_grid_pooled --out results/knn_cheap_de4800_loo_cost.csv
     # out-of-distribution
     python pipeline/05_baseline_knn.py --protocol ood --economy_metric cost \
         --train_gt_dir data/ground_truth/main_grid_pooled \
@@ -65,6 +80,7 @@ Writes: --out (aggregated over repetitions: mean and sd per protocol/size/k/oper
 additionally dumps per-context rows (needed to restrict an RL comparison to the same contexts).
 """
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
@@ -130,6 +146,31 @@ class KNNDesigner:
         out = dict(zip(GEOM, map(float, g)))
         out["fy"], out["section_type"] = float(winner[0]), winner[1]
         return out
+
+
+def make_search_labels(train_opt: pd.DataFrame, metric: str, method: str, budget: int,
+                       seed: int, storey: int = 20):
+    """Replace ground-truth labels by one free-grade search per context (budget evaluations).
+    Returns (labels indexed like train_opt, with infeasible searches dropped; n_dropped)."""
+    from hssbeamgen.algo.de_search import de_design
+    from hssbeamgen.algo.ga_search import ga_design
+    rows, dropped = [], 0
+    for i, r in train_opt.iterrows():
+        span_mm, load = r["span_m"] * 1000.0, r["load_kN_per_m"]
+        if method == "de":
+            res = de_design(span_mm, load, storey, metric, n_evaluations=budget, seed=seed * 100000 + int(i))
+        else:
+            pop = int(np.clip(round(np.sqrt(budget)), 6, 60))
+            res = ga_design(span_mm, load, storey, metric, pop_size=pop,
+                            n_generations=max(1, budget // pop), seed=seed * 100000 + int(i))
+        if not res["feasible"]:
+            dropped += 1
+            continue
+        rows.append(dict(index=i, span_m=r["span_m"], load_kN_per_m=r["load_kN_per_m"],
+                         grade=res["fy"], section_type=res["section_type"],
+                         **{g: res[g] for g in GEOM}, label_value=res[metric]))
+    lab = pd.DataFrame(rows).set_index("index") if rows else pd.DataFrame()
+    return lab, dropped
 
 
 def make_env(economy_metric: str):
@@ -200,6 +241,14 @@ def main():
     p.add_argument("--storey", type=int, default=20)
     p.add_argument("--n_contexts", type=int, default=None,
                    help="smoke test: use only this many randomly chosen training contexts")
+    p.add_argument("--label_source", default="ground_truth", choices=("ground_truth", "search"))
+    p.add_argument("--label_method", default="de", choices=("de", "ga"))
+    p.add_argument("--label_budget", type=int, default=4800, help="EC3 evaluations per labelled context")
+    p.add_argument("--label_seed", type=int, default=0)
+    p.add_argument("--labels_out", default=None, help="save the generated labels as CSV (audit)")
+    p.add_argument("--labels_in", default=None,
+                   help="reuse a labels CSV written by --labels_out (same metric/method/budget/seed/"
+                        "context pool), so every protocol learns from IDENTICAL labels")
     p.add_argument("--out", required=True)
     p.add_argument("--out_detail", default=None)
     a = p.parse_args()
@@ -225,13 +274,36 @@ def main():
         a.sizes = [max(1, min(s, len(train_opt) - 1)) for s in a.sizes[:1]]
         a.reps = min(a.reps, 2)
 
+    labels, n_dropped = None, 0
+    if a.label_source == "search":
+        tl = time.time()
+        if a.labels_in and not os.path.exists(a.labels_in):
+            sys.exit(f"--labels_in {a.labels_in} does not exist; generate it first with --labels_out")
+        if a.labels_in:
+            labels = pd.read_csv(a.labels_in, index_col=0)
+            if not labels.index.isin(train_opt.index).all():
+                sys.exit(f"{a.labels_in}: label index does not match the training contexts")
+            n_dropped = len(train_opt) - len(labels)
+        else:
+            labels, n_dropped = make_search_labels(train_opt, a.economy_metric, a.label_method,
+                                                   a.label_budget, a.label_seed, a.storey)
+        print(f"search labels: {len(labels)}/{len(train_opt)} contexts labelled "
+              f"({n_dropped} infeasible, dropped) in {time.time() - tl:.0f}s; "
+              f"labelling cost {len(train_opt) * a.label_budget} evaluations", flush=True)
+        if a.labels_out:
+            os.makedirs(os.path.dirname(os.path.abspath(a.labels_out)), exist_ok=True)
+            labels.to_csv(a.labels_out)
+
     env = make_env(a.economy_metric)
     t0 = time.time()
     per_rep, detail = [], {}
     for k in a.k:
         loo_parts = {m: [] for m in ev.OPERATOR_MODES}
         for n_train, rep, tr, te in splits(a.protocol, train_opt, test_opt, a.sizes, a.reps, a.seed0):
-            res = score(env, ev, KNNDesigner(tr, k), te, a.economy_metric, a.storey)
+            fit_df = tr if labels is None else labels.loc[labels.index.intersection(tr.index)]
+            if len(fit_df) < 1:
+                continue
+            res = score(env, ev, KNNDesigner(fit_df, k), te, a.economy_metric, a.storey)
             if a.protocol == "loo":  # one summary over ALL held-out contexts, not per split
                 for m in ev.OPERATOR_MODES:
                     loo_parts[m].append(res[m])
@@ -271,7 +343,11 @@ def main():
             gt_meta[d] = json.load(open(os.path.join(d, "meta.json")))
     json.dump(dict(args=vars(a), git_commit=_git("rev-parse", "HEAD"),
                    git_dirty=bool(_git("status", "--porcelain", "--untracked-files=no")), wall_time_s=wall,
-                   n_train_pool=len(train_opt), generated_utc=datetime.now(timezone.utc).isoformat(),
+                   n_train_pool=len(train_opt), label_source=a.label_source,
+                   n_labels_dropped=n_dropped,
+                   labels_sha256=(hashlib.sha256(open(a.labels_in or a.labels_out, "rb").read()).hexdigest()
+                                  if labels is not None and (a.labels_in or a.labels_out) else None),
+                   labelling_evals=len(train_opt) * a.label_budget if labels is not None else None, generated_utc=datetime.now(timezone.utc).isoformat(),
                    python=platform.python_version(), numpy=np.__version__, pandas=pd.__version__,
                    ground_truth_meta=gt_meta), open(stem + "_meta.json", "w"), indent=1, default=str)
 

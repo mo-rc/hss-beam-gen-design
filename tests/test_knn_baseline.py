@@ -117,3 +117,44 @@ def test_meta_git_dirty_ignores_the_runs_own_untracked_outputs():
             p = out.replace(".csv", s)
             if os.path.exists(p):
                 os.remove(p)
+
+
+def test_search_labels_cover_contexts_and_match_schema():
+    pytest.importorskip("gymnasium")
+    ev = knn._load_eval_module()
+    opt = ev.ground_truth_optimum(GT, "cost").head(6)
+    lab, dropped = knn.make_search_labels(opt, "cost", "de", 120, seed=0)
+    assert len(lab) + dropped == 6 and lab.index.isin(opt.index).all()
+    assert set(["span_m", "load_kN_per_m", "grade", "section_type", *knn.GEOM]) <= set(lab.columns)
+    # reference spans/loads preserved; labels are realisable designs, not copies of the reference
+    assert (lab.span_m.to_numpy() == opt.loc[lab.index, "span_m"].to_numpy()).all()
+    # deterministic given the seed
+    lab2, _ = knn.make_search_labels(opt, "cost", "de", 120, seed=0)
+    assert lab.equals(lab2)
+    # designer built from these labels predicts a full design
+    d = knn.KNNDesigner(lab, k=1).predict(float(lab.span_m.iloc[0]), float(lab.load_kN_per_m.iloc[0]))
+    assert set(knn.GEOM) <= set(d) and d["fy"] in set(lab.grade)
+
+
+def test_script_runs_with_search_labels_and_reuses_a_label_file(tmp_path):
+    pytest.importorskip("gymnasium")
+    base = [sys.executable, os.path.join(REPO, "pipeline", "05_baseline_knn.py"), "--protocol", "loo",
+            "--economy_metric", "cost", "--train_gt_dir", GT, "--n_contexts", "6", "--label_source", "search",
+            "--label_method", "de", "--label_budget", "100", "--k", "1", "--headline_k", "1"]
+    lab = str(tmp_path / "labels.csv")
+    r1 = subprocess.run(base + ["--labels_out", lab, "--out", str(tmp_path / "a.csv")], cwd=REPO,
+                        capture_output=True, text=True)
+    assert r1.returncode == 0, r1.stderr
+    r2 = subprocess.run(base + ["--labels_in", lab, "--out", str(tmp_path / "b.csv")], cwd=REPO,
+                        capture_output=True, text=True)
+    assert r2.returncode == 0, r2.stderr
+    a, b = pd.read_csv(tmp_path / "a.csv"), pd.read_csv(tmp_path / "b.csv")
+    assert a.round(9).equals(b.round(9))
+
+
+def test_missing_labels_in_fails_instead_of_silently_regenerating(tmp_path):
+    r = subprocess.run([sys.executable, os.path.join(REPO, "pipeline", "05_baseline_knn.py"), "--protocol", "loo",
+                        "--economy_metric", "cost", "--train_gt_dir", GT, "--n_contexts", "4", "--label_source", "search",
+                        "--label_budget", "50", "--labels_in", str(tmp_path / "nope.csv"), "--out", str(tmp_path / "o.csv")],
+                       cwd=REPO, capture_output=True, text=True)
+    assert r.returncode != 0 and "does not exist" in (r.stderr + r.stdout)

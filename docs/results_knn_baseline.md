@@ -69,10 +69,12 @@ about 40 steps, so the two are not comparable.
   lower grade than the reference there (7 of 142 contexts, one to three grades lower); uniform scaling cannot recover within the box limits.
 - Mass and CO2 are easier for the kNN: their references are mostly or entirely S690, and it is 100%
   feasible in distribution and on OOD load; on OOD span 88.5%.
-- The labelled data are not free. At about 96,000 evaluations per labelled context and objective,
-  n = 36 labelled contexts cost roughly 3.5 million evaluations, more than RL's 1,000,000 training
-  steps. The kNN is cheaper only if labels can be produced more cheaply (a lower-budget search
-  would give noisier labels; not tested). RL needs no labels.
+- The labelled data are not free, and the cost depends on how the labels are made. With the pooled
+  best-case labels (about 96,000 evaluations per labelled context and objective) n = 36 labelled
+  contexts cost roughly 3.5 million evaluations, more than RL's 1,000,000 training steps. With
+  realistic labels from one DE search per context (`results_knn_cheap_labels.md`) the same 36
+  contexts cost 14,400-172,800 evaluations (B = 400-4800) and the gap in distribution is 1.3-6.5%
+  on cost, which is below RL's training cost. RL needs no labels.
 - LOO is optimistic; the subsample numbers at n = 36 are almost as good, so for this 2-parameter
   context space the grid structure is not what drives the kNN's result.
 - No significance tests: the kNN has no seed variance, so only the 10-repetition spread of the

@@ -1,0 +1,13 @@
+experiment,arm_a,arm_b,mean_diff_pct_points,ci95_lo_pct_points,ci95_hi_pct_points,p_raw,p_holm
+2a reward mode,feasibility_gated,lagrangian,-0.490452,-2.61783,1.772601,0.706349,0.706349
+2a reward mode,feasibility_gated,shaped,-6.923192,-12.7621,-1.869465,0.047619,0.119048
+2a reward mode,lagrangian,shaped,-6.43274,-12.112641,-1.685972,0.039683,0.119048
+2b algorithm,ppo,sac,-16.016711,-27.491525,-4.120162,0.095238,0.380952
+2b algorithm,ppo,td3,-27.18315,-38.200416,-14.715735,0.007937,0.047619
+2b algorithm,ppo,ddpg,-23.203094,-52.661257,-3.758416,0.015873,0.079365
+2b algorithm,sac,td3,-11.166439,-27.761407,5.29418,0.214286,0.642857
+2b algorithm,sac,ddpg,-7.186384,-38.304003,17.259819,0.714286,1.0
+2b algorithm,td3,ddpg,3.980055,-27.104344,27.657267,0.880952,1.0
+2c objective,cost,mass,1.698655,-1.54316,4.673606,0.373016,0.380952
+2c objective,cost,co2,4.331892,1.438422,7.101616,0.031746,0.095238
+2c objective,mass,co2,2.633237,-0.537696,5.932666,0.190476,0.380952

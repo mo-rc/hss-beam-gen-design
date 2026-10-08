@@ -1,0 +1,36 @@
+panel,arm,seed,gap
+2a: PPO reward mode,gated,42,12.536388894278128
+2a: PPO reward mode,gated,43,7.072524271134162
+2a: PPO reward mode,gated,44,9.725199490795443
+2a: PPO reward mode,gated,45,6.331817638927095
+2a: PPO reward mode,gated,46,8.805314787689046
+2a: PPO reward mode,lagrangian,42,10.304224286122032
+2a: PPO reward mode,lagrangian,43,8.716782818244063
+2a: PPO reward mode,lagrangian,44,8.09647168873937
+2a: PPO reward mode,lagrangian,45,11.401768121940048
+2a: PPO reward mode,lagrangian,46,8.40425676112051
+2a: PPO reward mode,shaped,42,16.85484445455434
+2a: PPO reward mode,shaped,43,15.208235848804907
+2a: PPO reward mode,shaped,44,9.414278725090753
+2a: PPO reward mode,shaped,45,11.194388030279878
+2a: PPO reward mode,shaped,46,26.41545767972593
+2b: algorithm (feasibility_gated),PPO,42,12.536388894278128
+2b: algorithm (feasibility_gated),PPO,43,7.072524271134162
+2b: algorithm (feasibility_gated),PPO,44,9.725199490795443
+2b: algorithm (feasibility_gated),PPO,45,6.331817638927095
+2b: algorithm (feasibility_gated),PPO,46,8.805314787689046
+2b: algorithm (feasibility_gated),SAC,42,8.04166042584793
+2b: algorithm (feasibility_gated),SAC,43,34.05050706359975
+2b: algorithm (feasibility_gated),SAC,44,35.49608655265843
+2b: algorithm (feasibility_gated),SAC,45,38.175454677503694
+2b: algorithm (feasibility_gated),SAC,46,8.791089168279509
+2b: algorithm (feasibility_gated),TD3,42,35.061485294935515
+2b: algorithm (feasibility_gated),TD3,43,34.93854060732629
+2b: algorithm (feasibility_gated),TD3,44,53.57237119249469
+2b: algorithm (feasibility_gated),TD3,45,43.42580074843354
+2b: algorithm (feasibility_gated),TD3,46,13.388795379470398
+2b: algorithm (feasibility_gated),DDPG,42,14.402346604878357
+2b: algorithm (feasibility_gated),DDPG,43,10.604193999489508
+2b: algorithm (feasibility_gated),DDPG,44,88.45756343276601
+2b: algorithm (feasibility_gated),DDPG,45,14.460986118861264
+2b: algorithm (feasibility_gated),DDPG,46,32.5616273133103

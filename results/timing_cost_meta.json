@@ -1,0 +1,35 @@
+{
+ "script": "pipeline/12_time_inference.py",
+ "args": {
+  "model": "runs/2a_reward_mode/feasibility_gated/seed42/final_model",
+  "ground_truth_dir": "data/ground_truth/main_grid_pooled",
+  "economy_metric": "cost",
+  "n_contexts": 20,
+  "repeats": 3,
+  "budgets": [
+   40,
+   112,
+   400,
+   1000
+  ],
+  "methods": [
+   "de",
+   "ga",
+   "random"
+  ],
+  "storey": 20,
+  "threads": 1,
+  "seed": 0,
+  "out": "results/timing_cost.csv"
+ },
+ "n_contexts_used": 20,
+ "git_commit": "41ab8b80ab2d811e2158eadd0226a4e9badf2e9f",
+ "git_dirty": false,
+ "generated_utc": "2026-10-09T06:17:53.910170+00:00",
+ "python": "3.13.16",
+ "machine": "Linux-6.6.122+-x86_64-with-glibc2.39",
+ "processor": "x86_64",
+ "torch": "2.11.0+cpu",
+ "torch_threads": 1,
+ "cpu_count": 2
+}

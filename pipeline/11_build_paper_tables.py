@@ -277,6 +277,28 @@ def table_ppo_vs_search(res, search_budget=40):
     return pd.DataFrame(rows)
 
 
+def table_timing(res, budgets=(40, 112, 400, 1000)):
+    """Wall-clock per design (design stage + scale+thin operator, one process, one thread; pipeline/12) next to the
+    gap of the same method from the main-grid evaluations. The timing used one checkpoint (seed 42) per objective."""
+    rows = []
+    for o in OBJ:
+        tm = pd.read_csv(os.path.join(res, f"timing_{o}.csv"))
+        r = tm[tm.method.str.startswith("policy")].iloc[0]
+        ppo = rl_row(res, PPO_MAIN[o])
+        rows.append({"objective": o, "method": "PPO", "budget": np.nan, "ms_per_design": r.ms_total_mean,
+                     "ms_sd": r.ms_total_sd, "evals": r.evals_total, "ms_per_eval": r.ms_per_eval_total,
+                     "gap": ppo["gap_scale+thin"], "feasibility": ppo["feasibility"]})
+        s = _search(res, f"main_{o}")
+        for meth in ("de", "ga", "random"):
+            for B in budgets:
+                r = tm[(tm.method == meth) & (tm.budget == B)].iloc[0]
+                x = s[(s.method == meth) & (s.budget == B)].iloc[0]
+                rows.append({"objective": o, "method": meth, "budget": B, "ms_per_design": r.ms_total_mean,
+                             "ms_sd": r.ms_total_sd, "evals": r.evals_total, "ms_per_eval": r.ms_per_eval_total,
+                             "gap": x.gap, "feasibility": x.feasibility_mean * 100})
+    return pd.DataFrame(rows)
+
+
 def table_knn_cheap(res):
     """kNN with search labels vs label budget, in distribution (n = 36 and LOO) and on the OOD sets."""
     rows = []
@@ -396,6 +418,19 @@ def build_tables(res, outdir):
            "none: PPO 40 vs search 40 evaluations; scale+thin: PPO 100-112 vs search 106-112. 5 seeds vs 5 seeds, exact permutation "
            "test, Holm within (objective, operator) over the 3 searches; smallest attainable Holm p = 0.024. "
            "Gaps over feasible contexts only; feas = feasibility (%).")
+    tt = table_timing(res)
+    f = tt.copy()
+    f["budget"] = f.budget.map(lambda v: "" if np.isnan(v) else f"{int(v)}")
+    f["ms_per_design"] = [f"{m:.1f} ± {s_:.1f}" for m, s_ in zip(tt.ms_per_design, tt.ms_sd)]
+    f = f.drop(columns="ms_sd")
+    f["evals"] = f.evals.map("{:.0f}".format)
+    f["ms_per_eval"] = f.ms_per_eval.map("{:.2f}".format)
+    f["gap"] = f.gap.map("{:.1f}".format)
+    f["feasibility"] = f.feasibility.map("{:.0f}".format)
+    _write(t, "t11_timing", tt, f,
+           "Milliseconds per design including the scale+thin operator, single process, one thread, 20 contexts x 3 repeats "
+           "(± = sd over repeats), one PPO checkpoint (seed 42) per objective; gap and feasibility from the main-grid "
+           "evaluations (PPO: mean of 5 seeds). The kNN was not timed.")
     return {"ood": ood, "search": sb, "matched": mt, "knn_cheap": kc}
 
 

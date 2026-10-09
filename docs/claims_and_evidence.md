@@ -18,6 +18,7 @@ optimum − 1, over feasible contexts; the headline operator mode is `scale+thin
 | C7 | A kNN over stored optima is more accurate than the policy (0.5–1.1% vs 4.6–8.9%) at fewer evaluations per design (41–63), but needs solved labelled contexts and is less often feasible (cost 95%, OOD down to 69%). | t7, Fig. 2, Fig. 4; `results_knn_baseline.md` | deterministic; 2-parameter context only |
 | C8 | With realistic labels (one DE search each) the kNN stays ahead of PPO in distribution from B = 1000, and on 5 of 6 OOD sets (mass on `ood_span` excepted) (36 labelled contexts cost 36,000 evaluations vs PPO's 1,000,000 training steps); OOD results are label-seed dependent. | t8, Fig. 4; `results_knn_cheap_labels.md` | 3 label seeds; OOD reported as ranges |
 | C9 | Much of every method's quality at `scale+thin` is the operator's: PPO without an operator has a 48–49% gap (100% feasible); the kNN is 39–44% and the searches (B = 40) 77–83% feasible without it. | t9, Fig. 5 | descriptive, same operator for all methods |
+| C10 | In wall-clock time the policy's advantage over search is small: 29-30 ms per design; DE matches its gap at 1.5-1.6x the time (cost, mass) and 4.4x (CO2); at matched evaluations searches are 3.5-4.6x faster. | t11 | single checkpoint per objective, one thread, kNN not timed |
 
 ## What a reviewer can legitimately ask, and the status
 
@@ -26,11 +27,15 @@ optimum − 1, over feasible contexts; the headline operator mode is `scale+thin
    interpolation degrades and an amortized policy is expected to matter more. *Not tested;* state it
    as a limitation, and as the reason the policy is of interest (no labels, one model for all contexts).
    A small extension (one more context parameter, with its ground truth) would answer it.
-2. **Wall-clock time.** All efficiency claims are in EC3 evaluations. A policy step also pays a neural
-   forward pass, so evaluation count is not seconds. `pipeline/12_time_inference.py` measures both on
-   one machine and one core; *run it once per objective and report the CPU before any speed claim.*
-   Until then claim evaluation-count efficiency only. The wall times stored in the search CSVs came from
-   parallel workers and must not be used for this.
+2. **Wall-clock time.** Measured (t11, `pipeline/12_time_inference.py`, one process, one thread, design plus
+   `scale+thin` operator): the policy takes 29-30 ms per design, searches at B = 40 take 6.6-8.4 ms for a
+   similar number of evaluations. A policy step costs 0.25-0.28 ms against 0.06-0.15 ms for a search
+   evaluation, so the policy is about 3.5-4.6x *slower* at matched evaluations. The gap advantage at matched
+   evaluations therefore does not carry over to seconds. DE matches the policy's gap at B = 400 for cost
+   and mass (about 47 ms, 1.5-1.6x the policy's time) and at B = 1000 for CO2 (about 130 ms, 4.4x; the
+   budget grid is coarse). The kNN was not timed. One checkpoint per objective was timed, and the policy
+   forward pass is unoptimised (single-sample PyTorch call per step). Claim evaluation-count efficiency;
+   state the wall-clock result as measured.
 3. **Operator dependence.** Headlines use `scale+thin`. Fig. 5 / t9 report all three operator modes for
    every method, and t10 tests PPO vs search with no operator at all.
 4. **Reference.** The reference is the best design found by pooled GA searches, not a proven global

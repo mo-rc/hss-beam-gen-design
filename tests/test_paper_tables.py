@@ -70,3 +70,12 @@ def test_operator_ablation_shows_feasibility_and_operator_effect():
     assert a.loc[("cost", "PPO", "none"), "feasibility"] == pytest.approx(100.0)
     assert a.loc[("cost", "PPO", "none"), "gap"] > 40 > a.loc[("cost", "PPO", "scale+thin"), "gap"]
     assert a.loc[("cost", "kNN (pooled labels, LOO)", "none"), "feasibility"] < 50   # kNN needs the operator for feasibility
+
+
+def test_timing_table_joins_time_and_gap():
+    d = t.table_timing(RES)
+    ppo = d[(d.objective == "cost") & (d.method == "PPO")].iloc[0]
+    assert round(ppo.gap, 1) == 8.9 and 20 < ppo.ms_per_design < 40
+    de = d[(d.objective == "cost") & (d.method == "de") & (d.budget == 400)].iloc[0]
+    assert round(de.gap, 1) == 8.3 and de.evals > 400
+    assert (d.ms_per_design > 0).all() and len(d) == 3 * 13

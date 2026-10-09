@@ -54,3 +54,9 @@ optimum − 1, over feasible contexts; the headline operator mode is `scale+thin
    are for this configuration.
 9. **Not evaluated.** `ood_joint` has no feasible reference design; learning curves are not reported
    (training runs are not tracked in the repository).
+10. **Context dimension.** The context is (span, effective UDL load); the serviceability limit is fixed at L/250
+    (`hss_env.py`, `delta / (L/250)`; utilisation is the maximum of moment and deflection utilisation). Storey is a
+    training-time variable that scales the load by 1 to 1.5 and is part of the observation; in every evaluation and in
+    all ground truth the load is used directly and storey is fixed at 20. `pipeline/14_deflection_sensitivity.py` (t12)
+    shows that a tighter limit would move the reference: at L/360, 75 of 142 cost optima and all 142 mass and CO2
+    optima violate. This is a re-check of stored designs, not a result for a policy trained over limits.

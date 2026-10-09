@@ -431,6 +431,19 @@ def build_tables(res, outdir):
            "Milliseconds per design including the scale+thin operator, single process, one thread, 20 contexts x 3 repeats "
            "(± = sd over repeats), one PPO checkpoint (seed 42) per objective; gap and feasibility from the main-grid "
            "evaluations (PPO: mean of 5 seeds). The kNN was not timed.")
+    ds = os.path.join(res, "deflection_sensitivity.csv")
+    if os.path.exists(ds):  # produced by pipeline/14_deflection_sensitivity.py (seconds, no training)
+        dd = pd.read_csv(ds)
+        f = dd.copy()
+        for c in ("frac_ref_violating", "frac_stored_violating"):
+            f[c] = (f[c] * 100).map("{:.0f}".format)
+        f["n_ref_deflection_governs_at_250"] = f.n_ref_deflection_governs_at_250.map(lambda v: "" if pd.isna(v) else f"{v:.0f}")
+        for c in ("scale_lb_median", "scale_lb_max"):
+            f[c] = f[c].map(lambda v: "" if pd.isna(v) else f"{v:.2f}")
+        _write(t, "t12_deflection_sensitivity", dd, f,
+               "Stored reference optima (one per (span, load) context, 142 contexts) and all stored (grade, section type) optima "
+               "re-checked against a tighter deflection limit L/n; no search. frac_* in %. scale_lb_*: lower bound on the uniform scale "
+               "factor the scale operator would need to repair a violating reference design (deflection ~ s^-4; other checks ignored).")
     return {"ood": ood, "search": sb, "matched": mt, "knn_cheap": kc}
 
 

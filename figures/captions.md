@@ -48,10 +48,14 @@ the training range. Cost favours S355 almost everywhere, mass mixes grades, and 
 feasible context; welded sections are optimal for a few mass and many CO2 contexts at low loads. The
 joint-extrapolation grid has no feasible design.
 
-**Fig. 7 (supplementary). Training curves.** Mean training-episode reward per seed (thin lines) of PPO for
-the cost, mass and CO2 objectives (a); training reward (b) and episode length (c) of PPO, SAC, TD3 and DDPG in
-the algorithm comparison; training reward of the shaped (d) and Lagrangian (e) reward modes; mean constraint
-violation (f) and Lagrange multiplier (g) per constraint, averaged over seeds, for the Lagrangian runs. Rewards
-are on the scale of their reward mode and are not comparable between panels (d), (e) and (a)-(b); the
-comparison metric of the paper is the gap of Figs. 1-3. In (d) the shaped reward is still rising at 1M steps in all five seeds. In (c) the off-policy
-seeds end with different episode lengths (SAC about 8 steps in two seeds and 17-18 in two others), PPO stays near 35-39.
+**Fig. 7 (supplementary). Training curves: objectives and algorithms.** Mean training-episode reward of every
+seed (thin lines) of PPO for the cost, mass and CO2 objectives (a), and training reward (b) and episode length (c)
+of PPO, SAC, TD3 and DDPG in the algorithm comparison (five seeds each). Rewards are on the scale of their reward
+mode; the comparison metric of the paper is the gap of Figs. 1-3. The off-policy seeds end with different episode
+lengths (SAC about 8 steps in two seeds and 17-18 in two others), PPO stays near 35-39.
+
+**Fig. 8 (supplementary). Training curves: reward modes.** Training reward of every seed of the shaped (a) and
+Lagrangian (b) reward modes, and mean constraint violation (c) and Lagrange multiplier (d) per constraint, averaged
+over the five Lagrangian seeds. The shaped reward is still rising at 1M steps in all five seeds. The Lagrangian
+reward falls while the multipliers grow, so it is not a progress measure; the violations fall to about zero.
+Training rewards of different reward modes are not comparable.

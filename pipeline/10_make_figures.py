@@ -19,8 +19,9 @@ Figures (captions: figures/captions.md; figure titles are deliberately left to t
   fig4  kNN gap vs labelling cost (realistic search labels vs pooled labels), PPO training cost marked
   fig5  operator ablation: every method under none / scale / scale+thin (gap and feasibility)
   fig6  reference landscape: optimal grade over the span x load plane, training box, OOD grids
-  fig7  training curves (supplementary): reward, episode length, Lagrangian violations and multipliers per seed;
-        needs results/training_curves/ from pipeline/13_export_training_curves.py and is skipped if absent
+  fig7  training curves (supplementary): reward per seed for the three objectives and the four algorithms, episode length
+  fig8  training curves (supplementary): shaped and Lagrangian reward modes, constraint violations, multipliers
+        (fig7 and fig8 need results/training_curves/ from pipeline/13_export_training_curves.py; skipped if absent)
 """
 import argparse
 import glob
@@ -364,86 +365,115 @@ def fig6(rd, od):
     save(fig, od, "fig6_reference_landscape", data)
 
 
-# --------------------------------------------------------------------------------------- fig 7
-def fig7(rd, od):
-    cdir = os.path.join(rd, "training_curves")
-    if not os.path.exists(os.path.join(cdir, "index.csv")):
-        print("fig7 skipped: no results/training_curves/index.csv (run pipeline/13_export_training_curves.py)")
-        return
-    idx = pd.read_csv(os.path.join(cdir, "index.csv"))
-    runs = {r.run: pd.read_csv(os.path.join(cdir, r.run + ".csv")) for r in idx.itertuples()}
-    algo_col = {"ppo": COL["ppo"], "sac": "#66a61e", "td3": "#e6ab02", "ddpg": "#a6761d"}
-    kept = []
+# --------------------------------------------------------------------------------------- fig 7 / fig 8
+class _Curves:
+    """Exported TensorBoard curves (pipeline/13_export_training_curves.py): per-run lines and seed means."""
 
-    def curves(exp_prefix, arm, tag):
+    def __init__(self, rd):
+        cdir = os.path.join(rd, "training_curves")
+        self.idx = pd.read_csv(os.path.join(cdir, "index.csv"))
+        self.runs = {r.run: pd.read_csv(os.path.join(cdir, r.run + ".csv")) for r in self.idx.itertuples()}
+        self.kept = []
+
+    @staticmethod
+    def available(rd):
+        return os.path.exists(os.path.join(rd, "training_curves", "index.csv"))
+
+    def curves(self, exp_prefix, arm, tag):
         out = []
-        for r in idx[(idx.experiment.str.startswith(exp_prefix)) & (idx.arm == arm)].itertuples():
-            d = runs[r.run]
+        for r in self.idx[(self.idx.experiment.str.startswith(exp_prefix)) & (self.idx.arm == arm)].itertuples():
+            d = self.runs[r.run]
             d = d[d.tag == tag]
             if len(d):
                 out.append((r.run, d.step.to_numpy(), d.value.to_numpy()))
         return out
 
-    def draw(ax, pan, items, color, label):
+    def draw(self, ax, pan, items, color, label):
         for k, (run, x, y) in enumerate(items):
             ax.plot(x, y, color=color, lw=0.8, alpha=0.7, label=label if k == 0 else None)
-            kept.append(pd.DataFrame({"panel": pan, "run": run, "step": x, "value": y}))
+            self.kept.append(pd.DataFrame({"panel": pan, "run": run, "step": x, "value": y}))
 
-    def mean_curve(items, grid):
+    def draw_mean(self, ax, pan, items, grid, color, label, floor=None):
         ys = [np.interp(grid, x, y) for _, x, y in items if len(x)]
-        return np.mean(ys, axis=0) if ys else None
+        if not ys:
+            return
+        m = np.mean(ys, axis=0)
+        ax.plot(grid, m if floor is None else np.maximum(m, floor), color=color, lw=1.2, label=label)
+        self.kept.append(pd.DataFrame({"panel": pan, "run": "mean over seeds", "step": grid, "value": m, "tag": label}))
 
+
+def _steps_axis(ax):
+    ax.set_xlabel("training steps")
+    ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v / 1e6:g}M" if v else "0"))
+
+
+def fig7(rd, od):
+    """Training curves, algorithms and objectives (all seeds of every run)."""
+    if not _Curves.available(rd):
+        print("fig7 skipped: no results/training_curves/index.csv (run pipeline/13_export_training_curves.py)")
+        return
+    c = _Curves(rd)
+    algo_col = {"ppo": COL["ppo"], "sac": "#66a61e", "td3": "#e6ab02", "ddpg": "#a6761d"}
     obj_col = {"cost": COL["ppo"], "mass": "#377eb8", "co2": "#4daf4a"}
     algos = (("ppo", "2a", "feasibility_gated"), ("sac", "2b", "sac"), ("td3", "2b", "td3"), ("ddpg", "2b", "ddpg"))
-    fig, axes = plt.subplots(2, 4, figsize=(W2, 4.0), constrained_layout=True)
-    ax = axes[0, 0]
+    fig, axes = plt.subplots(1, 3, figsize=(W2, 2.7), constrained_layout=True)
+    ax = axes[0]
     for o, exp_, arm in (("cost", "2a", "feasibility_gated"), ("mass", "2c", "mass"), ("co2", "2c", "co2")):
-        draw(ax, "a", curves(exp_, arm, "rollout/ep_rew_mean"), obj_col[o], OBJ_LABEL[o])
+        c.draw(ax, "a", c.curves(exp_, arm, "rollout/ep_rew_mean"), obj_col[o], OBJ_LABEL[o])
     ax.set_yscale("symlog", linthresh=10)
     ax.set_ylabel("training reward (PPO)")
     ax.legend(frameon=False, loc="lower right")
-    ax = axes[0, 1]
+    ax = axes[1]
     for algo, exp_, arm in algos:
-        draw(ax, "b", curves(exp_, arm, "rollout/ep_rew_mean"), algo_col[algo], algo.upper())
+        c.draw(ax, "b", c.curves(exp_, arm, "rollout/ep_rew_mean"), algo_col[algo], algo.upper())
     ax.set_yscale("symlog", linthresh=10)
     ax.set_ylabel("training reward")
     ax.legend(frameon=False, loc="lower right")
-    ax = axes[0, 2]
+    ax = axes[2]
     for algo, exp_, arm in algos:
-        draw(ax, "c", curves(exp_, arm, "rollout/ep_len_mean"), algo_col[algo], None)
+        c.draw(ax, "c", c.curves(exp_, arm, "rollout/ep_len_mean"), algo_col[algo], None)
     ax.set_ylabel("episode length (steps)")
     ax.set_ylim(bottom=0)
-    ax = axes[0, 3]
-    draw(ax, "d", curves("2a", "shaped", "rollout/ep_rew_mean"), COL["ppo"], None)
+    for a_, ch in zip(axes, "abc"):
+        panel(a_, ch)
+        _steps_axis(a_)
+    save(fig, od, "fig7_training_curves", pd.concat(c.kept, ignore_index=True))
+
+
+def fig8(rd, od):
+    """Training curves, reward modes: shaped, Lagrangian reward, constraint violations and multipliers."""
+    if not _Curves.available(rd):
+        print("fig8 skipped: no results/training_curves/index.csv (run pipeline/13_export_training_curves.py)")
+        return
+    c = _Curves(rd)
+    grid = np.linspace(10_000, 1_000_000, 100)
+    cons = (("g1_util", "utilisation", "#1b9e77"), ("g2_class", "section class", "#d95f02"),
+            ("g3_geom", "geometry", "#7570b3"))
+    fig, axes = plt.subplots(1, 4, figsize=(W2, 2.7), constrained_layout=True)
+    ax = axes[0]
+    c.draw(ax, "a", c.curves("2a", "shaped", "rollout/ep_rew_mean"), COL["ppo"], None)
     ax.set_yscale("symlog", linthresh=10)
     ax.set_ylabel("training reward (shaped)")
-    ax = axes[1, 0]
-    draw(ax, "e", curves("2a", "lagrangian", "rollout/ep_rew_mean"), COL["ppo"], None)
+    ax = axes[1]
+    c.draw(ax, "b", c.curves("2a", "lagrangian", "rollout/ep_rew_mean"), COL["ppo"], None)
     ax.set_yscale("symlog", linthresh=10)
-    ax.set_ylabel("training reward (Lagr.)")
-    grid = np.linspace(10_000, 1_000_000, 100)
-    for ax, pan, pre, ylab in ((axes[1, 1], "f", "lagrangian/mean_violation_", "mean constraint violation"),
-                               (axes[1, 2], "g", "lagrangian/lambda_", "Lagrange multiplier")):
-        for tag, lab, c in (("g1_util", "utilisation", "#1b9e77"), ("g2_class", "section class", "#d95f02"),
-                            ("g3_geom", "geometry", "#7570b3")):
-            m = mean_curve(curves("2a", "lagrangian", pre + tag), grid)
-            if m is not None:
-                ax.plot(grid, np.maximum(m, 1e-8), color=c, lw=1.2, label=lab)
-                kept.append(pd.DataFrame({"panel": pan, "run": "mean over seeds", "step": grid, "value": m,
-                                          "tag": tag}))
+    ax.set_ylabel("training reward (Lagrangian)")
+    for ax, pan, pre, ylab in ((axes[2], "c", "lagrangian/mean_violation_", "mean constraint violation"),
+                               (axes[3], "d", "lagrangian/lambda_", "Lagrange multiplier")):
+        for tag, lab, col in cons:
+            c.draw_mean(ax, pan, c.curves("2a", "lagrangian", pre + tag), grid, col, lab,
+                        floor=1e-8 if pan == "c" else None)
         ax.set_yscale("log")
         ax.set_ylabel(ylab)
-    h, l = axes[1, 1].get_legend_handles_labels()
-    axes[1, 3].axis("off")
-    axes[1, 3].legend(h, l, frameon=False, loc="center left", title="constraint")
-    for a_, ch in zip(axes.ravel()[:7], "abcdefg"):
+    for a_, ch in zip(axes, "abcd"):
         panel(a_, ch)
-        a_.set_xlabel("training steps")
-        a_.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v / 1e6:g}M" if v else "0"))
-    save(fig, od, "fig7_training_curves", pd.concat(kept, ignore_index=True))
+        _steps_axis(a_)
+    h, l = axes[2].get_legend_handles_labels()
+    fig.legend(h, l, loc="outside lower center", ncol=3, frameon=False, title="constraint (panels c, d)")
+    save(fig, od, "fig8_reward_modes", pd.concat(c.kept, ignore_index=True))
 
 
-FIGS = {0: fig0, 1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5, 6: fig6, 7: fig7}
+FIGS = {0: fig0, 1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5, 6: fig6, 7: fig7, 8: fig8}
 
 
 def main():

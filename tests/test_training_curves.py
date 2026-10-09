@@ -1,4 +1,4 @@
-"""pipeline/13_export_training_curves.py and fig7: run on small synthetic TensorBoard event files."""
+"""pipeline/13_export_training_curves.py, fig7 and fig8: run on small synthetic TensorBoard event files."""
 import importlib.util
 import json
 import os
@@ -73,7 +73,7 @@ def test_resumed_run_latest_event_wins(tmp_path):
     assert d[10] == pytest.approx(0.001) and d[20] == pytest.approx(1000.002) and 40 in d.index
 
 
-def test_fig7_written_from_exported_curves(tmp_path):
+def test_fig7_and_fig8_written_from_exported_curves(tmp_path):
     runs, rd, od = str(tmp_path / "runs"), str(tmp_path / "results"), str(tmp_path / "figs")
     lag = ("rollout/ep_rew_mean", "rollout/ep_len_mean", "lagrangian/lambda_g1_util", "lagrangian/lambda_g2_class",
            "lagrangian/lambda_g3_geom", "lagrangian/mean_violation_g1_util", "lagrangian/mean_violation_g2_class",
@@ -92,10 +92,17 @@ def test_fig7_written_from_exported_curves(tmp_path):
     figs.fig7(rd, od)
     data = pd.read_csv(os.path.join(od, "fig7_training_curves_data.csv"))
     assert {"2c_objective__mass__seed42", "2c_objective__co2__seed43"} <= set(data[data.panel == "a"].run)
+    assert set(data.panel) == {"a", "b", "c"}
+    figs.fig8(rd, od)
+    d8 = pd.read_csv(os.path.join(od, "fig8_reward_modes_data.csv"))
+    assert set(d8.panel) == {"a", "b", "c", "d"} and set(d8[d8.panel == "c"].tag) == {"utilisation", "section class", "geometry"}
+    for ext in (".png", ".pdf", "_data.csv"):
+        assert os.path.getsize(os.path.join(od, "fig8_reward_modes" + ext)) > 0
     for ext in (".png", ".pdf", "_data.csv"):
         assert os.path.getsize(os.path.join(od, "fig7_training_curves" + ext)) > 0
 
 
-def test_fig7_skips_without_curves(tmp_path, capsys):
+def test_fig7_and_fig8_skip_without_curves(tmp_path, capsys):
     figs.fig7(str(tmp_path), str(tmp_path / "f"))
-    assert "skipped" in capsys.readouterr().out and not os.path.exists(str(tmp_path / "f"))
+    figs.fig8(str(tmp_path), str(tmp_path / "f"))
+    assert capsys.readouterr().out.count("skipped") == 2 and not os.path.exists(str(tmp_path / "f"))

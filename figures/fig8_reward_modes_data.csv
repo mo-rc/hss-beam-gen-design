@@ -1,0 +1,1611 @@
+panel,run,step,value,tag
+a,2a_reward_mode__shaped__seed42,8192.0,-106027.640625,
+a,2a_reward_mode__shaped__seed42,16384.0,-88461.5,
+a,2a_reward_mode__shaped__seed42,24576.0,-56252.4921875,
+a,2a_reward_mode__shaped__seed42,32768.0,-36210.26171875,
+a,2a_reward_mode__shaped__seed42,45056.0,-26183.185546875,
+a,2a_reward_mode__shaped__seed42,57344.0,-15956.947265625,
+a,2a_reward_mode__shaped__seed42,65536.0,-13086.9775390625,
+a,2a_reward_mode__shaped__seed42,73728.0,-8471.61328125,
+a,2a_reward_mode__shaped__seed42,81920.0,-7871.65478515625,
+a,2a_reward_mode__shaped__seed42,94208.0,-6067.493896484375,
+a,2a_reward_mode__shaped__seed42,106496.0,-5551.138671875,
+a,2a_reward_mode__shaped__seed42,114688.0,-5732.23779296875,
+a,2a_reward_mode__shaped__seed42,122880.0,-4394.859375,
+a,2a_reward_mode__shaped__seed42,135168.0,-5008.318359375,
+a,2a_reward_mode__shaped__seed42,147456.0,-4203.00390625,
+a,2a_reward_mode__shaped__seed42,155648.0,-4486.71533203125,
+a,2a_reward_mode__shaped__seed42,163840.0,-3880.414794921875,
+a,2a_reward_mode__shaped__seed42,172032.0,-3795.678955078125,
+a,2a_reward_mode__shaped__seed42,184320.0,-4014.783203125,
+a,2a_reward_mode__shaped__seed42,196608.0,-3497.200439453125,
+a,2a_reward_mode__shaped__seed42,204800.0,-3583.007080078125,
+a,2a_reward_mode__shaped__seed42,212992.0,-2737.207275390625,
+a,2a_reward_mode__shaped__seed42,225280.0,-2980.9190673828125,
+a,2a_reward_mode__shaped__seed42,237568.0,-2789.186767578125,
+a,2a_reward_mode__shaped__seed42,245760.0,-2888.483642578125,
+a,2a_reward_mode__shaped__seed42,253952.0,-2754.927734375,
+a,2a_reward_mode__shaped__seed42,262144.0,-2258.843505859375,
+a,2a_reward_mode__shaped__seed42,274432.0,-2814.4940185546875,
+a,2a_reward_mode__shaped__seed42,286720.0,-2526.2001953125,
+a,2a_reward_mode__shaped__seed42,294912.0,-2490.447021484375,
+a,2a_reward_mode__shaped__seed42,303104.0,-2403.482666015625,
+a,2a_reward_mode__shaped__seed42,315392.0,-2455.8453369140625,
+a,2a_reward_mode__shaped__seed42,327680.0,-2507.490478515625,
+a,2a_reward_mode__shaped__seed42,335872.0,-2132.52880859375,
+a,2a_reward_mode__shaped__seed42,344064.0,-2532.780029296875,
+a,2a_reward_mode__shaped__seed42,352256.0,-1835.7132568359373,
+a,2a_reward_mode__shaped__seed42,364544.0,-2239.39794921875,
+a,2a_reward_mode__shaped__seed42,376832.0,-2123.906494140625,
+a,2a_reward_mode__shaped__seed42,385024.0,-2481.96142578125,
+a,2a_reward_mode__shaped__seed42,393216.0,-2130.55126953125,
+a,2a_reward_mode__shaped__seed42,405504.0,-2458.414428710937,
+a,2a_reward_mode__shaped__seed42,417792.0,-2240.583251953125,
+a,2a_reward_mode__shaped__seed42,425984.0,-1901.8924560546875,
+a,2a_reward_mode__shaped__seed42,434176.0,-2231.26953125,
+a,2a_reward_mode__shaped__seed42,442368.0,-2392.968994140625,
+a,2a_reward_mode__shaped__seed42,454656.0,-2285.436279296875,
+a,2a_reward_mode__shaped__seed42,466944.0,-1399.47705078125,
+a,2a_reward_mode__shaped__seed42,475136.0,-2475.9775390625,
+a,2a_reward_mode__shaped__seed42,483328.0,-1903.3497314453125,
+a,2a_reward_mode__shaped__seed42,495616.0,-1793.6589965820312,
+a,2a_reward_mode__shaped__seed42,507904.0,-1648.141357421875,
+a,2a_reward_mode__shaped__seed42,516096.0,-1469.988525390625,
+a,2a_reward_mode__shaped__seed42,524288.0,-1766.681884765625,
+a,2a_reward_mode__shaped__seed42,532480.0,-1817.3934326171875,
+a,2a_reward_mode__shaped__seed42,544768.0,-1571.6276245117188,
+a,2a_reward_mode__shaped__seed42,557056.0,-1340.2796630859375,
+a,2a_reward_mode__shaped__seed42,565248.0,-1983.2149658203125,
+a,2a_reward_mode__shaped__seed42,573440.0,-1785.3931884765625,
+a,2a_reward_mode__shaped__seed42,585728.0,-1892.976806640625,
+a,2a_reward_mode__shaped__seed42,598016.0,-1858.5540771484373,
+a,2a_reward_mode__shaped__seed42,606208.0,-1404.85595703125,
+a,2a_reward_mode__shaped__seed42,614400.0,-1683.489013671875,
+a,2a_reward_mode__shaped__seed42,622592.0,-1914.3265380859373,
+a,2a_reward_mode__shaped__seed42,634880.0,-1661.11865234375,
+a,2a_reward_mode__shaped__seed42,647168.0,-1734.6754150390625,
+a,2a_reward_mode__shaped__seed42,655360.0,-1399.7427978515625,
+a,2a_reward_mode__shaped__seed42,663552.0,-1705.966064453125,
+a,2a_reward_mode__shaped__seed42,675840.0,-1623.9526977539062,
+a,2a_reward_mode__shaped__seed42,688128.0,-1394.11962890625,
+a,2a_reward_mode__shaped__seed42,696320.0,-1595.02392578125,
+a,2a_reward_mode__shaped__seed42,704512.0,-1515.517333984375,
+a,2a_reward_mode__shaped__seed42,712704.0,-1277.6962890625,
+a,2a_reward_mode__shaped__seed42,724992.0,-1388.9719848632812,
+a,2a_reward_mode__shaped__seed42,737280.0,-1250.1058349609375,
+a,2a_reward_mode__shaped__seed42,745472.0,-1150.7620849609375,
+a,2a_reward_mode__shaped__seed42,753664.0,-1042.5753173828125,
+a,2a_reward_mode__shaped__seed42,761856.0,-1238.9066162109375,
+a,2a_reward_mode__shaped__seed42,774144.0,-791.8846435546875,
+a,2a_reward_mode__shaped__seed42,786432.0,-855.13232421875,
+a,2a_reward_mode__shaped__seed42,794624.0,-933.6441040039062,
+a,2a_reward_mode__shaped__seed42,802816.0,-802.314697265625,
+a,2a_reward_mode__shaped__seed42,815104.0,-670.9917907714844,
+a,2a_reward_mode__shaped__seed42,827392.0,-654.267578125,
+a,2a_reward_mode__shaped__seed42,835584.0,-743.4476318359375,
+a,2a_reward_mode__shaped__seed42,843776.0,-700.7262573242188,
+a,2a_reward_mode__shaped__seed42,851968.0,-804.59521484375,
+a,2a_reward_mode__shaped__seed42,864256.0,-565.3090057373047,
+a,2a_reward_mode__shaped__seed42,876544.0,-817.2021484375,
+a,2a_reward_mode__shaped__seed42,884736.0,-709.821533203125,
+a,2a_reward_mode__shaped__seed42,892928.0,-807.613037109375,
+a,2a_reward_mode__shaped__seed42,905216.0,-883.2635498046875,
+a,2a_reward_mode__shaped__seed42,917504.0,-552.98779296875,
+a,2a_reward_mode__shaped__seed42,925696.0,-490.0313720703125,
+a,2a_reward_mode__shaped__seed42,933888.0,-718.2489624023438,
+a,2a_reward_mode__shaped__seed42,942080.0,-408.54925537109375,
+a,2a_reward_mode__shaped__seed42,954368.0,-552.0457000732422,
+a,2a_reward_mode__shaped__seed42,966656.0,-588.4296264648438,
+a,2a_reward_mode__shaped__seed42,974848.0,-467.7068481445313,
+a,2a_reward_mode__shaped__seed42,983040.0,-352.2900695800781,
+a,2a_reward_mode__shaped__seed42,995328.0,-324.8036499023437,
+a,2a_reward_mode__shaped__seed42,1007616.0,-435.9064636230469,
+a,2a_reward_mode__shaped__seed43,8192.0,-108423.6015625,
+a,2a_reward_mode__shaped__seed43,16384.0,-86047.5234375,
+a,2a_reward_mode__shaped__seed43,24576.0,-59068.25390625,
+a,2a_reward_mode__shaped__seed43,32768.0,-35337.89453125,
+a,2a_reward_mode__shaped__seed43,45056.0,-23791.2763671875,
+a,2a_reward_mode__shaped__seed43,57344.0,-11005.150390625,
+a,2a_reward_mode__shaped__seed43,65536.0,-10209.2001953125,
+a,2a_reward_mode__shaped__seed43,73728.0,-8737.9580078125,
+a,2a_reward_mode__shaped__seed43,81920.0,-7843.06884765625,
+a,2a_reward_mode__shaped__seed43,94208.0,-4907.407958984375,
+a,2a_reward_mode__shaped__seed43,106496.0,-5179.1171875,
+a,2a_reward_mode__shaped__seed43,114688.0,-5643.60498046875,
+a,2a_reward_mode__shaped__seed43,122880.0,-3836.249267578125,
+a,2a_reward_mode__shaped__seed43,135168.0,-4493.33837890625,
+a,2a_reward_mode__shaped__seed43,147456.0,-2950.9990234375,
+a,2a_reward_mode__shaped__seed43,155648.0,-3639.47802734375,
+a,2a_reward_mode__shaped__seed43,163840.0,-3237.5771484375,
+a,2a_reward_mode__shaped__seed43,172032.0,-2795.89990234375,
+a,2a_reward_mode__shaped__seed43,184320.0,-2833.954467773437,
+a,2a_reward_mode__shaped__seed43,196608.0,-2793.291259765625,
+a,2a_reward_mode__shaped__seed43,204800.0,-2506.455078125,
+a,2a_reward_mode__shaped__seed43,212992.0,-2349.70654296875,
+a,2a_reward_mode__shaped__seed43,225280.0,-2766.13818359375,
+a,2a_reward_mode__shaped__seed43,237568.0,-2691.034912109375,
+a,2a_reward_mode__shaped__seed43,245760.0,-2349.787353515625,
+a,2a_reward_mode__shaped__seed43,253952.0,-2137.40380859375,
+a,2a_reward_mode__shaped__seed43,262144.0,-2079.132080078125,
+a,2a_reward_mode__shaped__seed43,274432.0,-1996.3297119140625,
+a,2a_reward_mode__shaped__seed43,286720.0,-1943.2618408203125,
+a,2a_reward_mode__shaped__seed43,294912.0,-1950.974853515625,
+a,2a_reward_mode__shaped__seed43,303104.0,-1489.086181640625,
+a,2a_reward_mode__shaped__seed43,315392.0,-1652.6839599609375,
+a,2a_reward_mode__shaped__seed43,327680.0,-1388.2877197265625,
+a,2a_reward_mode__shaped__seed43,335872.0,-1748.642333984375,
+a,2a_reward_mode__shaped__seed43,344064.0,-1670.868408203125,
+a,2a_reward_mode__shaped__seed43,352256.0,-1743.076904296875,
+a,2a_reward_mode__shaped__seed43,364544.0,-1464.6668090820312,
+a,2a_reward_mode__shaped__seed43,376832.0,-1420.7508544921875,
+a,2a_reward_mode__shaped__seed43,385024.0,-1672.4144287109375,
+a,2a_reward_mode__shaped__seed43,393216.0,-1444.8433837890625,
+a,2a_reward_mode__shaped__seed43,405504.0,-1859.5704956054688,
+a,2a_reward_mode__shaped__seed43,417792.0,-1110.327392578125,
+a,2a_reward_mode__shaped__seed43,425984.0,-1073.8388671875,
+a,2a_reward_mode__shaped__seed43,434176.0,-1369.459228515625,
+a,2a_reward_mode__shaped__seed43,442368.0,-1506.2835693359375,
+a,2a_reward_mode__shaped__seed43,454656.0,-1432.0927124023438,
+a,2a_reward_mode__shaped__seed43,466944.0,-1315.89013671875,
+a,2a_reward_mode__shaped__seed43,475136.0,-1426.5672607421875,
+a,2a_reward_mode__shaped__seed43,483328.0,-1120.77587890625,
+a,2a_reward_mode__shaped__seed43,495616.0,-1161.9864501953125,
+a,2a_reward_mode__shaped__seed43,507904.0,-1077.9974365234375,
+a,2a_reward_mode__shaped__seed43,516096.0,-1004.885498046875,
+a,2a_reward_mode__shaped__seed43,524288.0,-1340.2877197265625,
+a,2a_reward_mode__shaped__seed43,532480.0,-1070.9571533203125,
+a,2a_reward_mode__shaped__seed43,544768.0,-1116.184814453125,
+a,2a_reward_mode__shaped__seed43,557056.0,-1046.649169921875,
+a,2a_reward_mode__shaped__seed43,565248.0,-1051.751953125,
+a,2a_reward_mode__shaped__seed43,573440.0,-1251.3782958984375,
+a,2a_reward_mode__shaped__seed43,585728.0,-1305.21533203125,
+a,2a_reward_mode__shaped__seed43,598016.0,-1035.3084716796875,
+a,2a_reward_mode__shaped__seed43,606208.0,-834.876708984375,
+a,2a_reward_mode__shaped__seed43,614400.0,-1107.3890380859375,
+a,2a_reward_mode__shaped__seed43,622592.0,-1276.4962158203125,
+a,2a_reward_mode__shaped__seed43,634880.0,-1171.0902099609375,
+a,2a_reward_mode__shaped__seed43,647168.0,-746.3523559570312,
+a,2a_reward_mode__shaped__seed43,655360.0,-998.9329223632812,
+a,2a_reward_mode__shaped__seed43,663552.0,-1453.7205810546875,
+a,2a_reward_mode__shaped__seed43,675840.0,-1023.5606079101562,
+a,2a_reward_mode__shaped__seed43,688128.0,-874.8002319335938,
+a,2a_reward_mode__shaped__seed43,696320.0,-868.4104614257812,
+a,2a_reward_mode__shaped__seed43,704512.0,-912.2833251953124,
+a,2a_reward_mode__shaped__seed43,712704.0,-820.5371704101562,
+a,2a_reward_mode__shaped__seed43,724992.0,-950.5887145996094,
+a,2a_reward_mode__shaped__seed43,737280.0,-806.1554565429688,
+a,2a_reward_mode__shaped__seed43,745472.0,-1042.0108642578125,
+a,2a_reward_mode__shaped__seed43,753664.0,-670.0526733398438,
+a,2a_reward_mode__shaped__seed43,761856.0,-885.6610107421875,
+a,2a_reward_mode__shaped__seed43,774144.0,-708.5860595703125,
+a,2a_reward_mode__shaped__seed43,786432.0,-617.4061889648438,
+a,2a_reward_mode__shaped__seed43,794624.0,-506.8795776367188,
+a,2a_reward_mode__shaped__seed43,802816.0,-480.1284790039063,
+a,2a_reward_mode__shaped__seed43,815104.0,-622.7581481933594,
+a,2a_reward_mode__shaped__seed43,827392.0,-649.1472778320312,
+a,2a_reward_mode__shaped__seed43,835584.0,-779.3927001953125,
+a,2a_reward_mode__shaped__seed43,843776.0,-548.2107543945312,
+a,2a_reward_mode__shaped__seed43,851968.0,-588.2399291992188,
+a,2a_reward_mode__shaped__seed43,864256.0,-433.98875427246094,
+a,2a_reward_mode__shaped__seed43,876544.0,-383.2451171875,
+a,2a_reward_mode__shaped__seed43,884736.0,-609.2115478515625,
+a,2a_reward_mode__shaped__seed43,892928.0,-411.6764526367188,
+a,2a_reward_mode__shaped__seed43,905216.0,-368.39674377441406,
+a,2a_reward_mode__shaped__seed43,917504.0,-324.3347473144531,
+a,2a_reward_mode__shaped__seed43,925696.0,-244.09506225585935,
+a,2a_reward_mode__shaped__seed43,933888.0,-196.6175994873047,
+a,2a_reward_mode__shaped__seed43,942080.0,-317.6944580078125,
+a,2a_reward_mode__shaped__seed43,954368.0,-230.7266960144043,
+a,2a_reward_mode__shaped__seed43,966656.0,78.31986999511719,
+a,2a_reward_mode__shaped__seed43,974848.0,-281.071044921875,
+a,2a_reward_mode__shaped__seed43,983040.0,-101.29298400878906,
+a,2a_reward_mode__shaped__seed43,995328.0,-34.66020679473877,
+a,2a_reward_mode__shaped__seed43,1007616.0,-201.80198669433597,
+a,2a_reward_mode__shaped__seed44,8192.0,-101783.6875,
+a,2a_reward_mode__shaped__seed44,16384.0,-76224.1640625,
+a,2a_reward_mode__shaped__seed44,24576.0,-62137.765625,
+a,2a_reward_mode__shaped__seed44,32768.0,-39826.08203125,
+a,2a_reward_mode__shaped__seed44,45056.0,-23346.421875,
+a,2a_reward_mode__shaped__seed44,57344.0,-12116.2421875,
+a,2a_reward_mode__shaped__seed44,65536.0,-9912.357421875,
+a,2a_reward_mode__shaped__seed44,73728.0,-9082.71484375,
+a,2a_reward_mode__shaped__seed44,81920.0,-8985.8876953125,
+a,2a_reward_mode__shaped__seed44,94208.0,-6118.7734375,
+a,2a_reward_mode__shaped__seed44,106496.0,-4050.576904296875,
+a,2a_reward_mode__shaped__seed44,114688.0,-4589.93017578125,
+a,2a_reward_mode__shaped__seed44,122880.0,-3969.858154296875,
+a,2a_reward_mode__shaped__seed44,135168.0,-3884.2890625,
+a,2a_reward_mode__shaped__seed44,147456.0,-3044.765869140625,
+a,2a_reward_mode__shaped__seed44,155648.0,-4142.45166015625,
+a,2a_reward_mode__shaped__seed44,163840.0,-3127.8857421875,
+a,2a_reward_mode__shaped__seed44,172032.0,-2646.61083984375,
+a,2a_reward_mode__shaped__seed44,184320.0,-2780.7451171875,
+a,2a_reward_mode__shaped__seed44,196608.0,-2504.545166015625,
+a,2a_reward_mode__shaped__seed44,204800.0,-2529.974853515625,
+a,2a_reward_mode__shaped__seed44,212992.0,-1961.8302001953125,
+a,2a_reward_mode__shaped__seed44,225280.0,-2313.189208984375,
+a,2a_reward_mode__shaped__seed44,237568.0,-1847.442626953125,
+a,2a_reward_mode__shaped__seed44,245760.0,-1822.8922119140625,
+a,2a_reward_mode__shaped__seed44,253952.0,-1494.9100341796875,
+a,2a_reward_mode__shaped__seed44,262144.0,-1690.2333984375,
+a,2a_reward_mode__shaped__seed44,274432.0,-1874.7462158203125,
+a,2a_reward_mode__shaped__seed44,286720.0,-1477.697509765625,
+a,2a_reward_mode__shaped__seed44,294912.0,-1433.3880615234375,
+a,2a_reward_mode__shaped__seed44,303104.0,-1168.945068359375,
+a,2a_reward_mode__shaped__seed44,315392.0,-1183.3546142578125,
+a,2a_reward_mode__shaped__seed44,327680.0,-1474.826416015625,
+a,2a_reward_mode__shaped__seed44,335872.0,-1287.0792236328125,
+a,2a_reward_mode__shaped__seed44,344064.0,-1285.4427490234375,
+a,2a_reward_mode__shaped__seed44,352256.0,-1170.674072265625,
+a,2a_reward_mode__shaped__seed44,364544.0,-961.937957763672,
+a,2a_reward_mode__shaped__seed44,376832.0,-961.7432861328124,
+a,2a_reward_mode__shaped__seed44,385024.0,-991.1888427734376,
+a,2a_reward_mode__shaped__seed44,393216.0,-939.2601318359376,
+a,2a_reward_mode__shaped__seed44,405504.0,-1125.082763671875,
+a,2a_reward_mode__shaped__seed44,417792.0,-877.4578247070312,
+a,2a_reward_mode__shaped__seed44,425984.0,-840.6746215820312,
+a,2a_reward_mode__shaped__seed44,434176.0,-1051.66455078125,
+a,2a_reward_mode__shaped__seed44,442368.0,-1208.453857421875,
+a,2a_reward_mode__shaped__seed44,454656.0,-1249.439208984375,
+a,2a_reward_mode__shaped__seed44,466944.0,-1102.9058837890625,
+a,2a_reward_mode__shaped__seed44,475136.0,-1172.03857421875,
+a,2a_reward_mode__shaped__seed44,483328.0,-981.1083374023438,
+a,2a_reward_mode__shaped__seed44,495616.0,-969.9426879882812,
+a,2a_reward_mode__shaped__seed44,507904.0,-976.6211547851562,
+a,2a_reward_mode__shaped__seed44,516096.0,-908.7689208984376,
+a,2a_reward_mode__shaped__seed44,524288.0,-1085.888671875,
+a,2a_reward_mode__shaped__seed44,532480.0,-841.356689453125,
+a,2a_reward_mode__shaped__seed44,544768.0,-974.223663330078,
+a,2a_reward_mode__shaped__seed44,557056.0,-1040.1593017578125,
+a,2a_reward_mode__shaped__seed44,565248.0,-997.599853515625,
+a,2a_reward_mode__shaped__seed44,573440.0,-1071.746337890625,
+a,2a_reward_mode__shaped__seed44,585728.0,-996.5850830078124,
+a,2a_reward_mode__shaped__seed44,598016.0,-819.0524291992188,
+a,2a_reward_mode__shaped__seed44,606208.0,-904.116943359375,
+a,2a_reward_mode__shaped__seed44,614400.0,-967.9276123046876,
+a,2a_reward_mode__shaped__seed44,622592.0,-750.8839721679688,
+a,2a_reward_mode__shaped__seed44,634880.0,-938.7008972167968,
+a,2a_reward_mode__shaped__seed44,647168.0,-989.4715576171876,
+a,2a_reward_mode__shaped__seed44,655360.0,-795.8563232421875,
+a,2a_reward_mode__shaped__seed44,663552.0,-1078.9271240234375,
+a,2a_reward_mode__shaped__seed44,675840.0,-930.298309326172,
+a,2a_reward_mode__shaped__seed44,688128.0,-805.0825805664062,
+a,2a_reward_mode__shaped__seed44,696320.0,-1041.2528076171875,
+a,2a_reward_mode__shaped__seed44,704512.0,-947.9805908203124,
+a,2a_reward_mode__shaped__seed44,712704.0,-1016.9451904296876,
+a,2a_reward_mode__shaped__seed44,724992.0,-828.0928649902344,
+a,2a_reward_mode__shaped__seed44,737280.0,-1034.5345458984375,
+a,2a_reward_mode__shaped__seed44,745472.0,-777.4213256835938,
+a,2a_reward_mode__shaped__seed44,753664.0,-796.4592895507812,
+a,2a_reward_mode__shaped__seed44,761856.0,-934.6054077148438,
+a,2a_reward_mode__shaped__seed44,774144.0,-620.4286499023438,
+a,2a_reward_mode__shaped__seed44,786432.0,-700.7955322265625,
+a,2a_reward_mode__shaped__seed44,794624.0,-582.0667114257812,
+a,2a_reward_mode__shaped__seed44,802816.0,-588.646728515625,
+a,2a_reward_mode__shaped__seed44,815104.0,-429.39013671875,
+a,2a_reward_mode__shaped__seed44,827392.0,-380.6076049804688,
+a,2a_reward_mode__shaped__seed44,835584.0,-402.4313049316406,
+a,2a_reward_mode__shaped__seed44,843776.0,-680.773193359375,
+a,2a_reward_mode__shaped__seed44,851968.0,-438.9014587402344,
+a,2a_reward_mode__shaped__seed44,864256.0,-270.0262985229492,
+a,2a_reward_mode__shaped__seed44,876544.0,-535.8545532226562,
+a,2a_reward_mode__shaped__seed44,884736.0,-215.86276245117188,
+a,2a_reward_mode__shaped__seed44,892928.0,-279.0878601074219,
+a,2a_reward_mode__shaped__seed44,905216.0,-420.4832153320313,
+a,2a_reward_mode__shaped__seed44,917504.0,-35.4517822265625,
+a,2a_reward_mode__shaped__seed44,925696.0,-159.5252685546875,
+a,2a_reward_mode__shaped__seed44,933888.0,-359.4540710449219,
+a,2a_reward_mode__shaped__seed44,942080.0,-110.7750244140625,
+a,2a_reward_mode__shaped__seed44,954368.0,-98.15985488891602,
+a,2a_reward_mode__shaped__seed44,966656.0,21.92803955078125,
+a,2a_reward_mode__shaped__seed44,974848.0,74.08057403564453,
+a,2a_reward_mode__shaped__seed44,983040.0,-32.628929138183594,
+a,2a_reward_mode__shaped__seed44,995328.0,161.6103286743164,
+a,2a_reward_mode__shaped__seed44,1007616.0,108.2976303100586,
+a,2a_reward_mode__shaped__seed45,8192.0,-104050.6640625,
+a,2a_reward_mode__shaped__seed45,16384.0,-85167.0234375,
+a,2a_reward_mode__shaped__seed45,24576.0,-51027.3125,
+a,2a_reward_mode__shaped__seed45,32768.0,-35830.2734375,
+a,2a_reward_mode__shaped__seed45,45056.0,-22281.2744140625,
+a,2a_reward_mode__shaped__seed45,57344.0,-11041.1181640625,
+a,2a_reward_mode__shaped__seed45,65536.0,-11371.529296875,
+a,2a_reward_mode__shaped__seed45,73728.0,-8988.5634765625,
+a,2a_reward_mode__shaped__seed45,81920.0,-7508.89013671875,
+a,2a_reward_mode__shaped__seed45,94208.0,-6074.95068359375,
+a,2a_reward_mode__shaped__seed45,106496.0,-5197.53125,
+a,2a_reward_mode__shaped__seed45,114688.0,-4459.9775390625,
+a,2a_reward_mode__shaped__seed45,122880.0,-3715.859130859375,
+a,2a_reward_mode__shaped__seed45,135168.0,-3545.8543701171875,
+a,2a_reward_mode__shaped__seed45,147456.0,-3064.245849609375,
+a,2a_reward_mode__shaped__seed45,155648.0,-3411.4072265625,
+a,2a_reward_mode__shaped__seed45,163840.0,-2823.950927734375,
+a,2a_reward_mode__shaped__seed45,172032.0,-2522.060302734375,
+a,2a_reward_mode__shaped__seed45,184320.0,-2336.516845703125,
+a,2a_reward_mode__shaped__seed45,196608.0,-2109.475341796875,
+a,2a_reward_mode__shaped__seed45,204800.0,-2348.741455078125,
+a,2a_reward_mode__shaped__seed45,212992.0,-1946.6424560546875,
+a,2a_reward_mode__shaped__seed45,225280.0,-1881.1180419921875,
+a,2a_reward_mode__shaped__seed45,237568.0,-1488.509765625,
+a,2a_reward_mode__shaped__seed45,245760.0,-1645.2283935546875,
+a,2a_reward_mode__shaped__seed45,253952.0,-1542.4500732421875,
+a,2a_reward_mode__shaped__seed45,262144.0,-1513.2620849609375,
+a,2a_reward_mode__shaped__seed45,274432.0,-1576.36083984375,
+a,2a_reward_mode__shaped__seed45,286720.0,-1504.588623046875,
+a,2a_reward_mode__shaped__seed45,294912.0,-1678.675537109375,
+a,2a_reward_mode__shaped__seed45,303104.0,-1271.0888671875,
+a,2a_reward_mode__shaped__seed45,315392.0,-1385.8958740234375,
+a,2a_reward_mode__shaped__seed45,327680.0,-1301.5128173828125,
+a,2a_reward_mode__shaped__seed45,335872.0,-1537.3248291015625,
+a,2a_reward_mode__shaped__seed45,344064.0,-1280.9864501953125,
+a,2a_reward_mode__shaped__seed45,352256.0,-1222.590087890625,
+a,2a_reward_mode__shaped__seed45,364544.0,-1237.07958984375,
+a,2a_reward_mode__shaped__seed45,376832.0,-1112.297119140625,
+a,2a_reward_mode__shaped__seed45,385024.0,-943.1975708007812,
+a,2a_reward_mode__shaped__seed45,393216.0,-1086.3841552734375,
+a,2a_reward_mode__shaped__seed45,405504.0,-1090.4241333007812,
+a,2a_reward_mode__shaped__seed45,417792.0,-1336.8665771484375,
+a,2a_reward_mode__shaped__seed45,425984.0,-1367.635986328125,
+a,2a_reward_mode__shaped__seed45,434176.0,-959.923095703125,
+a,2a_reward_mode__shaped__seed45,442368.0,-1081.732421875,
+a,2a_reward_mode__shaped__seed45,454656.0,-1418.0031127929688,
+a,2a_reward_mode__shaped__seed45,466944.0,-1062.7083740234375,
+a,2a_reward_mode__shaped__seed45,475136.0,-903.6695556640624,
+a,2a_reward_mode__shaped__seed45,483328.0,-1050.1622314453125,
+a,2a_reward_mode__shaped__seed45,495616.0,-1017.9403076171876,
+a,2a_reward_mode__shaped__seed45,507904.0,-866.9097900390625,
+a,2a_reward_mode__shaped__seed45,516096.0,-1006.164794921875,
+a,2a_reward_mode__shaped__seed45,524288.0,-780.6348876953125,
+a,2a_reward_mode__shaped__seed45,532480.0,-868.7171020507812,
+a,2a_reward_mode__shaped__seed45,544768.0,-920.5929870605468,
+a,2a_reward_mode__shaped__seed45,557056.0,-932.5457763671876,
+a,2a_reward_mode__shaped__seed45,565248.0,-854.30908203125,
+a,2a_reward_mode__shaped__seed45,573440.0,-1159.600830078125,
+a,2a_reward_mode__shaped__seed45,585728.0,-1050.0899353027344,
+a,2a_reward_mode__shaped__seed45,598016.0,-1225.7244873046875,
+a,2a_reward_mode__shaped__seed45,606208.0,-812.8241577148438,
+a,2a_reward_mode__shaped__seed45,614400.0,-895.1515502929688,
+a,2a_reward_mode__shaped__seed45,622592.0,-1013.2495727539062,
+a,2a_reward_mode__shaped__seed45,634880.0,-1090.8580322265625,
+a,2a_reward_mode__shaped__seed45,647168.0,-651.9545288085938,
+a,2a_reward_mode__shaped__seed45,655360.0,-748.7108154296875,
+a,2a_reward_mode__shaped__seed45,663552.0,-709.012939453125,
+a,2a_reward_mode__shaped__seed45,675840.0,-724.8405456542969,
+a,2a_reward_mode__shaped__seed45,688128.0,-723.9786987304688,
+a,2a_reward_mode__shaped__seed45,696320.0,-686.1526489257812,
+a,2a_reward_mode__shaped__seed45,704512.0,-618.1079711914062,
+a,2a_reward_mode__shaped__seed45,712704.0,-851.5957641601562,
+a,2a_reward_mode__shaped__seed45,724992.0,-888.6954956054688,
+a,2a_reward_mode__shaped__seed45,737280.0,-865.6202392578125,
+a,2a_reward_mode__shaped__seed45,745472.0,-708.9003295898438,
+a,2a_reward_mode__shaped__seed45,753664.0,-843.9841918945312,
+a,2a_reward_mode__shaped__seed45,761856.0,-784.3026733398438,
+a,2a_reward_mode__shaped__seed45,774144.0,-558.3595733642578,
+a,2a_reward_mode__shaped__seed45,786432.0,-483.75390625,
+a,2a_reward_mode__shaped__seed45,794624.0,-519.7045288085938,
+a,2a_reward_mode__shaped__seed45,802816.0,-429.3464050292969,
+a,2a_reward_mode__shaped__seed45,815104.0,-552.9067840576172,
+a,2a_reward_mode__shaped__seed45,827392.0,-597.5038452148438,
+a,2a_reward_mode__shaped__seed45,835584.0,-516.2750854492188,
+a,2a_reward_mode__shaped__seed45,843776.0,-178.96124267578125,
+a,2a_reward_mode__shaped__seed45,851968.0,-285.1325988769531,
+a,2a_reward_mode__shaped__seed45,864256.0,-376.34710693359375,
+a,2a_reward_mode__shaped__seed45,876544.0,-324.703369140625,
+a,2a_reward_mode__shaped__seed45,884736.0,-183.73199462890625,
+a,2a_reward_mode__shaped__seed45,892928.0,-266.4302978515625,
+a,2a_reward_mode__shaped__seed45,905216.0,-350.7674026489258,
+a,2a_reward_mode__shaped__seed45,917504.0,-326.2719116210937,
+a,2a_reward_mode__shaped__seed45,925696.0,-87.86231231689453,
+a,2a_reward_mode__shaped__seed45,933888.0,-141.38772583007812,
+a,2a_reward_mode__shaped__seed45,942080.0,-344.7543334960937,
+a,2a_reward_mode__shaped__seed45,954368.0,-128.05651187896729,
+a,2a_reward_mode__shaped__seed45,966656.0,-112.0461883544922,
+a,2a_reward_mode__shaped__seed45,974848.0,-84.34848022460938,
+a,2a_reward_mode__shaped__seed45,983040.0,-186.02224731445312,
+a,2a_reward_mode__shaped__seed45,995328.0,-53.95814514160156,
+a,2a_reward_mode__shaped__seed45,1007616.0,-97.20042419433594,
+a,2a_reward_mode__shaped__seed46,8192.0,-107933.234375,
+a,2a_reward_mode__shaped__seed46,16384.0,-77476.0234375,
+a,2a_reward_mode__shaped__seed46,24576.0,-56640.97265625,
+a,2a_reward_mode__shaped__seed46,32768.0,-40432.30078125,
+a,2a_reward_mode__shaped__seed46,45056.0,-24537.6708984375,
+a,2a_reward_mode__shaped__seed46,57344.0,-12393.4404296875,
+a,2a_reward_mode__shaped__seed46,65536.0,-11296.0390625,
+a,2a_reward_mode__shaped__seed46,73728.0,-11074.9921875,
+a,2a_reward_mode__shaped__seed46,81920.0,-9751.4560546875,
+a,2a_reward_mode__shaped__seed46,94208.0,-6803.473876953125,
+a,2a_reward_mode__shaped__seed46,106496.0,-6325.31591796875,
+a,2a_reward_mode__shaped__seed46,114688.0,-4770.1416015625,
+a,2a_reward_mode__shaped__seed46,122880.0,-3315.119384765625,
+a,2a_reward_mode__shaped__seed46,135168.0,-3761.75732421875,
+a,2a_reward_mode__shaped__seed46,147456.0,-3806.93017578125,
+a,2a_reward_mode__shaped__seed46,155648.0,-3899.607421875,
+a,2a_reward_mode__shaped__seed46,163840.0,-3782.864990234375,
+a,2a_reward_mode__shaped__seed46,172032.0,-3456.548583984375,
+a,2a_reward_mode__shaped__seed46,184320.0,-3043.5294189453125,
+a,2a_reward_mode__shaped__seed46,196608.0,-3089.69287109375,
+a,2a_reward_mode__shaped__seed46,204800.0,-2973.4775390625,
+a,2a_reward_mode__shaped__seed46,212992.0,-2649.78759765625,
+a,2a_reward_mode__shaped__seed46,225280.0,-2903.5103759765625,
+a,2a_reward_mode__shaped__seed46,237568.0,-2238.192626953125,
+a,2a_reward_mode__shaped__seed46,245760.0,-2839.587890625,
+a,2a_reward_mode__shaped__seed46,253952.0,-2115.5859375,
+a,2a_reward_mode__shaped__seed46,262144.0,-2348.82275390625,
+a,2a_reward_mode__shaped__seed46,274432.0,-2294.2371826171875,
+a,2a_reward_mode__shaped__seed46,286720.0,-2128.741455078125,
+a,2a_reward_mode__shaped__seed46,294912.0,-2476.645263671875,
+a,2a_reward_mode__shaped__seed46,303104.0,-2247.0771484375,
+a,2a_reward_mode__shaped__seed46,315392.0,-1838.5318603515625,
+a,2a_reward_mode__shaped__seed46,327680.0,-1885.1063232421875,
+a,2a_reward_mode__shaped__seed46,335872.0,-1849.9794921875,
+a,2a_reward_mode__shaped__seed46,344064.0,-2054.4736328125,
+a,2a_reward_mode__shaped__seed46,352256.0,-2018.8807373046875,
+a,2a_reward_mode__shaped__seed46,364544.0,-1654.59228515625,
+a,2a_reward_mode__shaped__seed46,376832.0,-1763.23583984375,
+a,2a_reward_mode__shaped__seed46,385024.0,-1972.914794921875,
+a,2a_reward_mode__shaped__seed46,393216.0,-1286.0242919921875,
+a,2a_reward_mode__shaped__seed46,405504.0,-1493.0797729492188,
+a,2a_reward_mode__shaped__seed46,417792.0,-1602.153076171875,
+a,2a_reward_mode__shaped__seed46,425984.0,-1857.2021484375,
+a,2a_reward_mode__shaped__seed46,434176.0,-1707.7252197265625,
+a,2a_reward_mode__shaped__seed46,442368.0,-1527.8624267578125,
+a,2a_reward_mode__shaped__seed46,454656.0,-1716.790283203125,
+a,2a_reward_mode__shaped__seed46,466944.0,-1275.8204345703125,
+a,2a_reward_mode__shaped__seed46,475136.0,-1392.5447998046875,
+a,2a_reward_mode__shaped__seed46,483328.0,-1591.5587158203125,
+a,2a_reward_mode__shaped__seed46,495616.0,-1366.9661254882812,
+a,2a_reward_mode__shaped__seed46,507904.0,-1387.6422119140625,
+a,2a_reward_mode__shaped__seed46,516096.0,-1229.2486572265625,
+a,2a_reward_mode__shaped__seed46,524288.0,-1473.119873046875,
+a,2a_reward_mode__shaped__seed46,532480.0,-1336.357177734375,
+a,2a_reward_mode__shaped__seed46,544768.0,-1488.3131103515625,
+a,2a_reward_mode__shaped__seed46,557056.0,-1133.1949462890625,
+a,2a_reward_mode__shaped__seed46,565248.0,-1433.0557861328125,
+a,2a_reward_mode__shaped__seed46,573440.0,-1252.4227294921875,
+a,2a_reward_mode__shaped__seed46,585728.0,-1310.6486206054688,
+a,2a_reward_mode__shaped__seed46,598016.0,-1535.8197021484375,
+a,2a_reward_mode__shaped__seed46,606208.0,-1479.7425537109375,
+a,2a_reward_mode__shaped__seed46,614400.0,-1278.3720703125,
+a,2a_reward_mode__shaped__seed46,622592.0,-1362.629150390625,
+a,2a_reward_mode__shaped__seed46,634880.0,-1326.28857421875,
+a,2a_reward_mode__shaped__seed46,647168.0,-1144.371337890625,
+a,2a_reward_mode__shaped__seed46,655360.0,-1395.93701171875,
+a,2a_reward_mode__shaped__seed46,663552.0,-1320.5693359375,
+a,2a_reward_mode__shaped__seed46,675840.0,-1357.2542114257812,
+a,2a_reward_mode__shaped__seed46,688128.0,-1196.4949951171875,
+a,2a_reward_mode__shaped__seed46,696320.0,-1200.7408447265625,
+a,2a_reward_mode__shaped__seed46,704512.0,-1353.0245361328125,
+a,2a_reward_mode__shaped__seed46,712704.0,-1248.7327880859375,
+a,2a_reward_mode__shaped__seed46,724992.0,-1098.9903564453125,
+a,2a_reward_mode__shaped__seed46,737280.0,-1042.9969482421875,
+a,2a_reward_mode__shaped__seed46,745472.0,-856.3650512695312,
+a,2a_reward_mode__shaped__seed46,753664.0,-1350.606201171875,
+a,2a_reward_mode__shaped__seed46,761856.0,-887.652099609375,
+a,2a_reward_mode__shaped__seed46,774144.0,-763.9115295410156,
+a,2a_reward_mode__shaped__seed46,786432.0,-711.6549072265625,
+a,2a_reward_mode__shaped__seed46,794624.0,-700.1024169921875,
+a,2a_reward_mode__shaped__seed46,802816.0,-751.6298217773438,
+a,2a_reward_mode__shaped__seed46,815104.0,-628.5654296875,
+a,2a_reward_mode__shaped__seed46,827392.0,-727.5108642578125,
+a,2a_reward_mode__shaped__seed46,835584.0,-590.461181640625,
+a,2a_reward_mode__shaped__seed46,843776.0,-612.5534057617188,
+a,2a_reward_mode__shaped__seed46,851968.0,-821.7692260742188,
+a,2a_reward_mode__shaped__seed46,864256.0,-549.3863830566406,
+a,2a_reward_mode__shaped__seed46,876544.0,-525.151123046875,
+a,2a_reward_mode__shaped__seed46,884736.0,-548.9658203125,
+a,2a_reward_mode__shaped__seed46,892928.0,-552.373291015625,
+a,2a_reward_mode__shaped__seed46,905216.0,-516.9515686035156,
+a,2a_reward_mode__shaped__seed46,917504.0,-609.0296630859375,
+a,2a_reward_mode__shaped__seed46,925696.0,-377.7992858886719,
+a,2a_reward_mode__shaped__seed46,933888.0,-606.60107421875,
+a,2a_reward_mode__shaped__seed46,942080.0,-332.912841796875,
+a,2a_reward_mode__shaped__seed46,954368.0,-479.8533935546875,
+a,2a_reward_mode__shaped__seed46,966656.0,-348.6120300292969,
+a,2a_reward_mode__shaped__seed46,974848.0,-230.4665679931641,
+a,2a_reward_mode__shaped__seed46,983040.0,-244.08639526367188,
+a,2a_reward_mode__shaped__seed46,995328.0,-162.06269454956055,
+a,2a_reward_mode__shaped__seed46,1007616.0,-156.12257385253906,
+b,2a_reward_mode__lagrangian__seed42,8192.0,-17.42364501953125,
+b,2a_reward_mode__lagrangian__seed42,16384.0,-938.6979370117188,
+b,2a_reward_mode__lagrangian__seed42,24576.0,-1646.393798828125,
+b,2a_reward_mode__lagrangian__seed42,32768.0,-1817.742919921875,
+b,2a_reward_mode__lagrangian__seed42,45056.0,-1608.21826171875,
+b,2a_reward_mode__lagrangian__seed42,57344.0,-1151.66796875,
+b,2a_reward_mode__lagrangian__seed42,65536.0,-994.067626953125,
+b,2a_reward_mode__lagrangian__seed42,73728.0,-550.654052734375,
+b,2a_reward_mode__lagrangian__seed42,81920.0,-567.83203125,
+b,2a_reward_mode__lagrangian__seed42,94208.0,-396.1363220214844,
+b,2a_reward_mode__lagrangian__seed42,106496.0,-370.9236755371094,
+b,2a_reward_mode__lagrangian__seed42,114688.0,-369.5931701660156,
+b,2a_reward_mode__lagrangian__seed42,122880.0,-277.2186584472656,
+b,2a_reward_mode__lagrangian__seed42,135168.0,-297.89585876464844,
+b,2a_reward_mode__lagrangian__seed42,147456.0,-281.0954895019531,
+b,2a_reward_mode__lagrangian__seed42,155648.0,-262.7074584960937,
+b,2a_reward_mode__lagrangian__seed42,163840.0,-264.69549560546875,
+b,2a_reward_mode__lagrangian__seed42,172032.0,-212.4036865234375,
+b,2a_reward_mode__lagrangian__seed42,184320.0,-204.892333984375,
+b,2a_reward_mode__lagrangian__seed42,196608.0,-210.00213623046875,
+b,2a_reward_mode__lagrangian__seed42,204800.0,-195.3321228027344,
+b,2a_reward_mode__lagrangian__seed42,212992.0,-173.1970672607422,
+b,2a_reward_mode__lagrangian__seed42,225280.0,-171.4386978149414,
+b,2a_reward_mode__lagrangian__seed42,237568.0,-175.46424865722656,
+b,2a_reward_mode__lagrangian__seed42,245760.0,-160.05296325683594,
+b,2a_reward_mode__lagrangian__seed42,253952.0,-173.3988494873047,
+b,2a_reward_mode__lagrangian__seed42,262144.0,-114.74797058105467,
+b,2a_reward_mode__lagrangian__seed42,274432.0,-142.51866912841797,
+b,2a_reward_mode__lagrangian__seed42,286720.0,-144.90005493164062,
+b,2a_reward_mode__lagrangian__seed42,294912.0,-153.02374267578125,
+b,2a_reward_mode__lagrangian__seed42,303104.0,-123.22998046875,
+b,2a_reward_mode__lagrangian__seed42,315392.0,-146.57107543945312,
+b,2a_reward_mode__lagrangian__seed42,327680.0,-123.33345794677734,
+b,2a_reward_mode__lagrangian__seed42,335872.0,-137.243408203125,
+b,2a_reward_mode__lagrangian__seed42,344064.0,-138.7440643310547,
+b,2a_reward_mode__lagrangian__seed42,352256.0,-115.21995544433594,
+b,2a_reward_mode__lagrangian__seed42,364544.0,-135.20404815673828,
+b,2a_reward_mode__lagrangian__seed42,376832.0,-112.59532928466795,
+b,2a_reward_mode__lagrangian__seed42,385024.0,-136.11697387695312,
+b,2a_reward_mode__lagrangian__seed42,393216.0,-118.7760238647461,
+b,2a_reward_mode__lagrangian__seed42,405504.0,-156.27202606201172,
+b,2a_reward_mode__lagrangian__seed42,417792.0,-107.63492584228516,
+b,2a_reward_mode__lagrangian__seed42,425984.0,-122.5202865600586,
+b,2a_reward_mode__lagrangian__seed42,434176.0,-135.50955200195312,
+b,2a_reward_mode__lagrangian__seed42,442368.0,-122.33294677734376,
+b,2a_reward_mode__lagrangian__seed42,454656.0,-137.13913345336914,
+b,2a_reward_mode__lagrangian__seed42,466944.0,-106.46530151367188,
+b,2a_reward_mode__lagrangian__seed42,475136.0,-120.3071060180664,
+b,2a_reward_mode__lagrangian__seed42,483328.0,-115.9423599243164,
+b,2a_reward_mode__lagrangian__seed42,495616.0,-117.89601135253906,
+b,2a_reward_mode__lagrangian__seed42,507904.0,-141.4101104736328,
+b,2a_reward_mode__lagrangian__seed42,516096.0,-136.46340942382812,
+b,2a_reward_mode__lagrangian__seed42,524288.0,-125.13302612304688,
+b,2a_reward_mode__lagrangian__seed42,532480.0,-154.29469299316406,
+b,2a_reward_mode__lagrangian__seed42,544768.0,-123.27447128295898,
+b,2a_reward_mode__lagrangian__seed42,557056.0,-120.07536315917967,
+b,2a_reward_mode__lagrangian__seed42,565248.0,-105.4001235961914,
+b,2a_reward_mode__lagrangian__seed42,573440.0,-95.61919403076172,
+b,2a_reward_mode__lagrangian__seed42,585728.0,-143.4906234741211,
+b,2a_reward_mode__lagrangian__seed42,598016.0,-167.78555297851562,
+b,2a_reward_mode__lagrangian__seed42,606208.0,-119.12142181396484,
+b,2a_reward_mode__lagrangian__seed42,614400.0,-123.22132873535156,
+b,2a_reward_mode__lagrangian__seed42,622592.0,-111.6068878173828,
+b,2a_reward_mode__lagrangian__seed42,634880.0,-123.73533630371094,
+b,2a_reward_mode__lagrangian__seed42,647168.0,-141.63568115234375,
+b,2a_reward_mode__lagrangian__seed42,655360.0,-119.45110321044922,
+b,2a_reward_mode__lagrangian__seed42,663552.0,-133.5878448486328,
+b,2a_reward_mode__lagrangian__seed42,675840.0,-154.9574203491211,
+b,2a_reward_mode__lagrangian__seed42,688128.0,-134.92498779296875,
+b,2a_reward_mode__lagrangian__seed42,696320.0,-133.94503784179688,
+b,2a_reward_mode__lagrangian__seed42,704512.0,-140.02294921875,
+b,2a_reward_mode__lagrangian__seed42,712704.0,-140.3289794921875,
+b,2a_reward_mode__lagrangian__seed42,724992.0,-123.2298698425293,
+b,2a_reward_mode__lagrangian__seed42,737280.0,-133.50401306152344,
+b,2a_reward_mode__lagrangian__seed42,745472.0,-121.43278503417967,
+b,2a_reward_mode__lagrangian__seed42,753664.0,-145.90603637695312,
+b,2a_reward_mode__lagrangian__seed42,761856.0,-136.48208618164062,
+b,2a_reward_mode__lagrangian__seed42,774144.0,-151.73648834228516,
+b,2a_reward_mode__lagrangian__seed42,786432.0,-107.7140121459961,
+b,2a_reward_mode__lagrangian__seed42,794624.0,-146.7667236328125,
+b,2a_reward_mode__lagrangian__seed42,802816.0,-145.17752075195312,
+b,2a_reward_mode__lagrangian__seed42,815104.0,-117.34603881835938,
+b,2a_reward_mode__lagrangian__seed42,827392.0,-109.74588012695312,
+b,2a_reward_mode__lagrangian__seed42,835584.0,-128.71604919433594,
+b,2a_reward_mode__lagrangian__seed42,843776.0,-128.1692657470703,
+b,2a_reward_mode__lagrangian__seed42,851968.0,-117.62019348144533,
+b,2a_reward_mode__lagrangian__seed42,864256.0,-132.76456451416016,
+b,2a_reward_mode__lagrangian__seed42,876544.0,-112.5898895263672,
+b,2a_reward_mode__lagrangian__seed42,884736.0,-120.11691284179688,
+b,2a_reward_mode__lagrangian__seed42,892928.0,-124.27302551269533,
+b,2a_reward_mode__lagrangian__seed42,905216.0,-132.8627586364746,
+b,2a_reward_mode__lagrangian__seed42,917504.0,-124.41400909423828,
+b,2a_reward_mode__lagrangian__seed42,925696.0,-98.5087890625,
+b,2a_reward_mode__lagrangian__seed42,933888.0,-139.251220703125,
+b,2a_reward_mode__lagrangian__seed42,942080.0,-127.45045471191406,
+b,2a_reward_mode__lagrangian__seed42,954368.0,-122.86419296264648,
+b,2a_reward_mode__lagrangian__seed42,966656.0,-114.08067321777344,
+b,2a_reward_mode__lagrangian__seed42,974848.0,-117.90516662597656,
+b,2a_reward_mode__lagrangian__seed42,983040.0,-124.49298095703124,
+b,2a_reward_mode__lagrangian__seed42,995328.0,-115.0891456604004,
+b,2a_reward_mode__lagrangian__seed42,1007616.0,-94.39854431152344,
+b,2a_reward_mode__lagrangian__seed43,8192.0,-19.394962310791016,
+b,2a_reward_mode__lagrangian__seed43,16384.0,-1015.771240234375,
+b,2a_reward_mode__lagrangian__seed43,24576.0,-1597.1419677734375,
+b,2a_reward_mode__lagrangian__seed43,32768.0,-1972.7528076171875,
+b,2a_reward_mode__lagrangian__seed43,45056.0,-1823.3826904296875,
+b,2a_reward_mode__lagrangian__seed43,57344.0,-1046.1314697265625,
+b,2a_reward_mode__lagrangian__seed43,65536.0,-1068.469970703125,
+b,2a_reward_mode__lagrangian__seed43,73728.0,-718.1870727539062,
+b,2a_reward_mode__lagrangian__seed43,81920.0,-654.597412109375,
+b,2a_reward_mode__lagrangian__seed43,94208.0,-455.6003723144531,
+b,2a_reward_mode__lagrangian__seed43,106496.0,-384.0682373046875,
+b,2a_reward_mode__lagrangian__seed43,114688.0,-391.74017333984375,
+b,2a_reward_mode__lagrangian__seed43,122880.0,-327.0586853027344,
+b,2a_reward_mode__lagrangian__seed43,135168.0,-312.96214294433594,
+b,2a_reward_mode__lagrangian__seed43,147456.0,-326.4087219238281,
+b,2a_reward_mode__lagrangian__seed43,155648.0,-287.0997314453125,
+b,2a_reward_mode__lagrangian__seed43,163840.0,-271.0992126464844,
+b,2a_reward_mode__lagrangian__seed43,172032.0,-181.5594024658203,
+b,2a_reward_mode__lagrangian__seed43,184320.0,-207.97834014892575,
+b,2a_reward_mode__lagrangian__seed43,196608.0,-167.2178955078125,
+b,2a_reward_mode__lagrangian__seed43,204800.0,-185.01333618164065,
+b,2a_reward_mode__lagrangian__seed43,212992.0,-157.41822814941406,
+b,2a_reward_mode__lagrangian__seed43,225280.0,-190.1381149291992,
+b,2a_reward_mode__lagrangian__seed43,237568.0,-136.7442169189453,
+b,2a_reward_mode__lagrangian__seed43,245760.0,-155.77194213867188,
+b,2a_reward_mode__lagrangian__seed43,253952.0,-151.1446075439453,
+b,2a_reward_mode__lagrangian__seed43,262144.0,-117.62818145751952,
+b,2a_reward_mode__lagrangian__seed43,274432.0,-140.86085891723633,
+b,2a_reward_mode__lagrangian__seed43,286720.0,-136.15313720703125,
+b,2a_reward_mode__lagrangian__seed43,294912.0,-183.3641815185547,
+b,2a_reward_mode__lagrangian__seed43,303104.0,-127.7189712524414,
+b,2a_reward_mode__lagrangian__seed43,315392.0,-156.03759002685547,
+b,2a_reward_mode__lagrangian__seed43,327680.0,-126.9268569946289,
+b,2a_reward_mode__lagrangian__seed43,335872.0,-149.07351684570312,
+b,2a_reward_mode__lagrangian__seed43,344064.0,-152.7418212890625,
+b,2a_reward_mode__lagrangian__seed43,352256.0,-135.82479858398438,
+b,2a_reward_mode__lagrangian__seed43,364544.0,-135.66336059570312,
+b,2a_reward_mode__lagrangian__seed43,376832.0,-111.82952880859376,
+b,2a_reward_mode__lagrangian__seed43,385024.0,-127.1179656982422,
+b,2a_reward_mode__lagrangian__seed43,393216.0,-111.1360855102539,
+b,2a_reward_mode__lagrangian__seed43,405504.0,-150.78862762451172,
+b,2a_reward_mode__lagrangian__seed43,417792.0,-118.04047393798828,
+b,2a_reward_mode__lagrangian__seed43,425984.0,-152.3129119873047,
+b,2a_reward_mode__lagrangian__seed43,434176.0,-147.02243041992188,
+b,2a_reward_mode__lagrangian__seed43,442368.0,-130.70318603515625,
+b,2a_reward_mode__lagrangian__seed43,454656.0,-137.1913604736328,
+b,2a_reward_mode__lagrangian__seed43,466944.0,-114.09046936035156,
+b,2a_reward_mode__lagrangian__seed43,475136.0,-125.21926879882812,
+b,2a_reward_mode__lagrangian__seed43,483328.0,-131.50914001464844,
+b,2a_reward_mode__lagrangian__seed43,495616.0,-129.6193885803223,
+b,2a_reward_mode__lagrangian__seed43,507904.0,-149.55519104003906,
+b,2a_reward_mode__lagrangian__seed43,516096.0,-151.2854461669922,
+b,2a_reward_mode__lagrangian__seed43,524288.0,-116.26394653320312,
+b,2a_reward_mode__lagrangian__seed43,532480.0,-125.87008666992188,
+b,2a_reward_mode__lagrangian__seed43,544768.0,-127.3904037475586,
+b,2a_reward_mode__lagrangian__seed43,557056.0,-121.61668395996094,
+b,2a_reward_mode__lagrangian__seed43,565248.0,-136.8867645263672,
+b,2a_reward_mode__lagrangian__seed43,573440.0,-100.97381591796876,
+b,2a_reward_mode__lagrangian__seed43,585728.0,-148.63541412353516,
+b,2a_reward_mode__lagrangian__seed43,598016.0,-166.04891967773438,
+b,2a_reward_mode__lagrangian__seed43,606208.0,-154.88014221191406,
+b,2a_reward_mode__lagrangian__seed43,614400.0,-116.49295806884766,
+b,2a_reward_mode__lagrangian__seed43,622592.0,-139.88320922851562,
+b,2a_reward_mode__lagrangian__seed43,634880.0,-163.4722442626953,
+b,2a_reward_mode__lagrangian__seed43,647168.0,-147.10255432128906,
+b,2a_reward_mode__lagrangian__seed43,655360.0,-123.10076141357422,
+b,2a_reward_mode__lagrangian__seed43,663552.0,-134.67486572265625,
+b,2a_reward_mode__lagrangian__seed43,675840.0,-158.66365814208984,
+b,2a_reward_mode__lagrangian__seed43,688128.0,-150.63917541503906,
+b,2a_reward_mode__lagrangian__seed43,696320.0,-121.42998504638672,
+b,2a_reward_mode__lagrangian__seed43,704512.0,-143.74525451660156,
+b,2a_reward_mode__lagrangian__seed43,712704.0,-140.79762268066406,
+b,2a_reward_mode__lagrangian__seed43,724992.0,-146.3544921875,
+b,2a_reward_mode__lagrangian__seed43,737280.0,-137.1433868408203,
+b,2a_reward_mode__lagrangian__seed43,745472.0,-128.85382080078125,
+b,2a_reward_mode__lagrangian__seed43,753664.0,-141.06761169433594,
+b,2a_reward_mode__lagrangian__seed43,761856.0,-154.34414672851562,
+b,2a_reward_mode__lagrangian__seed43,774144.0,-139.04103088378906,
+b,2a_reward_mode__lagrangian__seed43,786432.0,-110.06820678710938,
+b,2a_reward_mode__lagrangian__seed43,794624.0,-125.20616912841795,
+b,2a_reward_mode__lagrangian__seed43,802816.0,-140.79702758789062,
+b,2a_reward_mode__lagrangian__seed43,815104.0,-121.50854873657228,
+b,2a_reward_mode__lagrangian__seed43,827392.0,-120.25298309326172,
+b,2a_reward_mode__lagrangian__seed43,835584.0,-136.06268310546875,
+b,2a_reward_mode__lagrangian__seed43,843776.0,-110.4396514892578,
+b,2a_reward_mode__lagrangian__seed43,851968.0,-147.3865509033203,
+b,2a_reward_mode__lagrangian__seed43,864256.0,-131.07604598999023,
+b,2a_reward_mode__lagrangian__seed43,876544.0,-122.2764129638672,
+b,2a_reward_mode__lagrangian__seed43,884736.0,-143.40628051757812,
+b,2a_reward_mode__lagrangian__seed43,892928.0,-142.84469604492188,
+b,2a_reward_mode__lagrangian__seed43,905216.0,-141.4541015625,
+b,2a_reward_mode__lagrangian__seed43,917504.0,-127.27606964111328,
+b,2a_reward_mode__lagrangian__seed43,925696.0,-113.11319732666016,
+b,2a_reward_mode__lagrangian__seed43,933888.0,-145.25448608398438,
+b,2a_reward_mode__lagrangian__seed43,942080.0,-125.24948120117188,
+b,2a_reward_mode__lagrangian__seed43,954368.0,-122.02449035644533,
+b,2a_reward_mode__lagrangian__seed43,966656.0,-160.10678100585938,
+b,2a_reward_mode__lagrangian__seed43,974848.0,-110.85415649414062,
+b,2a_reward_mode__lagrangian__seed43,983040.0,-149.72915649414062,
+b,2a_reward_mode__lagrangian__seed43,995328.0,-131.15770721435547,
+b,2a_reward_mode__lagrangian__seed43,1007616.0,-111.65227508544922,
+b,2a_reward_mode__lagrangian__seed44,8192.0,-19.166484832763672,
+b,2a_reward_mode__lagrangian__seed44,16384.0,-941.2014770507812,
+b,2a_reward_mode__lagrangian__seed44,24576.0,-1732.0841064453125,
+b,2a_reward_mode__lagrangian__seed44,32768.0,-1888.7890625,
+b,2a_reward_mode__lagrangian__seed44,45056.0,-1785.6764526367188,
+b,2a_reward_mode__lagrangian__seed44,57344.0,-1037.6004638671875,
+b,2a_reward_mode__lagrangian__seed44,65536.0,-966.8182373046876,
+b,2a_reward_mode__lagrangian__seed44,73728.0,-672.7486572265625,
+b,2a_reward_mode__lagrangian__seed44,81920.0,-696.6010131835938,
+b,2a_reward_mode__lagrangian__seed44,94208.0,-521.0959014892578,
+b,2a_reward_mode__lagrangian__seed44,106496.0,-409.1933288574219,
+b,2a_reward_mode__lagrangian__seed44,114688.0,-443.5655212402344,
+b,2a_reward_mode__lagrangian__seed44,122880.0,-336.258544921875,
+b,2a_reward_mode__lagrangian__seed44,135168.0,-355.80535888671875,
+b,2a_reward_mode__lagrangian__seed44,147456.0,-298.9461364746094,
+b,2a_reward_mode__lagrangian__seed44,155648.0,-327.2713317871094,
+b,2a_reward_mode__lagrangian__seed44,163840.0,-316.00396728515625,
+b,2a_reward_mode__lagrangian__seed44,172032.0,-247.46885681152344,
+b,2a_reward_mode__lagrangian__seed44,184320.0,-222.5757827758789,
+b,2a_reward_mode__lagrangian__seed44,196608.0,-220.52288818359372,
+b,2a_reward_mode__lagrangian__seed44,204800.0,-223.64114379882807,
+b,2a_reward_mode__lagrangian__seed44,212992.0,-179.736328125,
+b,2a_reward_mode__lagrangian__seed44,225280.0,-187.0221328735352,
+b,2a_reward_mode__lagrangian__seed44,237568.0,-178.5565643310547,
+b,2a_reward_mode__lagrangian__seed44,245760.0,-172.4717254638672,
+b,2a_reward_mode__lagrangian__seed44,253952.0,-158.37205505371094,
+b,2a_reward_mode__lagrangian__seed44,262144.0,-145.7308349609375,
+b,2a_reward_mode__lagrangian__seed44,274432.0,-144.96927642822266,
+b,2a_reward_mode__lagrangian__seed44,286720.0,-135.94732666015625,
+b,2a_reward_mode__lagrangian__seed44,294912.0,-171.19039916992188,
+b,2a_reward_mode__lagrangian__seed44,303104.0,-114.46492767333984,
+b,2a_reward_mode__lagrangian__seed44,315392.0,-157.48402404785156,
+b,2a_reward_mode__lagrangian__seed44,327680.0,-120.73479461669922,
+b,2a_reward_mode__lagrangian__seed44,335872.0,-149.6840057373047,
+b,2a_reward_mode__lagrangian__seed44,344064.0,-134.2853546142578,
+b,2a_reward_mode__lagrangian__seed44,352256.0,-111.18694305419922,
+b,2a_reward_mode__lagrangian__seed44,364544.0,-143.79454803466797,
+b,2a_reward_mode__lagrangian__seed44,376832.0,-118.05850982666016,
+b,2a_reward_mode__lagrangian__seed44,385024.0,-119.23504638671876,
+b,2a_reward_mode__lagrangian__seed44,393216.0,-129.00668334960938,
+b,2a_reward_mode__lagrangian__seed44,405504.0,-154.93909454345703,
+b,2a_reward_mode__lagrangian__seed44,417792.0,-98.5560073852539,
+b,2a_reward_mode__lagrangian__seed44,425984.0,-136.17088317871094,
+b,2a_reward_mode__lagrangian__seed44,434176.0,-142.7167510986328,
+b,2a_reward_mode__lagrangian__seed44,442368.0,-132.78524780273438,
+b,2a_reward_mode__lagrangian__seed44,454656.0,-152.44969177246094,
+b,2a_reward_mode__lagrangian__seed44,466944.0,-130.80690002441406,
+b,2a_reward_mode__lagrangian__seed44,475136.0,-120.12222290039062,
+b,2a_reward_mode__lagrangian__seed44,483328.0,-140.59400939941406,
+b,2a_reward_mode__lagrangian__seed44,495616.0,-129.0921516418457,
+b,2a_reward_mode__lagrangian__seed44,507904.0,-156.1244659423828,
+b,2a_reward_mode__lagrangian__seed44,516096.0,-145.7244415283203,
+b,2a_reward_mode__lagrangian__seed44,524288.0,-137.70477294921875,
+b,2a_reward_mode__lagrangian__seed44,532480.0,-121.47328186035156,
+b,2a_reward_mode__lagrangian__seed44,544768.0,-135.1784553527832,
+b,2a_reward_mode__lagrangian__seed44,557056.0,-115.81341552734376,
+b,2a_reward_mode__lagrangian__seed44,565248.0,-122.93498229980467,
+b,2a_reward_mode__lagrangian__seed44,573440.0,-129.2307586669922,
+b,2a_reward_mode__lagrangian__seed44,585728.0,-137.61902618408203,
+b,2a_reward_mode__lagrangian__seed44,598016.0,-152.60641479492188,
+b,2a_reward_mode__lagrangian__seed44,606208.0,-135.5128936767578,
+b,2a_reward_mode__lagrangian__seed44,614400.0,-117.5072250366211,
+b,2a_reward_mode__lagrangian__seed44,622592.0,-133.48524475097656,
+b,2a_reward_mode__lagrangian__seed44,634880.0,-136.17071533203125,
+b,2a_reward_mode__lagrangian__seed44,647168.0,-144.17318725585938,
+b,2a_reward_mode__lagrangian__seed44,655360.0,-120.38080596923828,
+b,2a_reward_mode__lagrangian__seed44,663552.0,-144.74090576171875,
+b,2a_reward_mode__lagrangian__seed44,675840.0,-136.59182357788086,
+b,2a_reward_mode__lagrangian__seed44,688128.0,-164.00839233398438,
+b,2a_reward_mode__lagrangian__seed44,696320.0,-138.05014038085938,
+b,2a_reward_mode__lagrangian__seed44,704512.0,-121.72305297851562,
+b,2a_reward_mode__lagrangian__seed44,712704.0,-133.26817321777344,
+b,2a_reward_mode__lagrangian__seed44,724992.0,-137.3441162109375,
+b,2a_reward_mode__lagrangian__seed44,737280.0,-139.1212921142578,
+b,2a_reward_mode__lagrangian__seed44,745472.0,-126.67871856689452,
+b,2a_reward_mode__lagrangian__seed44,753664.0,-143.83966064453125,
+b,2a_reward_mode__lagrangian__seed44,761856.0,-152.2882843017578,
+b,2a_reward_mode__lagrangian__seed44,774144.0,-141.68818283081055,
+b,2a_reward_mode__lagrangian__seed44,786432.0,-114.63750457763672,
+b,2a_reward_mode__lagrangian__seed44,794624.0,-136.7439727783203,
+b,2a_reward_mode__lagrangian__seed44,802816.0,-133.4842987060547,
+b,2a_reward_mode__lagrangian__seed44,815104.0,-116.90032958984376,
+b,2a_reward_mode__lagrangian__seed44,827392.0,-141.56356811523438,
+b,2a_reward_mode__lagrangian__seed44,835584.0,-151.92935180664062,
+b,2a_reward_mode__lagrangian__seed44,843776.0,-148.78518676757812,
+b,2a_reward_mode__lagrangian__seed44,851968.0,-119.15330505371094,
+b,2a_reward_mode__lagrangian__seed44,864256.0,-126.79356384277344,
+b,2a_reward_mode__lagrangian__seed44,876544.0,-135.90841674804688,
+b,2a_reward_mode__lagrangian__seed44,884736.0,-129.7832794189453,
+b,2a_reward_mode__lagrangian__seed44,892928.0,-145.92530822753906,
+b,2a_reward_mode__lagrangian__seed44,905216.0,-136.16655731201172,
+b,2a_reward_mode__lagrangian__seed44,917504.0,-159.89886474609375,
+b,2a_reward_mode__lagrangian__seed44,925696.0,-118.94889068603516,
+b,2a_reward_mode__lagrangian__seed44,933888.0,-131.3669891357422,
+b,2a_reward_mode__lagrangian__seed44,942080.0,-126.11317443847656,
+b,2a_reward_mode__lagrangian__seed44,954368.0,-130.31760025024414,
+b,2a_reward_mode__lagrangian__seed44,966656.0,-148.77178955078125,
+b,2a_reward_mode__lagrangian__seed44,974848.0,-130.85345458984375,
+b,2a_reward_mode__lagrangian__seed44,983040.0,-131.45997619628906,
+b,2a_reward_mode__lagrangian__seed44,995328.0,-126.55273056030272,
+b,2a_reward_mode__lagrangian__seed44,1007616.0,-106.9894790649414,
+b,2a_reward_mode__lagrangian__seed45,8192.0,-18.13263893127441,
+b,2a_reward_mode__lagrangian__seed45,16384.0,-973.891845703125,
+b,2a_reward_mode__lagrangian__seed45,24576.0,-1718.17626953125,
+b,2a_reward_mode__lagrangian__seed45,32768.0,-2138.374755859375,
+b,2a_reward_mode__lagrangian__seed45,45056.0,-1696.2791137695312,
+b,2a_reward_mode__lagrangian__seed45,57344.0,-1092.53076171875,
+b,2a_reward_mode__lagrangian__seed45,65536.0,-949.9852294921876,
+b,2a_reward_mode__lagrangian__seed45,73728.0,-655.845947265625,
+b,2a_reward_mode__lagrangian__seed45,81920.0,-662.655029296875,
+b,2a_reward_mode__lagrangian__seed45,94208.0,-443.4200286865234,
+b,2a_reward_mode__lagrangian__seed45,106496.0,-427.9697265625,
+b,2a_reward_mode__lagrangian__seed45,114688.0,-340.3172607421875,
+b,2a_reward_mode__lagrangian__seed45,122880.0,-274.37554931640625,
+b,2a_reward_mode__lagrangian__seed45,135168.0,-291.9571533203125,
+b,2a_reward_mode__lagrangian__seed45,147456.0,-253.4699859619141,
+b,2a_reward_mode__lagrangian__seed45,155648.0,-279.0965881347656,
+b,2a_reward_mode__lagrangian__seed45,163840.0,-255.0000457763672,
+b,2a_reward_mode__lagrangian__seed45,172032.0,-234.9507751464844,
+b,2a_reward_mode__lagrangian__seed45,184320.0,-210.5889205932617,
+b,2a_reward_mode__lagrangian__seed45,196608.0,-195.4945373535156,
+b,2a_reward_mode__lagrangian__seed45,204800.0,-218.94137573242188,
+b,2a_reward_mode__lagrangian__seed45,212992.0,-179.95823669433594,
+b,2a_reward_mode__lagrangian__seed45,225280.0,-192.0192108154297,
+b,2a_reward_mode__lagrangian__seed45,237568.0,-139.31961059570312,
+b,2a_reward_mode__lagrangian__seed45,245760.0,-180.2240295410156,
+b,2a_reward_mode__lagrangian__seed45,253952.0,-163.8593292236328,
+b,2a_reward_mode__lagrangian__seed45,262144.0,-155.05332946777344,
+b,2a_reward_mode__lagrangian__seed45,274432.0,-172.66846466064453,
+b,2a_reward_mode__lagrangian__seed45,286720.0,-168.03277587890625,
+b,2a_reward_mode__lagrangian__seed45,294912.0,-170.44798278808594,
+b,2a_reward_mode__lagrangian__seed45,303104.0,-148.9344482421875,
+b,2a_reward_mode__lagrangian__seed45,315392.0,-122.92409133911131,
+b,2a_reward_mode__lagrangian__seed45,327680.0,-137.89703369140625,
+b,2a_reward_mode__lagrangian__seed45,335872.0,-136.38665771484375,
+b,2a_reward_mode__lagrangian__seed45,344064.0,-139.5521697998047,
+b,2a_reward_mode__lagrangian__seed45,352256.0,-118.76746368408205,
+b,2a_reward_mode__lagrangian__seed45,364544.0,-122.04037857055664,
+b,2a_reward_mode__lagrangian__seed45,376832.0,-109.01810455322266,
+b,2a_reward_mode__lagrangian__seed45,385024.0,-150.48556518554688,
+b,2a_reward_mode__lagrangian__seed45,393216.0,-104.6218490600586,
+b,2a_reward_mode__lagrangian__seed45,405504.0,-145.58342742919922,
+b,2a_reward_mode__lagrangian__seed45,417792.0,-117.05728912353516,
+b,2a_reward_mode__lagrangian__seed45,425984.0,-145.44163513183594,
+b,2a_reward_mode__lagrangian__seed45,434176.0,-141.78668212890625,
+b,2a_reward_mode__lagrangian__seed45,442368.0,-124.46354675292967,
+b,2a_reward_mode__lagrangian__seed45,454656.0,-118.79476928710938,
+b,2a_reward_mode__lagrangian__seed45,466944.0,-121.87628936767578,
+b,2a_reward_mode__lagrangian__seed45,475136.0,-122.7807846069336,
+b,2a_reward_mode__lagrangian__seed45,483328.0,-145.6710968017578,
+b,2a_reward_mode__lagrangian__seed45,495616.0,-123.2547836303711,
+b,2a_reward_mode__lagrangian__seed45,507904.0,-173.47866821289062,
+b,2a_reward_mode__lagrangian__seed45,516096.0,-138.85560607910156,
+b,2a_reward_mode__lagrangian__seed45,524288.0,-158.89149475097656,
+b,2a_reward_mode__lagrangian__seed45,532480.0,-128.0964813232422,
+b,2a_reward_mode__lagrangian__seed45,544768.0,-140.97576904296875,
+b,2a_reward_mode__lagrangian__seed45,557056.0,-140.1414337158203,
+b,2a_reward_mode__lagrangian__seed45,565248.0,-122.03981018066406,
+b,2a_reward_mode__lagrangian__seed45,573440.0,-126.5100555419922,
+b,2a_reward_mode__lagrangian__seed45,585728.0,-149.37973022460938,
+b,2a_reward_mode__lagrangian__seed45,598016.0,-161.0330352783203,
+b,2a_reward_mode__lagrangian__seed45,606208.0,-132.26856994628906,
+b,2a_reward_mode__lagrangian__seed45,614400.0,-119.53287506103516,
+b,2a_reward_mode__lagrangian__seed45,622592.0,-130.32017517089844,
+b,2a_reward_mode__lagrangian__seed45,634880.0,-145.76318359375,
+b,2a_reward_mode__lagrangian__seed45,647168.0,-152.08258056640625,
+b,2a_reward_mode__lagrangian__seed45,655360.0,-129.9659423828125,
+b,2a_reward_mode__lagrangian__seed45,663552.0,-132.24322509765625,
+b,2a_reward_mode__lagrangian__seed45,675840.0,-144.75080108642578,
+b,2a_reward_mode__lagrangian__seed45,688128.0,-138.9867401123047,
+b,2a_reward_mode__lagrangian__seed45,696320.0,-129.8039093017578,
+b,2a_reward_mode__lagrangian__seed45,704512.0,-105.54168701171876,
+b,2a_reward_mode__lagrangian__seed45,712704.0,-120.59707641601562,
+b,2a_reward_mode__lagrangian__seed45,724992.0,-127.7827033996582,
+b,2a_reward_mode__lagrangian__seed45,737280.0,-142.5115966796875,
+b,2a_reward_mode__lagrangian__seed45,745472.0,-134.1984405517578,
+b,2a_reward_mode__lagrangian__seed45,753664.0,-126.91588592529295,
+b,2a_reward_mode__lagrangian__seed45,761856.0,-156.6456756591797,
+b,2a_reward_mode__lagrangian__seed45,774144.0,-147.4037322998047,
+b,2a_reward_mode__lagrangian__seed45,786432.0,-110.80597686767578,
+b,2a_reward_mode__lagrangian__seed45,794624.0,-118.3247299194336,
+b,2a_reward_mode__lagrangian__seed45,802816.0,-116.74405670166016,
+b,2a_reward_mode__lagrangian__seed45,815104.0,-111.65774536132812,
+b,2a_reward_mode__lagrangian__seed45,827392.0,-132.18360900878906,
+b,2a_reward_mode__lagrangian__seed45,835584.0,-156.6268310546875,
+b,2a_reward_mode__lagrangian__seed45,843776.0,-147.3937225341797,
+b,2a_reward_mode__lagrangian__seed45,851968.0,-120.3781509399414,
+b,2a_reward_mode__lagrangian__seed45,864256.0,-105.33655548095705,
+b,2a_reward_mode__lagrangian__seed45,876544.0,-113.50884246826172,
+b,2a_reward_mode__lagrangian__seed45,884736.0,-115.20980072021484,
+b,2a_reward_mode__lagrangian__seed45,892928.0,-139.08934020996094,
+b,2a_reward_mode__lagrangian__seed45,905216.0,-134.72672271728516,
+b,2a_reward_mode__lagrangian__seed45,917504.0,-133.70277404785156,
+b,2a_reward_mode__lagrangian__seed45,925696.0,-124.00536346435548,
+b,2a_reward_mode__lagrangian__seed45,933888.0,-138.314453125,
+b,2a_reward_mode__lagrangian__seed45,942080.0,-123.5276336669922,
+b,2a_reward_mode__lagrangian__seed45,954368.0,-119.59178924560548,
+b,2a_reward_mode__lagrangian__seed45,966656.0,-130.76881408691406,
+b,2a_reward_mode__lagrangian__seed45,974848.0,-107.82694244384766,
+b,2a_reward_mode__lagrangian__seed45,983040.0,-144.86056518554688,
+b,2a_reward_mode__lagrangian__seed45,995328.0,-138.9838409423828,
+b,2a_reward_mode__lagrangian__seed45,1007616.0,-117.16785430908205,
+b,2a_reward_mode__lagrangian__seed46,8192.0,-19.42885971069336,
+b,2a_reward_mode__lagrangian__seed46,16384.0,-983.184326171875,
+b,2a_reward_mode__lagrangian__seed46,24576.0,-1885.31689453125,
+b,2a_reward_mode__lagrangian__seed46,32768.0,-2293.5673828125,
+b,2a_reward_mode__lagrangian__seed46,45056.0,-2083.1260986328125,
+b,2a_reward_mode__lagrangian__seed46,57344.0,-1145.40966796875,
+b,2a_reward_mode__lagrangian__seed46,65536.0,-1123.76708984375,
+b,2a_reward_mode__lagrangian__seed46,73728.0,-754.9766235351562,
+b,2a_reward_mode__lagrangian__seed46,81920.0,-742.1155395507812,
+b,2a_reward_mode__lagrangian__seed46,94208.0,-565.8912048339844,
+b,2a_reward_mode__lagrangian__seed46,106496.0,-550.8523559570312,
+b,2a_reward_mode__lagrangian__seed46,114688.0,-380.96673583984375,
+b,2a_reward_mode__lagrangian__seed46,122880.0,-302.8284912109375,
+b,2a_reward_mode__lagrangian__seed46,135168.0,-290.12049865722656,
+b,2a_reward_mode__lagrangian__seed46,147456.0,-285.4695129394531,
+b,2a_reward_mode__lagrangian__seed46,155648.0,-337.0693054199219,
+b,2a_reward_mode__lagrangian__seed46,163840.0,-260.7125549316406,
+b,2a_reward_mode__lagrangian__seed46,172032.0,-269.70574951171875,
+b,2a_reward_mode__lagrangian__seed46,184320.0,-244.0040512084961,
+b,2a_reward_mode__lagrangian__seed46,196608.0,-235.2998809814453,
+b,2a_reward_mode__lagrangian__seed46,204800.0,-210.655517578125,
+b,2a_reward_mode__lagrangian__seed46,212992.0,-178.92819213867188,
+b,2a_reward_mode__lagrangian__seed46,225280.0,-192.4495391845703,
+b,2a_reward_mode__lagrangian__seed46,237568.0,-135.2091522216797,
+b,2a_reward_mode__lagrangian__seed46,245760.0,-189.7689514160156,
+b,2a_reward_mode__lagrangian__seed46,253952.0,-179.46856689453125,
+b,2a_reward_mode__lagrangian__seed46,262144.0,-147.6258087158203,
+b,2a_reward_mode__lagrangian__seed46,274432.0,-172.65992736816406,
+b,2a_reward_mode__lagrangian__seed46,286720.0,-171.1440887451172,
+b,2a_reward_mode__lagrangian__seed46,294912.0,-178.2660369873047,
+b,2a_reward_mode__lagrangian__seed46,303104.0,-157.31808471679688,
+b,2a_reward_mode__lagrangian__seed46,315392.0,-148.08270263671875,
+b,2a_reward_mode__lagrangian__seed46,327680.0,-165.6379852294922,
+b,2a_reward_mode__lagrangian__seed46,335872.0,-138.840087890625,
+b,2a_reward_mode__lagrangian__seed46,344064.0,-151.4463653564453,
+b,2a_reward_mode__lagrangian__seed46,352256.0,-119.20886993408205,
+b,2a_reward_mode__lagrangian__seed46,364544.0,-131.08074951171875,
+b,2a_reward_mode__lagrangian__seed46,376832.0,-116.5918960571289,
+b,2a_reward_mode__lagrangian__seed46,385024.0,-151.30979919433594,
+b,2a_reward_mode__lagrangian__seed46,393216.0,-125.03451538085938,
+b,2a_reward_mode__lagrangian__seed46,405504.0,-148.0196304321289,
+b,2a_reward_mode__lagrangian__seed46,417792.0,-140.3246307373047,
+b,2a_reward_mode__lagrangian__seed46,425984.0,-142.1024169921875,
+b,2a_reward_mode__lagrangian__seed46,434176.0,-160.79383850097656,
+b,2a_reward_mode__lagrangian__seed46,442368.0,-159.10414123535156,
+b,2a_reward_mode__lagrangian__seed46,454656.0,-145.37852478027344,
+b,2a_reward_mode__lagrangian__seed46,466944.0,-130.259033203125,
+b,2a_reward_mode__lagrangian__seed46,475136.0,-135.8457489013672,
+b,2a_reward_mode__lagrangian__seed46,483328.0,-151.0835723876953,
+b,2a_reward_mode__lagrangian__seed46,495616.0,-137.40727996826172,
+b,2a_reward_mode__lagrangian__seed46,507904.0,-160.8055877685547,
+b,2a_reward_mode__lagrangian__seed46,516096.0,-166.26983642578125,
+b,2a_reward_mode__lagrangian__seed46,524288.0,-157.28271484375,
+b,2a_reward_mode__lagrangian__seed46,532480.0,-135.46046447753906,
+b,2a_reward_mode__lagrangian__seed46,544768.0,-136.19740295410156,
+b,2a_reward_mode__lagrangian__seed46,557056.0,-145.06826782226562,
+b,2a_reward_mode__lagrangian__seed46,565248.0,-134.88645935058594,
+b,2a_reward_mode__lagrangian__seed46,573440.0,-154.6085662841797,
+b,2a_reward_mode__lagrangian__seed46,585728.0,-155.72364044189453,
+b,2a_reward_mode__lagrangian__seed46,598016.0,-153.96929931640625,
+b,2a_reward_mode__lagrangian__seed46,606208.0,-136.7692413330078,
+b,2a_reward_mode__lagrangian__seed46,614400.0,-147.2384033203125,
+b,2a_reward_mode__lagrangian__seed46,622592.0,-138.97628784179688,
+b,2a_reward_mode__lagrangian__seed46,634880.0,-157.28236389160156,
+b,2a_reward_mode__lagrangian__seed46,647168.0,-121.58967590332033,
+b,2a_reward_mode__lagrangian__seed46,655360.0,-133.53367614746094,
+b,2a_reward_mode__lagrangian__seed46,663552.0,-132.01670837402344,
+b,2a_reward_mode__lagrangian__seed46,675840.0,-132.8592414855957,
+b,2a_reward_mode__lagrangian__seed46,688128.0,-134.58380126953125,
+b,2a_reward_mode__lagrangian__seed46,696320.0,-138.02734375,
+b,2a_reward_mode__lagrangian__seed46,704512.0,-131.81112670898438,
+b,2a_reward_mode__lagrangian__seed46,712704.0,-145.31304931640625,
+b,2a_reward_mode__lagrangian__seed46,724992.0,-146.0060043334961,
+b,2a_reward_mode__lagrangian__seed46,737280.0,-149.98411560058594,
+b,2a_reward_mode__lagrangian__seed46,745472.0,-128.17823791503906,
+b,2a_reward_mode__lagrangian__seed46,753664.0,-113.33399963378906,
+b,2a_reward_mode__lagrangian__seed46,761856.0,-159.10633850097656,
+b,2a_reward_mode__lagrangian__seed46,774144.0,-142.47652053833008,
+b,2a_reward_mode__lagrangian__seed46,786432.0,-131.8928985595703,
+b,2a_reward_mode__lagrangian__seed46,794624.0,-141.78851318359375,
+b,2a_reward_mode__lagrangian__seed46,802816.0,-132.0582275390625,
+b,2a_reward_mode__lagrangian__seed46,815104.0,-122.51176071166992,
+b,2a_reward_mode__lagrangian__seed46,827392.0,-124.11346435546876,
+b,2a_reward_mode__lagrangian__seed46,835584.0,-171.83143615722656,
+b,2a_reward_mode__lagrangian__seed46,843776.0,-192.01611328125,
+b,2a_reward_mode__lagrangian__seed46,851968.0,-112.1354522705078,
+b,2a_reward_mode__lagrangian__seed46,864256.0,-121.83107376098631,
+b,2a_reward_mode__lagrangian__seed46,876544.0,-140.49440002441406,
+b,2a_reward_mode__lagrangian__seed46,884736.0,-146.9342498779297,
+b,2a_reward_mode__lagrangian__seed46,892928.0,-135.1492919921875,
+b,2a_reward_mode__lagrangian__seed46,905216.0,-147.91544342041016,
+b,2a_reward_mode__lagrangian__seed46,917504.0,-132.1558380126953,
+b,2a_reward_mode__lagrangian__seed46,925696.0,-147.38987731933594,
+b,2a_reward_mode__lagrangian__seed46,933888.0,-129.69052124023438,
+b,2a_reward_mode__lagrangian__seed46,942080.0,-136.42726135253906,
+b,2a_reward_mode__lagrangian__seed46,954368.0,-126.32071685791016,
+b,2a_reward_mode__lagrangian__seed46,966656.0,-140.5845947265625,
+b,2a_reward_mode__lagrangian__seed46,974848.0,-133.70066833496094,
+b,2a_reward_mode__lagrangian__seed46,983040.0,-165.3003387451172,
+b,2a_reward_mode__lagrangian__seed46,995328.0,-143.41127014160156,
+b,2a_reward_mode__lagrangian__seed46,1007616.0,-131.1847686767578,
+c,mean over seeds,10000.0,2.1499506707303224,utilisation
+c,mean over seeds,20000.0,2.1389039369300007,utilisation
+c,mean over seeds,30000.0,1.7803890442010015,utilisation
+c,mean over seeds,40000.0,1.287699399329722,utilisation
+c,mean over seeds,50000.0,0.8472987710032612,utilisation
+c,mean over seeds,60000.0,0.5535388878546655,utilisation
+c,mean over seeds,70000.0,0.3865966325509362,utilisation
+c,mean over seeds,80000.0,0.2884181813336909,utilisation
+c,mean over seeds,90000.0,0.2306802810790638,utilisation
+c,mean over seeds,100000.0,0.18812469465968507,utilisation
+c,mean over seeds,110000.0,0.1623543076450005,utilisation
+c,mean over seeds,120000.0,0.12993424254236738,utilisation
+c,mean over seeds,130000.0,0.11894188822188875,utilisation
+c,mean over seeds,140000.0,0.11057125055425177,utilisation
+c,mean over seeds,150000.0,0.09907754085434131,utilisation
+c,mean over seeds,160000.0,0.09623571941629047,utilisation
+c,mean over seeds,170000.0,0.08368315452535169,utilisation
+c,mean over seeds,180000.0,0.07537519627367142,utilisation
+c,mean over seeds,190000.0,0.07028775488239865,utilisation
+c,mean over seeds,200000.0,0.0663209397171158,utilisation
+c,mean over seeds,210000.0,0.059966947977954946,utilisation
+c,mean over seeds,220000.0,0.05914160862157582,utilisation
+c,mean over seeds,230000.0,0.05752004909494033,utilisation
+c,mean over seeds,240000.0,0.05284907034365456,utilisation
+c,mean over seeds,250000.0,0.05110636456083735,utilisation
+c,mean over seeds,260000.0,0.042236400154069965,utilisation
+c,mean over seeds,270000.0,0.04307500133630428,utilisation
+c,mean over seeds,280000.0,0.0451785196026321,utilisation
+c,mean over seeds,290000.0,0.04650048114563103,utilisation
+c,mean over seeds,300000.0,0.0462259171181358,utilisation
+c,mean over seeds,310000.0,0.04393291522234596,utilisation
+c,mean over seeds,320000.0,0.041632795380428377,utilisation
+c,mean over seeds,330000.0,0.039676046902604824,utilisation
+c,mean over seeds,340000.0,0.040263789438176864,utilisation
+c,mean over seeds,350000.0,0.03741841810115142,utilisation
+c,mean over seeds,360000.0,0.03590165816907145,utilisation
+c,mean over seeds,370000.0,0.03602105878768871,utilisation
+c,mean over seeds,380000.0,0.03734454915975215,utilisation
+c,mean over seeds,390000.0,0.034237783625576355,utilisation
+c,mean over seeds,400000.0,0.035301277794254265,utilisation
+c,mean over seeds,410000.0,0.03602670485124686,utilisation
+c,mean over seeds,420000.0,0.03407267089351076,utilisation
+c,mean over seeds,430000.0,0.03830147762637347,utilisation
+c,mean over seeds,440000.0,0.0363661587820388,utilisation
+c,mean over seeds,450000.0,0.038595906320551834,utilisation
+c,mean over seeds,460000.0,0.03794673432421401,utilisation
+c,mean over seeds,470000.0,0.034098085613368266,utilisation
+c,mean over seeds,480000.0,0.03631306887837121,utilisation
+c,mean over seeds,490000.0,0.03639475814707107,utilisation
+c,mean over seeds,500000.0,0.03649177480062156,utilisation
+c,mean over seeds,510000.0,0.039789451776596214,utilisation
+c,mean over seeds,520000.0,0.03777445474406699,utilisation
+c,mean over seeds,530000.0,0.03541738472995343,utilisation
+c,mean over seeds,540000.0,0.03507958317883696,utilisation
+c,mean over seeds,550000.0,0.034094379180896736,utilisation
+c,mean over seeds,560000.0,0.03286159042036156,utilisation
+c,mean over seeds,570000.0,0.03471515816709138,utilisation
+c,mean over seeds,580000.0,0.03820526190684172,utilisation
+c,mean over seeds,590000.0,0.04054061369097321,utilisation
+c,mean over seeds,600000.0,0.03936346624395807,utilisation
+c,mean over seeds,610000.0,0.03442480409430569,utilisation
+c,mean over seeds,620000.0,0.035686349388561175,utilisation
+c,mean over seeds,630000.0,0.03845943241612981,utilisation
+c,mean over seeds,640000.0,0.03803081916024283,utilisation
+c,mean over seeds,650000.0,0.034637709626258534,utilisation
+c,mean over seeds,660000.0,0.03295641146687552,utilisation
+c,mean over seeds,670000.0,0.035132200296114455,utilisation
+c,mean over seeds,680000.0,0.03590968990853673,utilisation
+c,mean over seeds,690000.0,0.035371179349021946,utilisation
+c,mean over seeds,700000.0,0.03598226061731108,utilisation
+c,mean over seeds,710000.0,0.03712835126934802,utilisation
+c,mean over seeds,720000.0,0.036975614086259094,utilisation
+c,mean over seeds,730000.0,0.03603561884810909,utilisation
+c,mean over seeds,740000.0,0.035577830023248616,utilisation
+c,mean over seeds,750000.0,0.03626191840739917,utilisation
+c,mean over seeds,760000.0,0.03818157724454063,utilisation
+c,mean over seeds,770000.0,0.03735097946118908,utilisation
+c,mean over seeds,780000.0,0.03460290432121833,utilisation
+c,mean over seeds,790000.0,0.03282739818896511,utilisation
+c,mean over seeds,800000.0,0.03411928816931318,utilisation
+c,mean over seeds,810000.0,0.03292915787169474,utilisation
+c,mean over seeds,820000.0,0.03257358210976232,utilisation
+c,mean over seeds,830000.0,0.03387019512301773,utilisation
+c,mean over seeds,840000.0,0.03539487333619031,utilisation
+c,mean over seeds,850000.0,0.036180936385790084,utilisation
+c,mean over seeds,860000.0,0.03237014407786768,utilisation
+c,mean over seeds,870000.0,0.030605573647820416,utilisation
+c,mean over seeds,880000.0,0.03235505748889404,utilisation
+c,mean over seeds,890000.0,0.03318677127535915,utilisation
+c,mean over seeds,900000.0,0.03271134667593282,utilisation
+c,mean over seeds,910000.0,0.03388388073726669,utilisation
+c,mean over seeds,920000.0,0.033370367574389055,utilisation
+c,mean over seeds,930000.0,0.031273772402346314,utilisation
+c,mean over seeds,940000.0,0.0334081712469924,utilisation
+c,mean over seeds,950000.0,0.03133227278958653,utilisation
+c,mean over seeds,960000.0,0.03217344623214251,utilisation
+c,mean over seeds,970000.0,0.03182286540322816,utilisation
+c,mean over seeds,980000.0,0.03053518421074835,utilisation
+c,mean over seeds,990000.0,0.032646278363245025,utilisation
+c,mean over seeds,1000000.0,0.03149670682614665,utilisation
+c,mean over seeds,10000.0,0.02661648506109481,section class
+c,mean over seeds,20000.0,0.017609482677653384,section class
+c,mean over seeds,30000.0,0.017899819317972226,section class
+c,mean over seeds,40000.0,0.015082534946607912,section class
+c,mean over seeds,50000.0,0.011661183125579512,section class
+c,mean over seeds,60000.0,0.007735063027757822,section class
+c,mean over seeds,70000.0,0.003818857462874744,section class
+c,mean over seeds,80000.0,0.0018350043026657283,section class
+c,mean over seeds,90000.0,0.0010901378579698177,section class
+c,mean over seeds,100000.0,0.0007069655633585603,section class
+c,mean over seeds,110000.0,0.0004050498883770443,section class
+c,mean over seeds,120000.0,0.00032587266950934613,section class
+c,mean over seeds,130000.0,0.00028829793775783235,section class
+c,mean over seeds,140000.0,0.00020304111947376315,section class
+c,mean over seeds,150000.0,0.0001519680168314022,section class
+c,mean over seeds,160000.0,0.00017470711868551337,section class
+c,mean over seeds,170000.0,0.00019548193514818714,section class
+c,mean over seeds,180000.0,0.00010584430614952894,section class
+c,mean over seeds,190000.0,6.0941999262319386e-05,section class
+c,mean over seeds,200000.0,7.043198419720665e-05,section class
+c,mean over seeds,210000.0,6.120854906156794e-05,section class
+c,mean over seeds,220000.0,6.421112382923659e-05,section class
+c,mean over seeds,230000.0,0.00010252906174223713,section class
+c,mean over seeds,240000.0,0.00013990016296357334,section class
+c,mean over seeds,250000.0,9.818598173436471e-05,section class
+c,mean over seeds,260000.0,0.00010475763454989287,section class
+c,mean over seeds,270000.0,6.886031193572873e-05,section class
+c,mean over seeds,280000.0,5.040728916582892e-05,section class
+c,mean over seeds,290000.0,7.730678408534209e-05,section class
+c,mean over seeds,300000.0,9.69037047511178e-05,section class
+c,mean over seeds,310000.0,6.293133151089191e-05,section class
+c,mean over seeds,320000.0,3.539657011515373e-05,section class
+c,mean over seeds,330000.0,3.9225908213324416e-05,section class
+c,mean over seeds,340000.0,5.526766592893319e-05,section class
+c,mean over seeds,350000.0,9.631081237590742e-05,section class
+c,mean over seeds,360000.0,6.649840170258145e-05,section class
+c,mean over seeds,370000.0,2.6374133493571132e-05,section class
+c,mean over seeds,380000.0,2.266021080660585e-05,section class
+c,mean over seeds,390000.0,4.897626867447393e-05,section class
+c,mean over seeds,400000.0,6.539168773542366e-05,section class
+c,mean over seeds,410000.0,7.781020947228601e-05,section class
+c,mean over seeds,420000.0,7.149343824133443e-05,section class
+c,mean over seeds,430000.0,5.201565088261413e-05,section class
+c,mean over seeds,440000.0,2.8160993374367645e-05,section class
+c,mean over seeds,450000.0,2.6294895834944043e-05,section class
+c,mean over seeds,460000.0,5.5460523230377313e-05,section class
+c,mean over seeds,470000.0,7.482243495927432e-05,section class
+c,mean over seeds,480000.0,7.344609502125404e-05,section class
+c,mean over seeds,490000.0,7.483208074779162e-05,section class
+c,mean over seeds,500000.0,6.238075255139268e-05,section class
+c,mean over seeds,510000.0,7.652516239388143e-05,section class
+c,mean over seeds,520000.0,9.727987832375273e-05,section class
+c,mean over seeds,530000.0,9.0270387544081e-05,section class
+c,mean over seeds,540000.0,9.787742473142867e-05,section class
+c,mean over seeds,550000.0,7.262292191504324e-05,section class
+c,mean over seeds,560000.0,5.684013877668664e-05,section class
+c,mean over seeds,570000.0,5.5060693083674984e-05,section class
+c,mean over seeds,580000.0,7.77670059032675e-05,section class
+c,mean over seeds,590000.0,7.373660536512191e-05,section class
+c,mean over seeds,600000.0,3.3891838637600816e-05,section class
+c,mean over seeds,610000.0,5.121457647909722e-05,section class
+c,mean over seeds,620000.0,2.526590985922894e-05,section class
+c,mean over seeds,630000.0,1.3655289184614596e-05,section class
+c,mean over seeds,640000.0,2.6384799703767688e-05,section class
+c,mean over seeds,650000.0,3.215441525035167e-05,section class
+c,mean over seeds,660000.0,0.00012679765322658337,section class
+c,mean over seeds,670000.0,0.00013083929164942675,section class
+c,mean over seeds,680000.0,5.0737406294842915e-05,section class
+c,mean over seeds,690000.0,4.674497560052934e-05,section class
+c,mean over seeds,700000.0,4.731150836966699e-05,section class
+c,mean over seeds,710000.0,5.542907053007961e-05,section class
+c,mean over seeds,720000.0,6.062821936722593e-05,section class
+c,mean over seeds,730000.0,4.398161827895001e-05,section class
+c,mean over seeds,740000.0,3.2413948588670086e-05,section class
+c,mean over seeds,750000.0,2.3664897824193788e-05,section class
+c,mean over seeds,760000.0,2.5739810888936177e-05,section class
+c,mean over seeds,770000.0,3.607874804518e-05,section class
+c,mean over seeds,780000.0,2.6125013341271597e-05,section class
+c,mean over seeds,790000.0,2.2246980089235535e-05,section class
+c,mean over seeds,800000.0,2.7028920581528836e-05,section class
+c,mean over seeds,810000.0,2.745632086872026e-05,section class
+c,mean over seeds,820000.0,2.9299453730047276e-05,section class
+c,mean over seeds,830000.0,2.156080720765452e-05,section class
+c,mean over seeds,840000.0,1.1011376526326445e-05,section class
+c,mean over seeds,850000.0,1.484354650025388e-05,section class
+c,mean over seeds,860000.0,1.701552256143657e-05,section class
+c,mean over seeds,870000.0,1.894734687611551e-05,section class
+c,mean over seeds,880000.0,2.144164143658145e-05,section class
+c,mean over seeds,890000.0,2.5994366168546888e-05,section class
+c,mean over seeds,900000.0,1.909500856811519e-05,section class
+c,mean over seeds,910000.0,7.893387096184293e-06,section class
+c,mean over seeds,920000.0,1.0551865602081989e-05,section class
+c,mean over seeds,930000.0,1.6307093879275313e-05,section class
+c,mean over seeds,940000.0,8.450585684638412e-06,section class
+c,mean over seeds,950000.0,6.437028065775508e-06,section class
+c,mean over seeds,960000.0,5.209213979166331e-06,section class
+c,mean over seeds,970000.0,6.141526549807708e-06,section class
+c,mean over seeds,980000.0,1.9176695573186465e-05,section class
+c,mean over seeds,990000.0,2.0511187599403514e-05,section class
+c,mean over seeds,1000000.0,1.5238251392446501e-05,section class
+c,mean over seeds,10000.0,0.0576822181101306,geometry
+c,mean over seeds,20000.0,0.04197371911577642,geometry
+c,mean over seeds,30000.0,0.041050309251295346,geometry
+c,mean over seeds,40000.0,0.03570221217329763,geometry
+c,mean over seeds,50000.0,0.02935740952452755,geometry
+c,mean over seeds,60000.0,0.02123007431946457,geometry
+c,mean over seeds,70000.0,0.011011719709313158,geometry
+c,mean over seeds,80000.0,0.0057314142861287064,geometry
+c,mean over seeds,90000.0,0.003595496663547222,geometry
+c,mean over seeds,100000.0,0.002378240552934573,geometry
+c,mean over seeds,110000.0,0.0015228509902954102,geometry
+c,mean over seeds,120000.0,0.0013193130493164063,geometry
+c,mean over seeds,130000.0,0.001119907357049955,geometry
+c,mean over seeds,140000.0,0.0008037472052364852,geometry
+c,mean over seeds,150000.0,0.0006132851832035063,geometry
+c,mean over seeds,160000.0,0.0006552107872266525,geometry
+c,mean over seeds,170000.0,0.0007590471005414437,geometry
+c,mean over seeds,180000.0,0.0005209958977729712,geometry
+c,mean over seeds,190000.0,0.00047077960552616204,geometry
+c,mean over seeds,200000.0,0.0005179207238143026,geometry
+c,mean over seeds,210000.0,0.0004121698952758358,geometry
+c,mean over seeds,220000.0,0.0003796075188119967,geometry
+c,mean over seeds,230000.0,0.00042160174870103527,geometry
+c,mean over seeds,240000.0,0.0005007148007280082,geometry
+c,mean over seeds,250000.0,0.00043253572724778267,geometry
+c,mean over seeds,260000.0,0.00042087376104973115,geometry
+c,mean over seeds,270000.0,0.00032929351599996707,geometry
+c,mean over seeds,280000.0,0.00026988755695922246,geometry
+c,mean over seeds,290000.0,0.00031556923241850136,geometry
+c,mean over seeds,300000.0,0.0003681933704456221,geometry
+c,mean over seeds,310000.0,0.00029734770648132434,geometry
+c,mean over seeds,320000.0,0.0002380217941208611,geometry
+c,mean over seeds,330000.0,0.00024361724535566076,geometry
+c,mean over seeds,340000.0,0.0002545576305351384,geometry
+c,mean over seeds,350000.0,0.0003856273168878372,geometry
+c,mean over seeds,360000.0,0.00033296479366525113,geometry
+c,mean over seeds,370000.0,0.00021373231358930172,geometry
+c,mean over seeds,380000.0,0.0002009267907283144,geometry
+c,mean over seeds,390000.0,0.0002269189135006371,geometry
+c,mean over seeds,400000.0,0.0003092780267858469,geometry
+c,mean over seeds,410000.0,0.00036744167468894656,geometry
+c,mean over seeds,420000.0,0.00026854944730984084,geometry
+c,mean over seeds,430000.0,0.00023624897003173828,geometry
+c,mean over seeds,440000.0,0.0001908086949924703,geometry
+c,mean over seeds,450000.0,0.00021771551258779453,geometry
+c,mean over seeds,460000.0,0.00030242165341102004,geometry
+c,mean over seeds,470000.0,0.00034470064255173407,geometry
+c,mean over seeds,480000.0,0.0002765655517578125,geometry
+c,mean over seeds,490000.0,0.0002882719039916992,geometry
+c,mean over seeds,500000.0,0.0003248055775960287,geometry
+c,mean over seeds,510000.0,0.0003649189981160772,geometry
+c,mean over seeds,520000.0,0.00039259344262062657,geometry
+c,mean over seeds,530000.0,0.00033534100518862385,geometry
+c,mean over seeds,540000.0,0.0003828241874695397,geometry
+c,mean over seeds,550000.0,0.0003873805640409923,geometry
+c,mean over seeds,560000.0,0.00036831548109148064,geometry
+c,mean over seeds,570000.0,0.0002649647092539451,geometry
+c,mean over seeds,580000.0,0.0002967009838850172,geometry
+c,mean over seeds,590000.0,0.0003350048041227064,geometry
+c,mean over seeds,600000.0,0.00027780532836914064,geometry
+c,mean over seeds,610000.0,0.0002917499738487024,geometry
+c,mean over seeds,620000.0,0.00018103278753186453,geometry
+c,mean over seeds,630000.0,0.00012095791479016511,geometry
+c,mean over seeds,640000.0,0.00016179267355860834,geometry
+c,mean over seeds,650000.0,0.000187496070725492,geometry
+c,mean over seeds,660000.0,0.00042064554024818276,geometry
+c,mean over seeds,670000.0,0.00043631428309252857,geometry
+c,mean over seeds,680000.0,0.000262857125411134,geometry
+c,mean over seeds,690000.0,0.000289485733549089,geometry
+c,mean over seeds,700000.0,0.0002022574260990874,geometry
+c,mean over seeds,710000.0,0.00023371775683357632,geometry
+c,mean over seeds,720000.0,0.0002887145539716338,geometry
+c,mean over seeds,730000.0,0.0002512894080041203,geometry
+c,mean over seeds,740000.0,0.00018589357129030658,geometry
+c,mean over seeds,750000.0,0.00013948333942720938,geometry
+c,mean over seeds,760000.0,0.00017195788242360983,geometry
+c,mean over seeds,770000.0,0.00021214989519458314,geometry
+c,mean over seeds,780000.0,0.00017883075290681892,geometry
+c,mean over seeds,790000.0,0.00014413505161882555,geometry
+c,mean over seeds,800000.0,0.00012352720004855624,geometry
+c,mean over seeds,810000.0,0.00014492440377580025,geometry
+c,mean over seeds,820000.0,0.00018033914257102547,geometry
+c,mean over seeds,830000.0,0.0001559019088745117,geometry
+c,mean over seeds,840000.0,9.765625e-05,geometry
+c,mean over seeds,850000.0,0.00018150893469054955,geometry
+c,mean over seeds,860000.0,0.00014244969002749907,geometry
+c,mean over seeds,870000.0,0.00011441939495473571,geometry
+c,mean over seeds,880000.0,0.00011752083851206408,geometry
+c,mean over seeds,890000.0,0.00011821589703799872,geometry
+c,mean over seeds,900000.0,0.0001186492070398041,geometry
+c,mean over seeds,910000.0,7.566793239372297e-05,geometry
+c,mean over seeds,920000.0,9.540711794215344e-05,geometry
+c,mean over seeds,930000.0,0.00018028792495669273,geometry
+c,mean over seeds,940000.0,0.0001583099365234375,geometry
+c,mean over seeds,950000.0,8.869171142578125e-05,geometry
+c,mean over seeds,960000.0,3.662109375e-05,geometry
+c,mean over seeds,970000.0,4.1604042053222656e-05,geometry
+c,mean over seeds,980000.0,0.00011792182922363282,geometry
+c,mean over seeds,990000.0,0.0001275777816772461,geometry
+c,mean over seeds,1000000.0,0.0001339276631673177,geometry
+d,mean over seeds,10000.0,13.091771357133984,utilisation
+d,mean over seeds,20000.0,26.266439332067968,utilisation
+d,mean over seeds,30000.0,37.37704939395189,utilisation
+d,mean over seeds,40000.0,44.891964650154115,utilisation
+d,mean over seeds,50000.0,50.259276524186134,utilisation
+d,mean over seeds,60000.0,54.13588027060032,utilisation
+d,mean over seeds,70000.0,56.601372110843656,utilisation
+d,mean over seeds,80000.0,58.38164540529251,utilisation
+d,mean over seeds,90000.0,59.761845249931014,utilisation
+d,mean over seeds,100000.0,60.91816685001055,utilisation
+d,mean over seeds,110000.0,61.925292792916295,utilisation
+d,mean over seeds,120000.0,62.7415147960186,utilisation
+d,mean over seeds,130000.0,63.48502609282732,utilisation
+d,mean over seeds,140000.0,64.17025116980076,utilisation
+d,mean over seeds,150000.0,64.78849653154612,utilisation
+d,mean over seeds,160000.0,65.38356192111969,utilisation
+d,mean over seeds,170000.0,65.90139034837485,utilisation
+d,mean over seeds,180000.0,66.36058147847652,utilisation
+d,mean over seeds,190000.0,66.79016132503747,utilisation
+d,mean over seeds,200000.0,67.19567752480506,utilisation
+d,mean over seeds,210000.0,67.56564452350139,utilisation
+d,mean over seeds,220000.0,67.92997056245804,utilisation
+d,mean over seeds,230000.0,68.28399384021758,utilisation
+d,mean over seeds,240000.0,68.61567807197571,utilisation
+d,mean over seeds,250000.0,68.92802555859089,utilisation
+d,mean over seeds,260000.0,69.19521338939667,utilisation
+d,mean over seeds,270000.0,69.4591161698103,utilisation
+d,mean over seeds,280000.0,69.73558024168014,utilisation
+d,mean over seeds,290000.0,70.02181766033172,utilisation
+d,mean over seeds,300000.0,70.30658959746361,utilisation
+d,mean over seeds,310000.0,70.57623571157455,utilisation
+d,mean over seeds,320000.0,70.83246173858643,utilisation
+d,mean over seeds,330000.0,71.07764003574849,utilisation
+d,mean over seeds,340000.0,71.32493322491646,utilisation
+d,mean over seeds,350000.0,71.55493613183498,utilisation
+d,mean over seeds,360000.0,71.77256076335907,utilisation
+d,mean over seeds,370000.0,71.99168364802996,utilisation
+d,mean over seeds,380000.0,72.21710753440857,utilisation
+d,mean over seeds,390000.0,72.43032704889774,utilisation
+d,mean over seeds,400000.0,72.65152912139892,utilisation
+d,mean over seeds,410000.0,72.8739143192768,utilisation
+d,mean over seeds,420000.0,73.08835836648942,utilisation
+d,mean over seeds,430000.0,73.32279968559742,utilisation
+d,mean over seeds,440000.0,73.54620183706284,utilisation
+d,mean over seeds,450000.0,73.78135867118836,utilisation
+d,mean over seeds,460000.0,74.01592735846836,utilisation
+d,mean over seeds,470000.0,74.23641213178635,utilisation
+d,mean over seeds,480000.0,74.45409064292907,utilisation
+d,mean over seeds,490000.0,74.67216776907443,utilisation
+d,mean over seeds,500000.0,74.8924471239249,utilisation
+d,mean over seeds,510000.0,75.12727280557155,utilisation
+d,mean over seeds,520000.0,75.35851836204529,utilisation
+d,mean over seeds,530000.0,75.57653420865536,utilisation
+d,mean over seeds,540000.0,75.78724645773569,utilisation
+d,mean over seeds,550000.0,75.9969428896904,utilisation
+d,mean over seeds,560000.0,76.20488827228546,utilisation
+d,mean over seeds,570000.0,76.41556947231292,utilisation
+d,mean over seeds,580000.0,76.65519085327784,utilisation
+d,mean over seeds,590000.0,76.90324672460557,utilisation
+d,mean over seeds,600000.0,77.14160457849502,utilisation
+d,mean over seeds,610000.0,77.35324721038342,utilisation
+d,mean over seeds,620000.0,77.567891061306,utilisation
+d,mean over seeds,630000.0,77.80305489003658,utilisation
+d,mean over seeds,640000.0,78.0367520014445,utilisation
+d,mean over seeds,650000.0,78.25614607036114,utilisation
+d,mean over seeds,660000.0,78.45609868764878,utilisation
+d,mean over seeds,670000.0,78.67368271748224,utilisation
+d,mean over seeds,680000.0,78.89367835521698,utilisation
+d,mean over seeds,690000.0,79.10976212024688,utilisation
+d,mean over seeds,700000.0,79.329914945364,utilisation
+d,mean over seeds,710000.0,79.55460588932037,utilisation
+d,mean over seeds,720000.0,79.7783503293991,utilisation
+d,mean over seeds,730000.0,79.99857003192108,utilisation
+d,mean over seeds,740000.0,80.21725417375565,utilisation
+d,mean over seeds,750000.0,80.43761119842529,utilisation
+d,mean over seeds,760000.0,80.66931922435761,utilisation
+d,mean over seeds,770000.0,80.89319387773672,utilisation
+d,mean over seeds,780000.0,81.10727453827857,utilisation
+d,mean over seeds,790000.0,81.31481623053551,utilisation
+d,mean over seeds,800000.0,81.52246718406677,utilisation
+d,mean over seeds,810000.0,81.72393648028373,utilisation
+d,mean over seeds,820000.0,81.9220613360405,utilisation
+d,mean over seeds,830000.0,82.12328508496284,utilisation
+d,mean over seeds,840000.0,82.33823624849319,utilisation
+d,mean over seeds,850000.0,82.5591258943081,utilisation
+d,mean over seeds,860000.0,82.75572634140651,utilisation
+d,mean over seeds,870000.0,82.94145447413126,utilisation
+d,mean over seeds,880000.0,83.13308584690094,utilisation
+d,mean over seeds,890000.0,83.33694759011269,utilisation
+d,mean over seeds,900000.0,83.5383466998736,utilisation
+d,mean over seeds,910000.0,83.74410258730254,utilisation
+d,mean over seeds,920000.0,83.9444903254509,utilisation
+d,mean over seeds,930000.0,84.1322888314724,utilisation
+d,mean over seeds,940000.0,84.33662424087524,utilisation
+d,mean over seeds,950000.0,84.52473396658897,utilisation
+d,mean over seeds,960000.0,84.71905943552653,utilisation
+d,mean over seeds,970000.0,84.91086673140526,utilisation
+d,mean over seeds,980000.0,85.09448142647743,utilisation
+d,mean over seeds,990000.0,85.29461106956005,utilisation
+d,mean over seeds,1000000.0,85.48865704933802,utilisation
+d,mean over seeds,10000.0,0.1655203068919945,section class
+d,mean over seeds,20000.0,0.27211283978540446,section class
+d,mean over seeds,30000.0,0.3821670376579277,section class
+d,mean over seeds,40000.0,0.4745014767783383,section class
+d,mean over seeds,50000.0,0.5476211909670383,section class
+d,mean over seeds,60000.0,0.598963139904663,section class
+d,mean over seeds,70000.0,0.6234091677470133,section class
+d,mean over seeds,80000.0,0.6358483552932739,section class
+d,mean over seeds,90000.0,0.6421861909019451,section class
+d,mean over seeds,100000.0,0.6466455887692669,section class
+d,mean over seeds,110000.0,0.6495275336783379,section class
+d,mean over seeds,120000.0,0.6514467264525592,section class
+d,mean over seeds,130000.0,0.6530651774645473,section class
+d,mean over seeds,140000.0,0.6543390320458761,section class
+d,mean over seeds,150000.0,0.6554369936464355,section class
+d,mean over seeds,160000.0,0.6564782030880452,section class
+d,mean over seeds,170000.0,0.6576705614104867,section class
+d,mean over seeds,180000.0,0.6582396510988474,section class
+d,mean over seeds,190000.0,0.6585991060671708,section class
+d,mean over seeds,200000.0,0.6589720311574638,section class
+d,mean over seeds,210000.0,0.659363678493537,section class
+d,mean over seeds,220000.0,0.6597677730489522,section class
+d,mean over seeds,230000.0,0.660361185289609,section class
+d,mean over seeds,240000.0,0.6611145470291376,section class
+d,mean over seeds,250000.0,0.6617361586308107,section class
+d,mean over seeds,260000.0,0.6623474810272455,section class
+d,mean over seeds,270000.0,0.6627242835937068,section class
+d,mean over seeds,280000.0,0.6630215677432716,section class
+d,mean over seeds,290000.0,0.663435674039647,section class
+d,mean over seeds,300000.0,0.664036224456504,section class
+d,mean over seeds,310000.0,0.6643688300779711,section class
+d,mean over seeds,320000.0,0.6645890220999717,section class
+d,mean over seeds,330000.0,0.6648479527095332,section class
+d,mean over seeds,340000.0,0.6652010968886316,section class
+d,mean over seeds,350000.0,0.6657280607381836,section class
+d,mean over seeds,360000.0,0.6660237511619925,section class
+d,mean over seeds,370000.0,0.6662007589979717,section class
+d,mean over seeds,380000.0,0.6663958802353591,section class
+d,mean over seeds,390000.0,0.6666819071164355,section class
+d,mean over seeds,400000.0,0.6670672512302795,section class
+d,mean over seeds,410000.0,0.6675325072215249,section class
+d,mean over seeds,420000.0,0.6679932198487222,section class
+d,mean over seeds,430000.0,0.6682861965149641,section class
+d,mean over seeds,440000.0,0.6685098815709353,section class
+d,mean over seeds,450000.0,0.6687056430848315,section class
+d,mean over seeds,460000.0,0.6690225475312521,section class
+d,mean over seeds,470000.0,0.6694138011429459,section class
+d,mean over seeds,480000.0,0.6698545482009649,section class
+d,mean over seeds,490000.0,0.6703305034898221,section class
+d,mean over seeds,500000.0,0.6707263259527584,section class
+d,mean over seeds,510000.0,0.671173959551379,section class
+d,mean over seeds,520000.0,0.6718462414108217,section class
+d,mean over seeds,530000.0,0.6723186891293154,section class
+d,mean over seeds,540000.0,0.6728569275699555,section class
+d,mean over seeds,550000.0,0.6733134035021067,section class
+d,mean over seeds,560000.0,0.6737225020304323,section class
+d,mean over seeds,570000.0,0.6740573152434081,section class
+d,mean over seeds,580000.0,0.6745797644679745,section class
+d,mean over seeds,590000.0,0.6750591794028878,section class
+d,mean over seeds,600000.0,0.675349578820169,section class
+d,mean over seeds,610000.0,0.6756553889252246,section class
+d,mean over seeds,620000.0,0.6758460923563689,section class
+d,mean over seeds,630000.0,0.675933969587398,section class
+d,mean over seeds,640000.0,0.6760836695631345,section class
+d,mean over seeds,650000.0,0.6762540332973004,section class
+d,mean over seeds,660000.0,0.6769054536242038,section class
+d,mean over seeds,670000.0,0.6775869015681867,section class
+d,mean over seeds,680000.0,0.6779030094854533,section class
+d,mean over seeds,690000.0,0.6782164611155167,section class
+d,mean over seeds,700000.0,0.6785392257384956,section class
+d,mean over seeds,710000.0,0.6788269028998911,section class
+d,mean over seeds,720000.0,0.6791307099163533,section class
+d,mean over seeds,730000.0,0.6794044661646088,section class
+d,mean over seeds,740000.0,0.6796665046364069,section class
+d,mean over seeds,750000.0,0.6798101850785315,section class
+d,mean over seeds,760000.0,0.6799656085669994,section class
+d,mean over seeds,770000.0,0.6801997965279346,section class
+d,mean over seeds,780000.0,0.6803757567424327,section class
+d,mean over seeds,790000.0,0.680538680893369,section class
+d,mean over seeds,800000.0,0.6807163748890162,section class
+d,mean over seeds,810000.0,0.6809150522264342,section class
+d,mean over seeds,820000.0,0.6810975523665548,section class
+d,mean over seeds,830000.0,0.6812207757029682,section class
+d,mean over seeds,840000.0,0.6812911474145948,section class
+d,mean over seeds,850000.0,0.6813748024171218,section class
+d,mean over seeds,860000.0,0.6814664362774541,section class
+d,mean over seeds,870000.0,0.6815823739627377,section class
+d,mean over seeds,880000.0,0.6817177440971136,section class
+d,mean over seeds,890000.0,0.6818719930015504,section class
+d,mean over seeds,900000.0,0.6819849046257636,section class
+d,mean over seeds,910000.0,0.6820385712819794,section class
+d,mean over seeds,920000.0,0.6821001762524247,section class
+d,mean over seeds,930000.0,0.6822177187306806,section class
+d,mean over seeds,940000.0,0.6822616883087903,section class
+d,mean over seeds,950000.0,0.6823013989720493,section class
+d,mean over seeds,960000.0,0.682330866654714,section class
+d,mean over seeds,970000.0,0.6823599176714197,section class
+d,mean over seeds,980000.0,0.6824618373531848,section class
+d,mean over seeds,990000.0,0.6825744121335446,section class
+d,mean over seeds,1000000.0,0.6826672421147426,section class
+d,mean over seeds,10000.0,0.14284213390492365,geometry
+d,mean over seeds,20000.0,0.24513098200550298,geometry
+d,mean over seeds,30000.0,0.345994505204726,geometry
+d,mean over seeds,40000.0,0.43316649676611024,geometry
+d,mean over seeds,50000.0,0.5062594879884272,geometry
+d,mean over seeds,60000.0,0.561651193886064,geometry
+d,mean over seeds,70000.0,0.5898399136378429,geometry
+d,mean over seeds,80000.0,0.6050738453865051,geometry
+d,mean over seeds,90000.0,0.6133985435434928,geometry
+d,mean over seeds,100000.0,0.6193982291656235,geometry
+d,mean over seeds,110000.0,0.6236321330070496,geometry
+d,mean over seeds,120000.0,0.6268041968345642,geometry
+d,mean over seeds,130000.0,0.6293367828630532,geometry
+d,mean over seeds,140000.0,0.631352797942236,geometry
+d,mean over seeds,150000.0,0.6331035941373557,geometry
+d,mean over seeds,160000.0,0.6346913451328874,geometry
+d,mean over seeds,170000.0,0.6365091339452192,geometry
+d,mean over seeds,180000.0,0.6376283414196223,geometry
+d,mean over seeds,190000.0,0.6387374394650882,geometry
+d,mean over seeds,200000.0,0.639924709033221,geometry
+d,mean over seeds,210000.0,0.6409394094254821,geometry
+d,mean over seeds,220000.0,0.6418308562599122,geometry
+d,mean over seeds,230000.0,0.6428325792929778,geometry
+d,mean over seeds,240000.0,0.643993055075407,geometry
+d,mean over seeds,250000.0,0.6450641964096576,geometry
+d,mean over seeds,260000.0,0.6460827484261245,geometry
+d,mean over seeds,270000.0,0.6468752474834523,geometry
+d,mean over seeds,280000.0,0.647529455460608,geometry
+d,mean over seeds,290000.0,0.6482447922229767,geometry
+d,mean over seeds,300000.0,0.6491535982117057,geometry
+d,mean over seeds,310000.0,0.6498032618158807,geometry
+d,mean over seeds,320000.0,0.6503857880830765,geometry
+d,mean over seeds,330000.0,0.6510411045397632,geometry
+d,mean over seeds,340000.0,0.6516912511084229,geometry
+d,mean over seeds,350000.0,0.6525466423714533,geometry
+d,mean over seeds,360000.0,0.6532718776414791,geometry
+d,mean over seeds,370000.0,0.6538154658162967,geometry
+d,mean over seeds,380000.0,0.654357896046713,geometry
+d,mean over seeds,390000.0,0.6549307734705507,geometry
+d,mean over seeds,400000.0,0.6557092370465398,geometry
+d,mean over seeds,410000.0,0.6566143693169578,geometry
+d,mean over seeds,420000.0,0.6573874413967132,geometry
+d,mean over seeds,430000.0,0.6579245955334045,geometry
+d,mean over seeds,440000.0,0.6584516977891326,geometry
+d,mean over seeds,450000.0,0.659067690372467,geometry
+d,mean over seeds,460000.0,0.6597876578258972,geometry
+d,mean over seeds,470000.0,0.6605514764785767,geometry
+d,mean over seeds,480000.0,0.6612554788589478,geometry
+d,mean over seeds,490000.0,0.6619940519332885,geometry
+d,mean over seeds,500000.0,0.6627924521764119,geometry
+d,mean over seeds,510000.0,0.6636727010132745,geometry
+d,mean over seeds,520000.0,0.6646956644020975,geometry
+d,mean over seeds,530000.0,0.6654688144568354,geometry
+d,mean over seeds,540000.0,0.6663713216781616,geometry
+d,mean over seeds,550000.0,0.6673178893979639,geometry
+d,mean over seeds,560000.0,0.668254904076457,geometry
+d,mean over seeds,570000.0,0.668929374217987,geometry
+d,mean over seeds,580000.0,0.6697501007622728,geometry
+d,mean over seeds,590000.0,0.6705925879301503,geometry
+d,mean over seeds,600000.0,0.6712611675262451,geometry
+d,mean over seeds,610000.0,0.6719632091699168,geometry
+d,mean over seeds,620000.0,0.6724659388419241,geometry
+d,mean over seeds,630000.0,0.6727772233619665,geometry
+d,mean over seeds,640000.0,0.6731547986467679,geometry
+d,mean over seeds,650000.0,0.6735576391220093,geometry
+d,mean over seeds,660000.0,0.6744582038372755,geometry
+d,mean over seeds,670000.0,0.675388205749914,geometry
+d,mean over seeds,680000.0,0.6760195290669799,geometry
+d,mean over seeds,690000.0,0.6767297558253631,geometry
+d,mean over seeds,700000.0,0.6772699952125549,geometry
+d,mean over seeds,710000.0,0.6777697541750968,geometry
+d,mean over seeds,720000.0,0.6784095039591194,geometry
+d,mean over seeds,730000.0,0.6790323674445972,geometry
+d,mean over seeds,740000.0,0.6795836497563869,geometry
+d,mean over seeds,750000.0,0.6799136513378471,geometry
+d,mean over seeds,760000.0,0.6803276668302715,geometry
+d,mean over seeds,770000.0,0.6808470716389518,geometry
+d,mean over seeds,780000.0,0.6813104956410825,geometry
+d,mean over seeds,790000.0,0.6817243653582409,geometry
+d,mean over seeds,800000.0,0.6820477485656739,geometry
+d,mean over seeds,810000.0,0.6824377968364084,geometry
+d,mean over seeds,820000.0,0.6828775537665933,geometry
+d,mean over seeds,830000.0,0.6832573056221009,geometry
+d,mean over seeds,840000.0,0.6834957242012024,geometry
+d,mean over seeds,850000.0,0.6839018442668021,geometry
+d,mean over seeds,860000.0,0.6841861439558368,geometry
+d,mean over seeds,870000.0,0.6844675010535866,geometry
+d,mean over seeds,880000.0,0.6847706485539675,geometry
+d,mean over seeds,890000.0,0.6850561976432801,geometry
+d,mean over seeds,900000.0,0.6853616167480746,geometry
+d,mean over seeds,910000.0,0.6855652928352355,geometry
+d,mean over seeds,920000.0,0.685806222539395,geometry
+d,mean over seeds,930000.0,0.6862927198410034,geometry
+d,mean over seeds,940000.0,0.6866470575332642,geometry
+d,mean over seeds,950000.0,0.686834454536438,geometry
+d,mean over seeds,960000.0,0.6869200944900512,geometry
+d,mean over seeds,970000.0,0.6869996309280395,geometry
+d,mean over seeds,980000.0,0.6872570276260376,geometry
+d,mean over seeds,990000.0,0.6875407457351684,geometry
+d,mean over seeds,1000000.0,0.6878534237543742,geometry

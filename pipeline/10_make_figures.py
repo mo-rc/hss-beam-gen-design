@@ -16,6 +16,7 @@ Figures
   fig2  in-distribution vs OOD: gap and feasibility for PPO and kNN, per objective
   fig3  ablations: PPO reward modes (2a) and algorithms (2b), per-seed gaps
   fig4  kNN gap vs labelling cost (realistic search labels vs pooled labels), PPO training cost marked
+  fig5  operator ablation: every method under none / scale / scale+thin (gap and feasibility)
 """
 import argparse
 import glob
@@ -68,6 +69,13 @@ def knn_row(path, k=3, mode=MODE, n=None):
                 evals=r.ec3_evals_per_design_mean)
 
 
+def panel_letters(axes):
+    """(a), (b), ... in the top-left corner of each panel, in reading order."""
+    for i, ax in enumerate(np.ravel(axes)):
+        ax.text(0.0, 1.02, f"({chr(97 + i)})", transform=ax.transAxes, fontsize=10, fontweight="bold",
+                va="bottom", ha="left")
+
+
 def save(fig, out_dir, name, data):
     os.makedirs(out_dir, exist_ok=True)
     fig.savefig(os.path.join(out_dir, f"{name}.png"), dpi=200)
@@ -106,8 +114,11 @@ def fig1(rd, od):
         ax.set_title(OBJ_LABEL[o])
         ax.set_xlabel("EC3 evaluations per design")
     axes[0].set_ylabel("Gap to best-known optimum (%)")
+    panel_letters(axes)
     h, l = axes[0].get_legend_handles_labels()
     fig.legend(h, l, loc="lower center", ncol=5, fontsize=8, frameon=False, bbox_to_anchor=(0.5, -0.1))
+    fig.text(0.5, -0.17, "The kNN needs solved labelled contexts beforehand (cost in Fig. 4); PPO and the searches need none.",
+             ha="center", fontsize=8, style="italic")
     fig.suptitle("Main grid, scale+thin: per-context search (B = 20 ... 4800, evaluations include the operators) "
                  "vs amortized methods", fontsize=9.5, y=1.02)
     save(fig, od, "fig1_gap_vs_evaluations", data)
@@ -140,6 +151,7 @@ def fig2(rd, od):
         axes[1, j].set_ylim(60, 103)
         axes[1, j].set_xticks(range(3))
         axes[1, j].set_xticklabels([s[0] for s in sets])
+    panel_letters(axes)
     h, l = axes[0, 0].get_legend_handles_labels()
     fig.legend(h, l, loc="lower center", ncol=2, fontsize=8, frameon=False, bbox_to_anchor=(0.5, -0.04))
     fig.suptitle("In-distribution vs out-of-distribution (scale+thin; OOD = contexts with a feasible reference only)",
@@ -168,7 +180,8 @@ def fig3(rd, od):
         ax.set_title(title, fontsize=9)
         ax.set_xlim(-0.6, len(arms) - 0.4)
     axes[0].set_ylabel("Gap to best-known optimum (%), cost")
-    fig.suptitle("Per-seed gaps (dots) and mean (bar), scale+thin, main grid", fontsize=9.5, y=1.04)
+    panel_letters(axes)
+    fig.suptitle("Per-seed gaps (dots) and mean (horizontal line), scale+thin, main grid", fontsize=9.5, y=1.06)
     save(fig, od, "fig3_ablations", data)
 
 
@@ -202,6 +215,7 @@ def fig4(rd, od):
         ax.set_title(OBJ_LABEL[o])
         ax.set_xlabel("labelling / training cost (EC3 evaluations)")
     axes[0].set_ylabel("Gap to best-known optimum (%)")
+    panel_letters(axes)
     for ax in axes:
         ax.set_ylim(-0.3, ax.get_ylim()[1] * 1.08)
     h, l = axes[0].get_legend_handles_labels()
@@ -211,7 +225,56 @@ def fig4(rd, od):
     save(fig, od, "fig4_knn_label_cost", data)
 
 
-FIGS = {1: fig1, 2: fig2, 3: fig3, 4: fig4}
+# --------------------------------------------------------------------------------------- fig 5
+def fig5(rd, od):
+    """Every method under each post-hoc operator: how much of the quality is the operator's."""
+    ops = ("none", "scale", "scale+thin")
+    fig, axes = plt.subplots(2, 3, figsize=(10.5, 5.6), sharex=True)
+    data = []
+    series = [("PPO", COL["ppo"], "*"), ("kNN (pooled labels)", COL["knn"], "D"), ("DE, B = 40", COL["de"], "o"),
+              ("GA, B = 40", COL["ga"], "s"), ("Random, B = 40", COL["random"], "^")]
+    for j, o in enumerate(OBJ):
+        rows = {name: [] for name, _, _ in series}
+        for op in ops:
+            rows["PPO"].append(load_ppo(rd, PPO_STEM[o], mode=op))
+            rows["kNN (pooled labels)"].append(knn_row(os.path.join(rd, f"knn_loo_{o}.csv"), mode=op))
+        s_ = pd.read_csv(os.path.join(rd, f"search_main_{o}.csv"))
+        for m, name in (("de", "DE, B = 40"), ("ga", "GA, B = 40"), ("random", "Random, B = 40")):
+            for op in ops:
+                r = s_[(s_.method == m) & (s_.budget == 40) & (s_.operator_mode == op)].iloc[0]
+                rows[name].append(dict(gap=gap(r.cost_ratio_mean_mean), feas=r.feasibility_mean * 100))
+        for name, col, mk in series:
+            gaps, feas = [], []
+            for v in rows[name]:
+                if isinstance(v, pd.DataFrame):
+                    gaps.append(v.gap.mean()); feas.append(v.feas.mean())
+                else:
+                    gaps.append(v["gap"]); feas.append(v["feas"])
+            lw = 2.0 if name == "PPO" else 1.1
+            axes[0, j].plot(range(3), gaps, "-" + mk, color=col, lw=lw, ms=9 if mk == "*" else 5, mec="k", mew=0.4,
+                            label=name, zorder=5 if name == "PPO" else 3)
+            axes[1, j].plot(range(3), feas, "-" + mk, color=col, lw=lw, ms=9 if mk == "*" else 5, mec="k", mew=0.4,
+                            zorder=5 if name == "PPO" else 3)
+            data += [dict(obj=o, method=name, operator=op, gap=g, feas=f) for op, g, f in zip(ops, gaps, feas)]
+        axes[0, j].set_yscale("symlog", linthresh=2)
+        axes[0, j].set_yticks([0, 1, 2, 5, 10, 20, 50, 100, 150])
+        axes[0, j].set_yticklabels(["0", "1", "2", "5", "10", "20", "50", "100", "150"])
+        axes[0, j].set_title(OBJ_LABEL[o])
+        axes[1, j].set_ylim(0, 105)
+        axes[1, j].set_xticks(range(3))
+        axes[1, j].set_xticklabels(["none", "scale", "scale+thin"])
+        axes[1, j].set_xlabel("post-hoc operator")
+    axes[0, 0].set_ylabel("Gap, feasible contexts (%)")
+    axes[1, 0].set_ylabel("Feasible (%)")
+    fig.subplots_adjust(hspace=0.4)
+    panel_letters(axes)
+    h, l = axes[0, 0].get_legend_handles_labels()
+    fig.legend(h, l, loc="lower center", ncol=5, fontsize=8, frameon=False, bbox_to_anchor=(0.5, -0.03))
+    fig.suptitle("Effect of the post-hoc operator on every method (main grid; searches at B = 40)", fontsize=9.5)
+    save(fig, od, "fig5_operator_ablation", data)
+
+
+FIGS = {1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5}
 
 
 def main():

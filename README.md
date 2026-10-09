@@ -53,7 +53,8 @@ Always evaluate against the `_pooled` ground-truth directories; the scripts refu
 | `05_baseline_knn.py` | kNN amortized mapping (leave-one-out, subsample, OOD; ground-truth or search-generated labels) |
 | `09_compare_arms.py` | exact permutation test with Holm correction across arms (5 seeds each) |
 | `10_make_figures.py` | figures from the saved `results/` only (no recomputation) |
-| `11_build_paper_tables.py` | tables (`paper/tables/`) from the saved `results/` only |
+| `11_build_paper_tables.py` | tables (`paper/tables/`) from the saved `results/` only, including the PPO-vs-search significance tests and the operator ablation |
+| `12_time_inference.py` | wall-clock per design, policy vs search, on one machine (run locally; needs a trained checkpoint) |
 
 Example (evaluation of one checkpoint, kNN, and search baseline):
 
@@ -86,7 +87,14 @@ python pipeline/09_compare_arms.py --out results/2a_comparison.csv
 python pipeline/09_compare_arms.py --arms ppo=2a_feasibility_gated sac=2b_sac td3=2b_td3 ddpg=2b_ddpg \
   --out results/2b_comparison.csv
 python pipeline/10_make_figures.py && python pipeline/11_build_paper_tables.py
+
+# wall-clock per design on this machine (single process; run once per objective)
+python pipeline/12_time_inference.py --model runs/2a_reward_mode/feasibility_gated/seed42/final_model \
+  --ground_truth_dir data/ground_truth/main_grid_pooled --economy_metric cost --n_contexts 20 --repeats 3 \
+  --out results/timing_cost.csv
 ```
+
+Claim-by-claim evidence and the known limitations are listed in [`docs/claims_and_evidence.md`](docs/claims_and_evidence.md).
 
 ## Main results
 
@@ -100,7 +108,10 @@ Main grid, `scale+thin`, gap to the best-known reference in % (RL: mean of 5 see
 | kNN, DE labels B = 4800 (LOO) | 0.6 | 0.7 | 0.2 | 39-61 | 141 searches of 4,800 evaluations |
 | DE search, budget 40 | 39.2 | 17.7 | 26.5 | about 108-112 | nothing |
 
-The policy beats per-context search at equal evaluations; the kNN beats the policy on gap and cost
+At equal evaluations the policy beats per-context search: with the `scale+thin` operator in all nine
+(objective, search method) comparisons (exact permutation test, Holm p = 0.024, the smallest attainable
+with five seeds per arm), and without any operator (40 vs 40 evaluations) in seven of nine (mass vs DE
+and vs random: Holm p = 0.063); `paper/tables/t10_ppo_vs_search.md`. The kNN beats the policy on gap and cost
 per design but needs solved labelled contexts and is less often feasible. Details, statistics and
 caveats are in the logs below; the tables are in `paper/tables/`.
 

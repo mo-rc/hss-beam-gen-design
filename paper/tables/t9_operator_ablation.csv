@@ -1,0 +1,46 @@
+objective,method,operator,gap,gap_sd,feasibility,evals
+cost,PPO,none,49.357963,20.806569,100.0,39.533803
+cost,PPO,scale,20.80445,9.834146,100.0,56.533803
+cost,PPO,scale+thin,8.894249,2.441736,100.0,112.294366
+cost,"kNN (pooled labels, LOO)",none,5.402213,,44.366197,1.0
+cost,"kNN (pooled labels, LOO)",scale,1.315663,,95.070423,18.112676
+cost,"kNN (pooled labels, LOO)",scale+thin,1.07352,,95.070423,62.830986
+cost,"DE search, B=40",none,87.904823,5.357009,83.239437,40.0
+cost,"DE search, B=40",scale,70.014824,2.328232,95.070423,57.809859
+cost,"DE search, B=40",scale+thin,39.242466,1.261518,95.070423,111.642254
+cost,"GA search, B=40",none,104.876234,3.908731,76.760563,36.0
+cost,"GA search, B=40",scale,78.887997,3.691745,94.788732,53.976056
+cost,"GA search, B=40",scale+thin,43.628008,2.929705,94.788732,108.040845
+cost,"random search, B=40",none,84.835161,2.028936,82.957746,40.0
+cost,"random search, B=40",scale,61.796637,3.158933,97.183099,58.019718
+cost,"random search, B=40",scale+thin,34.637933,1.979572,97.183099,112.229577
+mass,PPO,none,48.174306,5.650129,100.0,40.411268
+mass,PPO,scale,24.261578,4.058144,100.0,57.411268
+mass,PPO,scale+thin,7.195594,3.16192,100.0,104.038028
+mass,"kNN (pooled labels, LOO)",none,6.204934,,39.43662,1.0
+mass,"kNN (pooled labels, LOO)",scale,1.262117,,100.0,18.788732
+mass,"kNN (pooled labels, LOO)",scale+thin,0.953656,,100.0,42.295775
+mass,"DE search, B=40",none,54.619422,1.317956,83.239437,40.0
+mass,"DE search, B=40",scale,41.367743,1.162594,95.070423,57.809859
+mass,"DE search, B=40",scale+thin,17.690051,1.54851,95.070423,108.770423
+mass,"GA search, B=40",none,65.652559,3.329222,76.760563,36.0
+mass,"GA search, B=40",scale,45.441264,0.750617,94.788732,53.976056
+mass,"GA search, B=40",scale+thin,17.900676,1.344594,94.788732,106.398592
+mass,"random search, B=40",none,54.020837,2.449174,82.957746,40.0
+mass,"random search, B=40",scale,36.133742,0.979782,97.183099,58.019718
+mass,"random search, B=40",scale+thin,15.444346,0.686039,97.183099,108.48169
+co2,PPO,none,47.645567,8.515813,100.0,40.339437
+co2,PPO,scale,23.122738,5.626514,100.0,57.339437
+co2,PPO,scale+thin,4.562357,2.638818,100.0,100.288732
+co2,"kNN (pooled labels, LOO)",none,5.816227,,42.253521,1.0
+co2,"kNN (pooled labels, LOO)",scale,0.74843,,100.0,18.669014
+co2,"kNN (pooled labels, LOO)",scale+thin,0.485761,,100.0,40.880282
+co2,"DE search, B=40",none,68.903928,2.591292,83.239437,40.0
+co2,"DE search, B=40",scale,53.007739,1.993623,95.070423,57.809859
+co2,"DE search, B=40",scale+thin,26.528986,1.070438,95.070423,108.412676
+co2,"GA search, B=40",none,81.057574,4.619862,76.760563,36.0
+co2,"GA search, B=40",scale,56.823625,1.669103,94.788732,53.976056
+co2,"GA search, B=40",scale+thin,25.939327,2.143456,94.788732,105.598592
+co2,"random search, B=40",none,67.750955,3.565318,82.957746,40.0
+co2,"random search, B=40",scale,46.754285,1.793843,97.183099,58.019718
+co2,"random search, B=40",scale+thin,23.045018,1.490083,97.183099,108.23662

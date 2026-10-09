@@ -48,3 +48,21 @@ def test_build_writes_tables(tmp_path):
     t.build_tables(RES, str(tmp_path))
     for name in ("t1_reward_mode_2a", "t7_methods_matched", "t8_knn_cheap_labels"):
         assert (tmp_path / "tables" / f"{name}.md").stat().st_size > 0
+
+
+def test_ppo_vs_search_significance_claims():
+    d = t.table_ppo_vs_search(RES)
+    st = d[d.operator == "scale+thin"]
+    assert len(st) == 9 and (st.p_holm < 0.05).all() and st.separated.all()      # all 9 comparisons
+    nn = d[d.operator == "none"]
+    assert (nn.p_holm < 0.05).sum() == 7                                         # not mass vs DE / random
+    weak = nn[nn.p_holm >= 0.05]
+    assert set(weak.objective) == {"mass"} and set(weak.search) == {"DE (B=40)", "random (B=40)"}
+    assert d.p_holm.min() >= 3 * 2 / 252 - 1e-9                                  # smallest attainable p
+
+
+def test_operator_ablation_shows_feasibility_and_operator_effect():
+    a = t.table_operator_ablation(RES).set_index(["objective", "method", "operator"])
+    assert a.loc[("cost", "PPO", "none"), "feasibility"] == pytest.approx(100.0)
+    assert a.loc[("cost", "PPO", "none"), "gap"] > 40 > a.loc[("cost", "PPO", "scale+thin"), "gap"]
+    assert a.loc[("cost", "kNN (pooled labels, LOO)", "none"), "feasibility"] < 50   # kNN needs the operator for feasibility

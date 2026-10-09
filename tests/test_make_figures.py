@@ -22,7 +22,7 @@ def out(tmp_path_factory):
 
 
 def test_all_figures_written(out):
-    for n in ("fig1_gap_vs_evaluations", "fig2_in_dist_vs_ood", "fig3_ablations", "fig4_knn_label_cost"):
+    for n in ("fig1_gap_vs_evaluations", "fig2_in_dist_vs_ood", "fig3_ablations", "fig4_knn_label_cost", "fig5_operator_ablation"):
         for ext in ("png", "pdf", "_data.csv"):
             path = os.path.join(out, n + ("." + ext if not ext.startswith("_") else ext))
             assert os.path.getsize(path) > 0

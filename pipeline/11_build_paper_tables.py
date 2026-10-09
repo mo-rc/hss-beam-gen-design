@@ -195,6 +195,81 @@ def table_matched(res, search_budget=40):
     return pd.DataFrame(rows)
 
 
+def _load_09():
+    """Reuse the exact permutation test / Holm correction of pipeline/09_compare_arms.py."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("compare_arms", os.path.join(REPO, "pipeline", "09_compare_arms.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def table_operator_ablation(res, search_budget=40):
+    """Every method under each post-hoc operator mode (main grid): gap over feasible contexts AND feasibility.
+
+    The operator is the same for every method, so this shows how much of each method's quality is
+    the operator's. Gaps are over feasible contexts only, so always read them with the feasibility."""
+    rows = []
+    for o in OBJ:
+        d = load_eval(res, PPO_MAIN[o])
+        for op in OPS:
+            x = d[d.operator_mode == op]
+            m, sd = ms(_pct(x.cost_ratio_mean))
+            rows.append({"objective": o, "method": "PPO", "operator": op, "gap": m, "gap_sd": sd,
+                         "feasibility": x.feasibility.mean() * 100, "evals": x.ec3_evals_per_design.mean()})
+        kn = pd.read_csv(os.path.join(res, f"knn_loo_{o}.csv"))
+        for op in OPS:
+            r = kn[(kn.k == 3) & (kn.operator_mode == op)].iloc[0]
+            rows.append({"objective": o, "method": "kNN (pooled labels, LOO)", "operator": op,
+                         "gap": float(_pct(r.cost_ratio_mean_mean)), "gap_sd": float("nan"),
+                         "feasibility": r.feasibility_mean * 100, "evals": r.ec3_evals_per_design_mean})
+        sd_ = pd.read_csv(os.path.join(res, f"search_main_{o}.csv"))
+        for meth in ("de", "ga", "random"):
+            for op in OPS:
+                r = sd_[(sd_.method == meth) & (sd_.budget == search_budget) & (sd_.operator_mode == op)].iloc[0]
+                rows.append({"objective": o, "method": f"{meth.upper() if meth != 'random' else 'random'} search, B={search_budget}",
+                             "operator": op, "gap": float(_pct(r.cost_ratio_mean_mean)), "gap_sd": r.cost_ratio_mean_std * 100,
+                             "feasibility": r.feasibility_mean * 100, "evals": r.ec3_evals_per_design_mean})
+    return pd.DataFrame(rows)
+
+
+def table_ppo_vs_search(res, search_budget=40):
+    """PPO vs GA / DE / random at matched evaluations, 5 seeds vs 5 seeds, two operator settings.
+
+    `none`: no operator, PPO uses 40 evaluations and the search budget is 40 (exactly matched).
+    `scale+thin`: PPO about 100-112 evaluations, search 106-112 including the operator's analyses.
+    Exact two-sided permutation test on the difference of mean gaps (252 splits; smallest attainable
+    raw p = 2/252 = 0.0079). Holm family, fixed in advance: the three searches within one objective
+    and operator setting (smallest attainable Holm p = 3 x 0.0079 = 0.024). Gaps are over feasible
+    contexts only; the feasibility columns show that the searches fail more often, so a
+    feasible-only gap is, if anything, favourable to them. The seeds are independent replicates of
+    training (PPO) and of the search (GA/DE/random)."""
+    c9 = _load_09()
+    rows = []
+    for op in ("none", HEAD):
+        for o in OBJ:
+            ppo = _pct(c9.load_seed_values(res, PPO_MAIN[o], operator_mode=op))
+            ppo_feas = np.mean(c9.load_seed_values(res, PPO_MAIN[o], metric="feasibility", operator_mode=op)) * 100
+            ps = pd.read_csv(os.path.join(res, f"search_main_{o}_per_seed.csv"))
+            out = []
+            for meth in ("de", "ga", "random"):
+                x = ps[(ps.method == meth) & (ps.budget == search_budget) & (ps.operator_mode == op)].sort_values("seed")
+                assert len(x) == 5, (o, meth, len(x))
+                sv = _pct(x.cost_ratio_mean.to_numpy())
+                p = c9.exact_permutation_test(ppo, sv)
+                lo, hi = c9.bootstrap_ci(ppo, sv)
+                out.append({"operator": op, "objective": o,
+                            "search": f"{meth.upper() if meth != 'random' else 'random'} (B={search_budget})",
+                            "ppo_gap": ppo.mean(), "search_gap": sv.mean(), "diff_pp": ppo.mean() - sv.mean(),
+                            "ci95_lo": lo, "ci95_hi": hi, "p_raw": p,
+                            "separated": bool(ppo.max() < sv.min() or ppo.min() > sv.max()),
+                            "ppo_feas": ppo_feas, "search_feas": x.feasibility.mean() * 100})
+            for r, a in zip(out, c9.holm_correct([r["p_raw"] for r in out])):
+                r["p_holm"] = a
+                rows.append(r)
+    return pd.DataFrame(rows)
+
+
 def table_knn_cheap(res):
     """kNN with search labels vs label budget, in distribution (n = 36 and LOO) and on the OOD sets."""
     rows = []
@@ -288,6 +363,29 @@ def build_tables(res, outdir):
         f[f"B={B}"] = [fmt_ms(m, s) for m, s in zip(kc[f"B{B}_gap"], kc[f"B{B}_sd"])]
         f = f.drop(columns=[f"B{B}_gap", f"B{B}_sd", f"B{B}_feas"])
     _write(t, "t8_knn_cheap_labels", kc, f, "kNN gap (%) with DE labels of budget B, mean ± sd over 3 label seeds.")
+
+    oa = table_operator_ablation(res)
+    f = oa.copy()
+    f["gap"] = [fmt_ms(m, s_) for m, s_ in zip(oa.gap, oa.gap_sd)]
+    f = f.drop(columns="gap_sd")
+    f["feasibility"] = f.feasibility.map("{:.0f}".format)
+    f["evals"] = f.evals.map("{:.0f}".format)
+    _write(t, "t9_operator_ablation", oa, f,
+           "Main grid. Gaps are over FEASIBLE contexts only; read them together with the feasibility column.")
+
+    pv = table_ppo_vs_search(res)
+    f = pv.copy()
+    for c in ["ppo_gap", "search_gap", "ppo_feas", "search_feas"]:
+        f[c] = f[c].map("{:.1f}".format)
+    f["diff_pp"] = f.diff_pp.map("{:+.1f}".format)
+    f["95% CI (pp)"] = [f"[{a:+.1f}, {b:+.1f}]" for a, b in zip(pv.ci95_lo, pv.ci95_hi)]
+    f = f.drop(columns=["ci95_lo", "ci95_hi"])
+    for c in ["p_raw", "p_holm"]:
+        f[c] = f[c].map("{:.3f}".format)
+    _write(t, "t10_ppo_vs_search", pv, f,
+           "none: PPO 40 vs search 40 evaluations; scale+thin: PPO 100-112 vs search 106-112. 5 seeds vs 5 seeds, exact permutation "
+           "test, Holm within (objective, operator) over the 3 searches; smallest attainable Holm p = 0.024. "
+           "Gaps over feasible contexts only; feas = feasibility (%).")
     return {"ood": ood, "search": sb, "matched": mt, "knn_cheap": kc}
 
 

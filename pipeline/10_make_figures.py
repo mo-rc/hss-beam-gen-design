@@ -19,6 +19,8 @@ Figures (captions: figures/captions.md; figure titles are deliberately left to t
   fig4  kNN gap vs labelling cost (realistic search labels vs pooled labels), PPO training cost marked
   fig5  operator ablation: every method under none / scale / scale+thin (gap and feasibility)
   fig6  reference landscape: optimal grade over the span x load plane, training box, OOD grids
+  fig7  training curves (supplementary): reward, episode length, Lagrangian violations and multipliers per seed;
+        needs results/training_curves/ from pipeline/13_export_training_curves.py and is skipped if absent
 """
 import argparse
 import glob
@@ -28,6 +30,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.ticker  # noqa: E402,F401
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
@@ -361,7 +364,85 @@ def fig6(rd, od):
     save(fig, od, "fig6_reference_landscape", data)
 
 
-FIGS = {0: fig0, 1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5, 6: fig6}
+# --------------------------------------------------------------------------------------- fig 7
+def fig7(rd, od):
+    cdir = os.path.join(rd, "training_curves")
+    if not os.path.exists(os.path.join(cdir, "index.csv")):
+        print("fig7 skipped: no results/training_curves/index.csv (run pipeline/13_export_training_curves.py)")
+        return
+    idx = pd.read_csv(os.path.join(cdir, "index.csv"))
+    runs = {r.run: pd.read_csv(os.path.join(cdir, r.run + ".csv")) for r in idx.itertuples()}
+    algo_col = {"ppo": COL["ppo"], "sac": "#66a61e", "td3": "#e6ab02", "ddpg": "#a6761d"}
+    kept = []
+
+    def curves(exp_prefix, arm, tag):
+        out = []
+        for r in idx[(idx.experiment.str.startswith(exp_prefix)) & (idx.arm == arm)].itertuples():
+            d = runs[r.run]
+            d = d[d.tag == tag]
+            if len(d):
+                out.append((r.run, d.step.to_numpy(), d.value.to_numpy()))
+        return out
+
+    def draw(ax, pan, items, color, label):
+        for k, (run, x, y) in enumerate(items):
+            ax.plot(x, y, color=color, lw=0.8, alpha=0.7, label=label if k == 0 else None)
+            kept.append(pd.DataFrame({"panel": pan, "run": run, "step": x, "value": y}))
+
+    def mean_curve(items, grid):
+        ys = [np.interp(grid, x, y) for _, x, y in items if len(x)]
+        return np.mean(ys, axis=0) if ys else None
+
+    obj_col = {"cost": COL["ppo"], "mass": "#377eb8", "co2": "#4daf4a"}
+    algos = (("ppo", "2a", "feasibility_gated"), ("sac", "2b", "sac"), ("td3", "2b", "td3"), ("ddpg", "2b", "ddpg"))
+    fig, axes = plt.subplots(2, 4, figsize=(W2, 4.0), constrained_layout=True)
+    ax = axes[0, 0]
+    for o, exp_, arm in (("cost", "2a", "feasibility_gated"), ("mass", "2c", "mass"), ("co2", "2c", "co2")):
+        draw(ax, "a", curves(exp_, arm, "rollout/ep_rew_mean"), obj_col[o], OBJ_LABEL[o])
+    ax.set_yscale("symlog", linthresh=10)
+    ax.set_ylabel("training reward (PPO)")
+    ax.legend(frameon=False, loc="lower right")
+    ax = axes[0, 1]
+    for algo, exp_, arm in algos:
+        draw(ax, "b", curves(exp_, arm, "rollout/ep_rew_mean"), algo_col[algo], algo.upper())
+    ax.set_yscale("symlog", linthresh=10)
+    ax.set_ylabel("training reward")
+    ax.legend(frameon=False, loc="lower right")
+    ax = axes[0, 2]
+    for algo, exp_, arm in algos:
+        draw(ax, "c", curves(exp_, arm, "rollout/ep_len_mean"), algo_col[algo], None)
+    ax.set_ylabel("episode length (steps)")
+    ax.set_ylim(bottom=0)
+    ax = axes[0, 3]
+    draw(ax, "d", curves("2a", "shaped", "rollout/ep_rew_mean"), COL["ppo"], None)
+    ax.set_yscale("symlog", linthresh=10)
+    ax.set_ylabel("training reward (shaped)")
+    ax = axes[1, 0]
+    draw(ax, "e", curves("2a", "lagrangian", "rollout/ep_rew_mean"), COL["ppo"], None)
+    ax.set_yscale("symlog", linthresh=10)
+    ax.set_ylabel("training reward (Lagr.)")
+    grid = np.linspace(10_000, 1_000_000, 100)
+    for ax, pan, pre, ylab in ((axes[1, 1], "f", "lagrangian/mean_violation_", "mean constraint violation"),
+                               (axes[1, 2], "g", "lagrangian/lambda_", "Lagrange multiplier")):
+        for tag, lab, c in (("g1_util", "utilisation", "#1b9e77"), ("g2_class", "section class", "#d95f02"),
+                            ("g3_geom", "geometry", "#7570b3")):
+            m = mean_curve(curves("2a", "lagrangian", pre + tag), grid)
+            if m is not None:
+                ax.plot(grid, np.maximum(m, 1e-8), color=c, lw=1.2, label=lab)
+                kept.append(pd.DataFrame({"panel": pan, "run": "mean over seeds", "step": grid, "value": m,
+                                          "tag": tag}))
+        ax.set_yscale("log")
+        ax.set_ylabel(ylab)
+    axes[1, 1].legend(frameon=False, loc="lower left")
+    axes[1, 3].axis("off")
+    for a_, ch in zip(axes.ravel()[:7], "abcdefg"):
+        panel(a_, ch)
+        a_.set_xlabel("training steps")
+        a_.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v / 1e6:g}M" if v else "0"))
+    save(fig, od, "fig7_training_curves", pd.concat(kept, ignore_index=True))
+
+
+FIGS = {0: fig0, 1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5, 6: fig6, 7: fig7}
 
 
 def main():

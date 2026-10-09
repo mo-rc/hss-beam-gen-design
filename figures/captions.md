@@ -47,3 +47,10 @@ main grid and the three OOD grids; crosses mark contexts without a feasible desi
 the training range. Cost favours S355 almost everywhere, mass mixes grades, and CO2 is S690 for every
 feasible context; welded sections are optimal for a few mass and many CO2 contexts at low loads. The
 joint-extrapolation grid has no feasible design.
+
+**Fig. 7 (supplementary). Training curves.** Mean training-episode reward per seed (thin lines) of PPO for
+the cost, mass and CO2 objectives (a); training reward (b) and episode length (c) of PPO, SAC, TD3 and DDPG in
+the algorithm comparison; training reward of the shaped (d) and Lagrangian (e) reward modes; mean constraint
+violation (f) and Lagrange multiplier (g) per constraint, averaged over seeds, for the Lagrangian runs. Rewards
+are on the scale of their reward mode and are not comparable between panels (d), (e) and (a)-(b); the
+comparison metric of the paper is the gap of Figs. 1-3.

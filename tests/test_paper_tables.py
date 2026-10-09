@@ -34,6 +34,9 @@ def test_matched_table_search_and_knn_rows():
     assert round(m.loc[("cost", "DE search, B=40"), "gap"], 1) == 39.2
     assert round(m.loc[("co2", "kNN, DE labels B=4800 (LOO)"), "gap"], 1) == 0.2
     assert m.loc[("mass", "PPO (5 seeds)"), "feasibility"] == pytest.approx(100.0)
+    assert m.loc[("cost", "kNN, pooled labels (LOO)"), "labelling_evals"] == 141 * 96_000
+    assert m.loc[("cost", "PPO (5 seeds)"), "training_steps"] == 1_000_000
+    assert not m.labelling_evals.isna().any()
 
 
 def test_ood_and_pairwise_tables():
@@ -42,6 +45,7 @@ def test_ood_and_pairwise_tables():
     pw = t.table_pairwise(RES)
     row = pw[(pw.arm_a == "ppo") & (pw.arm_b == "td3")].iloc[0]
     assert round(row.p_holm, 3) == 0.048
+    assert set(pw.experiment) == {"2a reward mode", "2b algorithm"}   # no cross-objective test
 
 
 def test_build_writes_tables(tmp_path):

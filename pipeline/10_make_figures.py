@@ -11,12 +11,14 @@ reference, lower is better), as in the docs/results_*.md logs.
     python pipeline/10_make_figures.py --only 1 4 # selected figures
     python pipeline/10_make_figures.py --results_dir results --out_dir figures
 
-Figures
+Figures (captions: figures/captions.md; figure titles are deliberately left to the captions)
+  fig0  study overview: context -> methods -> design -> EC3 check + operators -> gap to reference
   fig1  gap vs total EC3 evaluations per design (GA / DE / random search vs PPO and kNN), per objective
   fig2  in-distribution vs OOD: gap and feasibility for PPO and kNN, per objective
   fig3  ablations: PPO reward modes (2a) and algorithms (2b), per-seed gaps
   fig4  kNN gap vs labelling cost (realistic search labels vs pooled labels), PPO training cost marked
   fig5  operator ablation: every method under none / scale / scale+thin (gap and feasibility)
+  fig6  reference landscape: optimal grade over the span x load plane, training box, OOD grids
 """
 import argparse
 import glob
@@ -39,9 +41,18 @@ RL_TRAIN_STEPS = 1_000_000
 COL = {"ga": "#1b9e77", "de": "#d95f02", "random": "#7570b3", "ppo": "#e7298a", "knn": "#1f78b4",
        "pooled": "#444444"}
 
-plt.rcParams.update({"font.size": 9, "axes.spines.top": False, "axes.spines.right": False,
-                     "axes.grid": True, "grid.alpha": 0.25, "figure.dpi": 120,
-                     "savefig.bbox": "tight"})
+plt.rcParams.update({"font.size": 7.5, "axes.titlesize": 8, "axes.labelsize": 7.5, "xtick.labelsize": 7,
+                     "ytick.labelsize": 7, "legend.fontsize": 7, "axes.spines.top": False,
+                     "axes.spines.right": False, "axes.grid": True, "grid.alpha": 0.25, "grid.linewidth": 0.5,
+                     "axes.linewidth": 0.7, "figure.dpi": 120, "savefig.bbox": "tight",
+                     "pdf.fonttype": 42, "ps.fonttype": 42})  # embedded TrueType fonts in the PDFs
+W2 = 7.2  # double-column width (inches)
+GRADES = (355, 460, 500, 550, 620, 690)
+
+
+def panel(ax, letter):
+    ax.text(-0.02, 1.08, f"({letter})", transform=ax.transAxes, fontsize=8.5, fontweight="bold", va="bottom",
+            ha="right")
 
 
 def gap(x):
@@ -69,13 +80,6 @@ def knn_row(path, k=3, mode=MODE, n=None):
                 evals=r.ec3_evals_per_design_mean)
 
 
-def panel_letters(axes):
-    """(a), (b), ... in the top-left corner of each panel, in reading order."""
-    for i, ax in enumerate(np.ravel(axes)):
-        ax.text(0.0, 1.02, f"({chr(97 + i)})", transform=ax.transAxes, fontsize=10, fontweight="bold",
-                va="bottom", ha="left")
-
-
 def save(fig, out_dir, name, data):
     os.makedirs(out_dir, exist_ok=True)
     fig.savefig(os.path.join(out_dir, f"{name}.png"), dpi=200)
@@ -87,7 +91,7 @@ def save(fig, out_dir, name, data):
 
 # --------------------------------------------------------------------------------------- fig 1
 def fig1(rd, od):
-    fig, axes = plt.subplots(1, 3, figsize=(11, 3.4), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(W2, 2.7), sharey=True, constrained_layout=True)
     data = []
     for ax, o in zip(axes, OBJ):
         s = pd.read_csv(os.path.join(rd, f"search_main_{o}.csv"))
@@ -114,20 +118,17 @@ def fig1(rd, od):
         ax.set_title(OBJ_LABEL[o])
         ax.set_xlabel("EC3 evaluations per design")
     axes[0].set_ylabel("Gap to best-known optimum (%)")
-    panel_letters(axes)
     h, l = axes[0].get_legend_handles_labels()
-    fig.legend(h, l, loc="lower center", ncol=5, fontsize=8, frameon=False, bbox_to_anchor=(0.5, -0.1))
-    fig.text(0.5, -0.17, "The kNN needs solved labelled contexts beforehand (cost in Fig. 4); PPO and the searches need none.",
-             ha="center", fontsize=8, style="italic")
-    fig.suptitle("Main grid, scale+thin: per-context search (B = 20 ... 4800, evaluations include the operators) "
-                 "vs amortized methods", fontsize=9.5, y=1.02)
+    fig.legend(h, l, loc="outside lower center", ncol=5, frameon=False)
+    for ax, ch in zip(axes, "abc"):
+        panel(ax, ch)
     save(fig, od, "fig1_gap_vs_evaluations", data)
 
 
 # --------------------------------------------------------------------------------------- fig 2
 def fig2(rd, od):
     sets = (("in-dist.", None), ("OOD span", "ood_span"), ("OOD load", "ood_load"))
-    fig, axes = plt.subplots(2, 3, figsize=(10, 5.2), sharex=True)
+    fig, axes = plt.subplots(2, 3, figsize=(W2, 4.2), sharex=True, constrained_layout=True)
     data = []
     w = 0.36
     for j, o in enumerate(OBJ):
@@ -151,11 +152,10 @@ def fig2(rd, od):
         axes[1, j].set_ylim(60, 103)
         axes[1, j].set_xticks(range(3))
         axes[1, j].set_xticklabels([s[0] for s in sets])
-    panel_letters(axes)
     h, l = axes[0, 0].get_legend_handles_labels()
-    fig.legend(h, l, loc="lower center", ncol=2, fontsize=8, frameon=False, bbox_to_anchor=(0.5, -0.04))
-    fig.suptitle("In-distribution vs out-of-distribution (scale+thin; OOD = contexts with a feasible reference only)",
-                 fontsize=9.5)
+    fig.legend(h, l, loc="outside lower center", ncol=2, frameon=False)
+    for ax, ch in zip(axes.ravel(), "abcdef"):
+        panel(ax, ch)
     save(fig, od, "fig2_in_dist_vs_ood", data)
 
 
@@ -165,7 +165,8 @@ def fig3(rd, od):
                [("gated", "2a_feasibility_gated"), ("lagrangian", "2a_lagrangian"), ("shaped", "2a_shaped")]),
               ("2b: algorithm (feasibility_gated)\nonly PPO vs TD3 significant after Holm (p = 0.048)", [("PPO", "2a_feasibility_gated"), ("SAC", "2b_sac"),
                                                      ("TD3", "2b_td3"), ("DDPG", "2b_ddpg")]))
-    fig, axes = plt.subplots(1, 2, figsize=(9, 3.6), sharey=True, gridspec_kw={"width_ratios": [3, 4]})
+    fig, axes = plt.subplots(1, 2, figsize=(W2 * 0.85, 2.8), sharey=True, gridspec_kw={"width_ratios": [3, 4]},
+                             constrained_layout=True)
     data = []
     rng = np.random.default_rng(0)
     for ax, (title, arms) in zip(axes, panels):
@@ -177,17 +178,17 @@ def fig3(rd, od):
             data += [dict(panel=title.split("\n")[0], arm=lab, seed=int(s), gap=g) for s, g in zip(p.seed, p.gap)]
         ax.set_xticks(range(len(arms)))
         ax.set_xticklabels([a[0] for a in arms])
-        ax.set_title(title, fontsize=9)
+        ax.set_title(title, fontsize=7.5)
         ax.set_xlim(-0.6, len(arms) - 0.4)
     axes[0].set_ylabel("Gap to best-known optimum (%), cost")
-    panel_letters(axes)
-    fig.suptitle("Per-seed gaps (dots) and mean (horizontal line), scale+thin, main grid", fontsize=9.5, y=1.06)
+    for ax, ch in zip(axes, "ab"):
+        panel(ax, ch)
     save(fig, od, "fig3_ablations", data)
 
 
 # --------------------------------------------------------------------------------------- fig 4
 def fig4(rd, od):
-    fig, axes = plt.subplots(1, 3, figsize=(11, 3.6), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(W2, 2.8), sharey=True, constrained_layout=True)
     data = []
     sizes = (36, 72, 108)
     budgets = (400, 1000, 4800)
@@ -213,23 +214,59 @@ def fig4(rd, od):
         data.append(dict(obj=o, labels="ppo", n=np.nan, cost=RL_TRAIN_STEPS, gap=p.gap.mean(), sd=p.gap.std(ddof=1)))
         ax.set_xscale("log")
         ax.set_title(OBJ_LABEL[o])
-        ax.set_xlabel("labelling / training cost (EC3 evaluations)")
+        ax.set_xlabel("labelling / training cost (EC3 evals)")
     axes[0].set_ylabel("Gap to best-known optimum (%)")
-    panel_letters(axes)
     for ax in axes:
         ax.set_ylim(-0.3, ax.get_ylim()[1] * 1.08)
     h, l = axes[0].get_legend_handles_labels()
-    fig.legend(h, l, loc="lower center", ncol=5, fontsize=8, frameon=False, bbox_to_anchor=(0.5, -0.1))
-    fig.suptitle("kNN in distribution (subsample, n = 36 / 72 / 108 labelled contexts): gap vs labelling cost; "
-                 "mean ± sd over 3 label seeds", fontsize=9.5, y=1.02)
+    fig.legend(h, l, loc="outside lower center", ncol=5, frameon=False)
+    for ax, ch in zip(axes, "abc"):
+        panel(ax, ch)
     save(fig, od, "fig4_knn_label_cost", data)
+
+
+# --------------------------------------------------------------------------------------- fig 0
+def fig0(rd, od):
+    """Study overview (schematic; no data)."""
+    from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+    fig, ax = plt.subplots(figsize=(W2, 3.2))
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 46)
+    ax.axis("off")
+
+    def box(x, y, w, h, text, fc, ec="#333333", fs=7, bold=False):
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.25,rounding_size=1.2", fc=fc, ec=ec, lw=0.8))
+        ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=fs,
+                fontweight="bold" if bold else None, linespacing=1.25)
+
+    def arrow(x0, y0, x1, y1):
+        ax.add_patch(FancyArrowPatch((x0, y0), (x1, y1), arrowstyle="-|>", mutation_scale=8, lw=0.9, color="#333333"))
+
+    box(1, 14, 15, 12, "Context\nspan $L$ (m)\nfactored UDL\n$w$ (kN/m)\n$M_{Ed}=wL^2/8$", "#f0f0f0", bold=False)
+    methods = [("PPO policy\ntrained 1M steps, no labels\n~40 evals per design", "#fbd3e6", 28),
+               ("kNN (k = 3)\nsolved contexts as labels\n1 prediction", "#cfe3f4", 15),
+               ("GA / DE / random search\nre-solved per context\nbudget $B$ evals", "#fde0c8", 2)]
+    for text, fc, y in methods:
+        box(25, y, 24, 9.5, text, fc)
+        arrow(16.8, 20, 24.6, y + 4.7)
+    box(54.5, 14, 18.5, 12, "Design\ngrade (S355-S690)\nsection type\n$h,\\ b,\\ t_f,\\ t_w$", "#f0f0f0", fs=6.6)
+    for _, _, y in methods:
+        arrow(49.4, y + 4.7, 54.1, 20)
+    box(79, 24, 20, 12, "EC3 check\n+ post-hoc operators\nnone / scale /\nscale+thin", "#e5f5e0")
+    arrow(73.4, 20, 78.6, 28)
+    box(79, 4, 20, 14, "Gap to best-known\nreference (pooled GA\nsearches), feasibility,\nEC3 evals per design", "#f0f0f0")
+    arrow(89, 23.4, 89, 18.6)
+    ax.text(1, 44.3, "Evaluation sets: main grid (142 feasible contexts), OOD span (26), OOD load (47), "
+                     "OOD joint (0, untestable)", fontsize=6.8, va="center")
+    ax.text(1, 41.3, "Objectives: cost, mass, CO$_2$ (each against its own reference)", fontsize=6.8, va="center")
+    save(fig, od, "fig0_overview", [dict(note="schematic, no plotted data")])
 
 
 # --------------------------------------------------------------------------------------- fig 5
 def fig5(rd, od):
     """Every method under each post-hoc operator: how much of the quality is the operator's."""
     ops = ("none", "scale", "scale+thin")
-    fig, axes = plt.subplots(2, 3, figsize=(10.5, 5.6), sharex=True)
+    fig, axes = plt.subplots(2, 3, figsize=(W2, 4.3), sharex=True, constrained_layout=True)
     data = []
     series = [("PPO", COL["ppo"], "*"), ("kNN (pooled labels)", COL["knn"], "D"), ("DE, B = 40", COL["de"], "o"),
               ("GA, B = 40", COL["ga"], "s"), ("Random, B = 40", COL["random"], "^")]
@@ -251,9 +288,9 @@ def fig5(rd, od):
                 else:
                     gaps.append(v["gap"]); feas.append(v["feas"])
             lw = 2.0 if name == "PPO" else 1.1
-            axes[0, j].plot(range(3), gaps, "-" + mk, color=col, lw=lw, ms=9 if mk == "*" else 5, mec="k", mew=0.4,
+            axes[0, j].plot(range(3), gaps, "-" + mk, color=col, lw=lw, ms=8 if mk == "*" else 4.5, mec="k", mew=0.4,
                             label=name, zorder=5 if name == "PPO" else 3)
-            axes[1, j].plot(range(3), feas, "-" + mk, color=col, lw=lw, ms=9 if mk == "*" else 5, mec="k", mew=0.4,
+            axes[1, j].plot(range(3), feas, "-" + mk, color=col, lw=lw, ms=8 if mk == "*" else 4.5, mec="k", mew=0.4,
                             zorder=5 if name == "PPO" else 3)
             data += [dict(obj=o, method=name, operator=op, gap=g, feas=f) for op, g, f in zip(ops, gaps, feas)]
         axes[0, j].set_yscale("symlog", linthresh=2)
@@ -266,15 +303,65 @@ def fig5(rd, od):
         axes[1, j].set_xlabel("post-hoc operator")
     axes[0, 0].set_ylabel("Gap, feasible contexts (%)")
     axes[1, 0].set_ylabel("Feasible (%)")
-    fig.subplots_adjust(hspace=0.4)
-    panel_letters(axes)
+    for ax, ch in zip(axes.ravel(), "abcdef"):
+        panel(ax, ch)
     h, l = axes[0, 0].get_legend_handles_labels()
-    fig.legend(h, l, loc="lower center", ncol=5, fontsize=8, frameon=False, bbox_to_anchor=(0.5, -0.03))
-    fig.suptitle("Effect of the post-hoc operator on every method (main grid; searches at B = 40)", fontsize=9.5)
+    fig.legend(h, l, loc="outside lower center", ncol=5, frameon=False)
     save(fig, od, "fig5_operator_ablation", data)
 
 
-FIGS = {1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5}
+# --------------------------------------------------------------------------------------- fig 6
+def _grid(meta):
+    g = meta["grid_definition"]
+    return (np.linspace(g["span_min_m"], g["span_max_m"], g["n_spans"]),
+            np.linspace(g["load_min"], g["load_max"], g["n_loads"]))
+
+
+def fig6(rd, od):
+    import json
+    root = os.path.join(os.path.dirname(os.path.abspath(rd)), "data", "ground_truth")
+    fig, axes = plt.subplots(1, 3, figsize=(W2, 2.9), sharey=True, constrained_layout=True)
+    pal = dict(zip(GRADES, plt.cm.viridis(np.linspace(0.05, 0.95, len(GRADES)))))
+    data = []
+    for ax, o in zip(axes, OBJ):
+        for g in ("main_grid", "ood_span", "ood_load", "ood_joint"):
+            meta = json.load(open(os.path.join(root, g, "meta.json")))
+            spans, loads = _grid(meta)
+            f = os.path.join(root, g + "_pooled", f"ec3_optimal_designs_{o}.csv")
+            d = pd.read_csv(f)
+            best = d.loc[d.groupby(["span_m", "load_kN_per_m"])[o].idxmin()] if len(d) else d
+            feas = {(round(r.span_m, 6), round(r.load_kN_per_m, 6)): r for r in best.itertuples()}
+            for sp in spans:
+                for ld in loads:
+                    r = feas.get((round(sp, 6), round(ld, 6)))
+                    if r is None:
+                        ax.plot(sp, ld, "x", color="#999999", ms=2.6, mew=0.6, zorder=2)
+                        data.append(dict(obj=o, grid=g, span=sp, load=ld, feasible=False, grade=np.nan, welded=np.nan))
+                    else:
+                        ax.scatter(sp, ld, s=9, marker="s", color=pal[int(round(r.grade))],
+                                   edgecolor="k" if r.section_type == "welded" else "none", linewidth=0.7, zorder=3)
+                        data.append(dict(obj=o, grid=g, span=sp, load=ld, feasible=True, grade=int(round(r.grade)),
+                                         welded=r.section_type == "welded"))
+        ax.add_patch(plt.Rectangle((6, 20), 9, 120, fill=False, ls="--", lw=0.9, ec="k", zorder=4))
+        ax.text(10.5, 4, "training range", ha="center", fontsize=6.3)
+        ax.text(19, 4, "OOD span", ha="center", fontsize=6.3)
+        ax.text(10.5, 268, "OOD load", ha="center", fontsize=6.3)
+        ax.text(19, 268, "OOD joint:\n0/64 feasible", ha="center", fontsize=6.3)
+        ax.set_title(OBJ_LABEL[o])
+        ax.set_xlabel("span (m)")
+        ax.set_xlim(4.5, 23.5)
+        ax.set_ylim(-8, 300)
+    axes[0].set_ylabel("factored UDL (kN/m)")
+    handles = [plt.Line2D([], [], marker="s", ls="", color=pal[g], ms=5, label=f"S{g}") for g in GRADES]
+    handles += [plt.Line2D([], [], marker="s", ls="", mfc="white", mec="k", ms=5, label="welded section"),
+                plt.Line2D([], [], marker="x", ls="", color="#999999", ms=4, label="no feasible design")]
+    fig.legend(handles=handles, loc="outside lower center", ncol=8, frameon=False)
+    for ax, ch in zip(axes, "abc"):
+        panel(ax, ch)
+    save(fig, od, "fig6_reference_landscape", data)
+
+
+FIGS = {0: fig0, 1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5, 6: fig6}
 
 
 def main():

@@ -34,7 +34,7 @@ configs/rl_final.yaml  frozen RL hyperparameters (not edited after the pilots)
 data/ground_truth/     pooled best-known reference designs per objective (cost, mass, CO2):
                        main_grid, ood_span, ood_load, ood_joint (each with a *_pooled version)
 results/               per-seed / per-run evaluation outputs behind every log in docs/
-figures/               paper figures (png + pdf) and the exact plotted numbers (*_data.csv)
+figures/               paper figures (png + pdf), the plotted numbers (*_data.csv) and captions.md
 paper/tables/          paper tables (md + csv), built from results/
 docs/                  interim results logs; docs/archive/ holds the original project briefing
 tests/                 pytest suite
@@ -52,8 +52,8 @@ Always evaluate against the `_pooled` ground-truth directories; the scripts refu
 | `04_baseline_search.py` | GA / DE / random search at matched evaluation budgets |
 | `05_baseline_knn.py` | kNN amortized mapping (leave-one-out, subsample, OOD; ground-truth or search-generated labels) |
 | `09_compare_arms.py` | exact permutation test with Holm correction across arms (5 seeds each) |
-| `10_make_figures.py` | figures from the saved `results/` only (no recomputation) |
-| `11_build_paper_tables.py` | tables (`paper/tables/`) from the saved `results/` only, including the PPO-vs-search significance tests and the operator ablation |
+| `10_make_figures.py` | seven figures (overview, quality vs evaluations, in-dist vs OOD, ablations, kNN label cost, operator ablation, reference landscape) from the saved `results/` only |
+| `11_build_paper_tables.py` | tables (`paper/tables/`) from the saved `results/` only, including the PPO-vs-search significance tests and the operator ablation; no significance test across objectives (different references) |
 | `12_time_inference.py` | wall-clock per design, policy vs search, on one machine (run locally; needs a trained checkpoint) |
 
 Example (evaluation of one checkpoint, kNN, and search baseline):

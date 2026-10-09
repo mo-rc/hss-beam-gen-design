@@ -8,6 +8,3 @@ experiment,arm_a,arm_b,mean_diff_pct_points,ci95_lo_pct_points,ci95_hi_pct_point
 2b algorithm,sac,td3,-11.166439,-27.761407,5.29418,0.214286,0.642857
 2b algorithm,sac,ddpg,-7.186384,-38.304003,17.259819,0.714286,1.0
 2b algorithm,td3,ddpg,3.980055,-27.104344,27.657267,0.880952,1.0
-2c objective,cost,mass,1.698655,-1.54316,4.673606,0.373016,0.380952
-2c objective,cost,co2,4.331892,1.438422,7.101616,0.031746,0.095238
-2c objective,mass,co2,2.633237,-0.537696,5.932666,0.190476,0.380952

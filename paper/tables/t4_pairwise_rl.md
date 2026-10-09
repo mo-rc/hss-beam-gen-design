@@ -9,8 +9,5 @@
 | 2b algorithm | sac | td3 | -11.2 | -27.8 | +5.3 | 0.214 | 0.643 |
 | 2b algorithm | sac | ddpg | -7.2 | -38.3 | +17.3 | 0.714 | 1.000 |
 | 2b algorithm | td3 | ddpg | +4.0 | -27.1 | +27.7 | 0.881 | 1.000 |
-| 2c objective | cost | mass | +1.7 | -1.5 | +4.7 | 0.373 | 0.381 |
-| 2c objective | cost | co2 | +4.3 | +1.4 | +7.1 | 0.032 | 0.095 |
-| 2c objective | mass | co2 | +2.6 | -0.5 | +5.9 | 0.190 | 0.381 |
 
 scale+thin; exact permutation test, Holm-corrected within each experiment; n = 5 seeds per arm.

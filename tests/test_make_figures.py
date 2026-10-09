@@ -22,7 +22,8 @@ def out(tmp_path_factory):
 
 
 def test_all_figures_written(out):
-    for n in ("fig1_gap_vs_evaluations", "fig2_in_dist_vs_ood", "fig3_ablations", "fig4_knn_label_cost", "fig5_operator_ablation"):
+    for n in ("fig0_overview", "fig1_gap_vs_evaluations", "fig2_in_dist_vs_ood", "fig3_ablations",
+              "fig4_knn_label_cost", "fig5_operator_ablation", "fig6_reference_landscape"):
         for ext in ("png", "pdf", "_data.csv"):
             path = os.path.join(out, n + ("." + ext if not ext.startswith("_") else ext))
             assert os.path.getsize(path) > 0
@@ -43,3 +44,15 @@ def test_plotted_numbers_match_the_results_logs(out):
     d4 = pd.read_csv(os.path.join(out, "fig4_knn_label_cost_data.csv"))
     r = d4[(d4.obj == "cost") & (d4.labels == "de1000") & (d4.n == 36)].iloc[0]
     assert r.cost == 36_000 and r.gap == pytest.approx(3.8, abs=0.1)
+
+
+def test_new_figures_match_the_data(out):
+    land = pd.read_csv(os.path.join(out, "fig6_reference_landscape_data.csv"))
+    n = lambda o, g: int(land[(land.obj == o) & (land.grid == g) & land.feasible].shape[0])  # noqa: E731
+    assert n("cost", "main_grid") == 142 and n("cost", "ood_span") == 26 and n("cost", "ood_load") == 47
+    assert n("cost", "ood_joint") == 0 and n("co2", "ood_joint") == 0
+    co2 = land[(land.obj == "co2") & (land.grid == "main_grid") & land.feasible]
+    assert co2.grade.eq(690).all()
+    ops = pd.read_csv(os.path.join(out, "fig5_operator_ablation_data.csv")).set_index(["obj", "method", "operator"])
+    assert ops.loc[("cost", "PPO", "scale+thin"), "gap"] == pytest.approx(8.9, abs=0.1)
+    assert ops.loc[("cost", "kNN (pooled labels)", "none"), "feas"] == pytest.approx(44.4, abs=0.2)

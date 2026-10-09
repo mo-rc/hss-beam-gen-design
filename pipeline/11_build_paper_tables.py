@@ -27,6 +27,8 @@ HEAD = "scale+thin"
 SEEDS = range(42, 47)
 OBJ = ["cost", "mass", "co2"]
 PPO_MAIN = {"cost": "2a_feasibility_gated", "mass": "2c_mass", "co2": "2c_co2"}
+# pooled ground-truth label: 12 (grade, section type) GA searches x 2 restarts x (pop 50 x 80 generations)
+POOLED_LABEL_EVALS = 96_000
 
 
 # ---------------------------------------------------------------- loading helpers
@@ -102,10 +104,12 @@ def table_rl_experiments(res):
 
 
 def table_pairwise(res):
-    """Holm-corrected pairwise comparisons of the three RL experiments (scale+thin)."""
+    """Holm-corrected pairwise comparisons of the RL experiments whose arms share one reference
+    (2a reward modes, 2b algorithms; scale+thin). 2c (objectives) is deliberately NOT tested: cost,
+    mass and CO2 gaps are measured against different references, so a significance test between
+    them is not meaningful (see docs/results_2c_objective_transfer.md)."""
     frames = []
-    for exp, fname in [("2a reward mode", "2a_comparison.csv"), ("2b algorithm", "2b_comparison.csv"),
-                       ("2c objective", "2c_comparison.csv")]:
+    for exp, fname in [("2a reward mode", "2a_comparison.csv"), ("2b algorithm", "2b_comparison.csv")]:
         d = pd.read_csv(os.path.join(res, fname))
         d.insert(0, "experiment", exp)
         frames.append(d)
@@ -177,21 +181,24 @@ def table_matched(res, search_budget=40):
     for o in OBJ:
         r = rl_row(res, PPO_MAIN[o])
         rows.append({"objective": o, "method": "PPO (5 seeds)", "gap": r["gap_scale+thin"], "gap_sd": r["gap_scale+thin_sd"],
-                     "feasibility": r["feasibility"], "evals_per_design": r["evals"], "labelling_evals": 0})
+                     "feasibility": r["feasibility"], "evals_per_design": r["evals"], "labelling_evals": 0,
+                     "training_steps": 1_000_000})
         k = _knn(res, f"knn_loo_{o}.csv")
         rows.append({"objective": o, "method": "kNN, pooled labels (LOO)", "gap": float(_pct(k.cost_ratio_mean_mean)),
                      "gap_sd": float("nan"), "feasibility": k.feasibility_mean * 100,
-                     "evals_per_design": k.ec3_evals_per_design_mean, "labelling_evals": np.nan})
+                     "evals_per_design": k.ec3_evals_per_design_mean,
+                     "labelling_evals": 141 * POOLED_LABEL_EVALS, "training_steps": 0})
         for B in (1000, 4800):
             m, sd, f, e = _knn_cheap(res, B, "loo", o)
             rows.append({"objective": o, "method": f"kNN, DE labels B={B} (LOO)", "gap": m, "gap_sd": sd,
-                         "feasibility": f, "evals_per_design": e, "labelling_evals": 141 * B})
+                         "feasibility": f, "evals_per_design": e, "labelling_evals": 141 * B, "training_steps": 0})
         s = _search(res, f"main_{o}")
         for meth in ("de", "ga", "random"):
             x = s[(s.method == meth) & (s.budget == search_budget)].iloc[0]
             rows.append({"objective": o, "method": f"{meth.upper() if meth != 'random' else 'random'} search, B={search_budget}",
                          "gap": x.gap, "gap_sd": x.gap_sd, "feasibility": x.feasibility_mean * 100,
-                         "evals_per_design": x.ec3_evals_per_design_mean, "labelling_evals": 0})
+                         "evals_per_design": x.ec3_evals_per_design_mean, "labelling_evals": 0,
+                         "training_steps": 0})
     return pd.DataFrame(rows)
 
 
@@ -352,10 +359,13 @@ def build_tables(res, outdir):
     f = f.drop(columns="gap_sd")
     f["feasibility"] = f.feasibility.map("{:.0f}".format)
     f["evals_per_design"] = f.evals_per_design.map("{:.0f}".format)
-    f["labelling_evals"] = f.labelling_evals.map(lambda v: "" if np.isnan(v) else f"{int(v):,}")
+    f["labelling_evals"] = f.labelling_evals.map(lambda v: f"{int(v):,}")
+    f["training_steps"] = f.training_steps.map(lambda v: f"{int(v):,}")
     _write(t, "t7_methods_matched", mt, f,
-           "Main grid, scale+thin. kNN pooled labels cost about 96,000 evaluations per labelled context; "
-           "RL training is 1,000,000 steps; search and RL need no labels.")
+           "Main grid, scale+thin, leave-one-out for the kNN (141 labelled contexts). Pooled labels cost about "
+           "96,000 evaluations per context (12 fixed-grade GA searches x 2 restarts x 4,000); labelling cost for "
+           "DE labels is 141 x B; RL training is 1,000,000 environment steps and needs no labels; search needs "
+           "neither.")
 
     kc = table_knn_cheap(res)
     f = _fmt_generic(kc)

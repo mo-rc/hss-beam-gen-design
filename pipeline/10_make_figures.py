@@ -433,8 +433,9 @@ def fig7(rd, od):
                                           "tag": tag}))
         ax.set_yscale("log")
         ax.set_ylabel(ylab)
-    axes[1, 1].legend(frameon=False, loc="lower left")
+    h, l = axes[1, 1].get_legend_handles_labels()
     axes[1, 3].axis("off")
+    axes[1, 3].legend(h, l, frameon=False, loc="center left", title="constraint")
     for a_, ch in zip(axes.ravel()[:7], "abcdefg"):
         panel(a_, ch)
         a_.set_xlabel("training steps")

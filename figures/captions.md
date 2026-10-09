@@ -53,4 +53,5 @@ the cost, mass and CO2 objectives (a); training reward (b) and episode length (c
 the algorithm comparison; training reward of the shaped (d) and Lagrangian (e) reward modes; mean constraint
 violation (f) and Lagrange multiplier (g) per constraint, averaged over seeds, for the Lagrangian runs. Rewards
 are on the scale of their reward mode and are not comparable between panels (d), (e) and (a)-(b); the
-comparison metric of the paper is the gap of Figs. 1-3.
+comparison metric of the paper is the gap of Figs. 1-3. In (d) the shaped reward is still rising at 1M steps in all five seeds. In (c) the off-policy
+seeds end with different episode lengths (SAC about 8 steps in two seeds and 17-18 in two others), PPO stays near 35-39.

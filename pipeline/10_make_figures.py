@@ -21,7 +21,8 @@ Figures (captions: figures/captions.md; figure titles are deliberately left to t
   fig6  reference landscape: optimal grade over the span x load plane, training box, OOD grids
   fig7  training curves (supplementary): reward per seed for the three objectives and the four algorithms, episode length
   fig8  training curves (supplementary): shaped and Lagrangian reward modes, constraint violations, multipliers
-        (fig7 and fig8 need results/training_curves/ from pipeline/13_export_training_curves.py; skipped if absent)
+  fig9  (file fig7_8_combined_training_curves) fig7 and fig8 on one page, panels a-g
+        (fig7-9 need results/training_curves/ from pipeline/13_export_training_curves.py; skipped if absent)
 """
 import argparse
 import glob
@@ -407,33 +408,68 @@ def _steps_axis(ax):
     ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v / 1e6:g}M" if v else "0"))
 
 
-def fig7(rd, od):
-    """Training curves, algorithms and objectives (all seeds of every run)."""
-    if not _Curves.available(rd):
-        print("fig7 skipped: no results/training_curves/index.csv (run pipeline/13_export_training_curves.py)")
-        return
-    c = _Curves(rd)
-    algo_col = {"ppo": COL["ppo"], "sac": "#66a61e", "td3": "#e6ab02", "ddpg": "#a6761d"}
-    obj_col = {"cost": COL["ppo"], "mass": "#377eb8", "co2": "#4daf4a"}
-    algos = (("ppo", "2a", "feasibility_gated"), ("sac", "2b", "sac"), ("td3", "2b", "td3"), ("ddpg", "2b", "ddpg"))
-    fig, axes = plt.subplots(1, 3, figsize=(W2, 2.7), constrained_layout=True)
-    ax = axes[0]
+_ALGO_COL = {"ppo": COL["ppo"], "sac": "#66a61e", "td3": "#e6ab02", "ddpg": "#a6761d"}
+_OBJ_COL = {"cost": COL["ppo"], "mass": "#377eb8", "co2": "#4daf4a"}
+_ALGOS = (("ppo", "2a", "feasibility_gated"), ("sac", "2b", "sac"), ("td3", "2b", "td3"), ("ddpg", "2b", "ddpg"))
+_CONS = (("g1_util", "utilisation", "#1b9e77"), ("g2_class", "section class", "#d95f02"), ("g3_geom", "geometry", "#7570b3"))
+_GRID = np.linspace(10_000, 1_000_000, 100)
+
+
+def _p_objectives(c, ax, pan):
     for o, exp_, arm in (("cost", "2a", "feasibility_gated"), ("mass", "2c", "mass"), ("co2", "2c", "co2")):
-        c.draw(ax, "a", c.curves(exp_, arm, "rollout/ep_rew_mean"), obj_col[o], OBJ_LABEL[o])
+        c.draw(ax, pan, c.curves(exp_, arm, "rollout/ep_rew_mean"), _OBJ_COL[o], OBJ_LABEL[o])
     ax.set_yscale("symlog", linthresh=10)
     ax.set_ylabel("training reward (PPO)")
     ax.legend(frameon=False, loc="lower right")
-    ax = axes[1]
-    for algo, exp_, arm in algos:
-        c.draw(ax, "b", c.curves(exp_, arm, "rollout/ep_rew_mean"), algo_col[algo], algo.upper())
+
+
+def _p_algo_reward(c, ax, pan):
+    for algo, exp_, arm in _ALGOS:
+        c.draw(ax, pan, c.curves(exp_, arm, "rollout/ep_rew_mean"), _ALGO_COL[algo], algo.upper())
     ax.set_yscale("symlog", linthresh=10)
     ax.set_ylabel("training reward")
     ax.legend(frameon=False, loc="lower right")
-    ax = axes[2]
-    for algo, exp_, arm in algos:
-        c.draw(ax, "c", c.curves(exp_, arm, "rollout/ep_len_mean"), algo_col[algo], None)
+
+
+def _p_algo_len(c, ax, pan):
+    for algo, exp_, arm in _ALGOS:
+        c.draw(ax, pan, c.curves(exp_, arm, "rollout/ep_len_mean"), _ALGO_COL[algo], None)
     ax.set_ylabel("episode length (steps)")
     ax.set_ylim(bottom=0)
+
+
+def _p_mode_reward(c, ax, pan, arm, label):
+    c.draw(ax, pan, c.curves("2a", arm, "rollout/ep_rew_mean"), COL["ppo"], None)
+    ax.set_yscale("symlog", linthresh=10)
+    ax.set_ylabel(label)
+
+
+def _p_lagr(c, ax, pan, kind):
+    pre, ylab = (("lagrangian/mean_violation_", "mean constraint violation") if kind == "violation"
+                 else ("lagrangian/lambda_", "Lagrange multiplier"))
+    for tag, lab, col in _CONS:
+        c.draw_mean(ax, pan, c.curves("2a", "lagrangian", pre + tag), _GRID, col, lab,
+                    floor=1e-8 if kind == "violation" else None)
+    ax.set_yscale("log")
+    ax.set_ylabel(ylab)
+
+
+def _need_curves(rd, name):
+    if not _Curves.available(rd):
+        print(f"{name} skipped: no results/training_curves/index.csv (run pipeline/13_export_training_curves.py)")
+        return False
+    return True
+
+
+def fig7(rd, od):
+    """Training curves, algorithms and objectives (all seeds of every run)."""
+    if not _need_curves(rd, "fig7"):
+        return
+    c = _Curves(rd)
+    fig, axes = plt.subplots(1, 3, figsize=(W2, 2.7), constrained_layout=True)
+    _p_objectives(c, axes[0], "a")
+    _p_algo_reward(c, axes[1], "b")
+    _p_algo_len(c, axes[2], "c")
     for a_, ch in zip(axes, "abc"):
         panel(a_, ch)
         _steps_axis(a_)
@@ -442,29 +478,14 @@ def fig7(rd, od):
 
 def fig8(rd, od):
     """Training curves, reward modes: shaped, Lagrangian reward, constraint violations and multipliers."""
-    if not _Curves.available(rd):
-        print("fig8 skipped: no results/training_curves/index.csv (run pipeline/13_export_training_curves.py)")
+    if not _need_curves(rd, "fig8"):
         return
     c = _Curves(rd)
-    grid = np.linspace(10_000, 1_000_000, 100)
-    cons = (("g1_util", "utilisation", "#1b9e77"), ("g2_class", "section class", "#d95f02"),
-            ("g3_geom", "geometry", "#7570b3"))
     fig, axes = plt.subplots(1, 4, figsize=(W2, 2.7), constrained_layout=True)
-    ax = axes[0]
-    c.draw(ax, "a", c.curves("2a", "shaped", "rollout/ep_rew_mean"), COL["ppo"], None)
-    ax.set_yscale("symlog", linthresh=10)
-    ax.set_ylabel("training reward (shaped)")
-    ax = axes[1]
-    c.draw(ax, "b", c.curves("2a", "lagrangian", "rollout/ep_rew_mean"), COL["ppo"], None)
-    ax.set_yscale("symlog", linthresh=10)
-    ax.set_ylabel("training reward (Lagrangian)")
-    for ax, pan, pre, ylab in ((axes[2], "c", "lagrangian/mean_violation_", "mean constraint violation"),
-                               (axes[3], "d", "lagrangian/lambda_", "Lagrange multiplier")):
-        for tag, lab, col in cons:
-            c.draw_mean(ax, pan, c.curves("2a", "lagrangian", pre + tag), grid, col, lab,
-                        floor=1e-8 if pan == "c" else None)
-        ax.set_yscale("log")
-        ax.set_ylabel(ylab)
+    _p_mode_reward(c, axes[0], "a", "shaped", "training reward (shaped)")
+    _p_mode_reward(c, axes[1], "b", "lagrangian", "training reward (Lagrangian)")
+    _p_lagr(c, axes[2], "c", "violation")
+    _p_lagr(c, axes[3], "d", "multiplier")
     for a_, ch in zip(axes, "abcd"):
         panel(a_, ch)
         _steps_axis(a_)
@@ -473,7 +494,29 @@ def fig8(rd, od):
     save(fig, od, "fig8_reward_modes", pd.concat(c.kept, ignore_index=True))
 
 
-FIGS = {0: fig0, 1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5, 6: fig6, 7: fig7, 8: fig8}
+def fig78(rd, od):
+    """Fig. 7 and Fig. 8 on one page (panels a-g), same curves as the split figures."""
+    if not _need_curves(rd, "fig7_8_combined"):
+        return
+    c = _Curves(rd)
+    fig, axes = plt.subplots(2, 4, figsize=(W2, 4.0), constrained_layout=True)
+    _p_objectives(c, axes[0, 0], "a")
+    _p_algo_reward(c, axes[0, 1], "b")
+    _p_algo_len(c, axes[0, 2], "c")
+    _p_mode_reward(c, axes[0, 3], "d", "shaped", "training reward (shaped)")
+    _p_mode_reward(c, axes[1, 0], "e", "lagrangian", "training reward (Lagr.)")
+    _p_lagr(c, axes[1, 1], "f", "violation")
+    _p_lagr(c, axes[1, 2], "g", "multiplier")
+    h, l = axes[1, 1].get_legend_handles_labels()
+    axes[1, 3].axis("off")
+    axes[1, 3].legend(h, l, frameon=False, loc="center left", title="constraint (panels f, g)")
+    for a_, ch in zip(list(axes[0]) + list(axes[1, :3]), "abcdefg"):
+        panel(a_, ch)
+        _steps_axis(a_)
+    save(fig, od, "fig7_8_combined_training_curves", pd.concat(c.kept, ignore_index=True))
+
+
+FIGS = {0: fig0, 1: fig1, 2: fig2, 3: fig3, 4: fig4, 5: fig5, 6: fig6, 7: fig7, 8: fig8, 9: fig78}
 
 
 def main():

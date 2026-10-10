@@ -59,3 +59,7 @@ Lagrangian (b) reward modes, and mean constraint violation (c) and Lagrange mult
 over the five Lagrangian seeds. The shaped reward is still rising at 1M steps in all five seeds. The Lagrangian
 reward falls while the multipliers grow, so it is not a progress measure; the violations fall to about zero.
 Training rewards of different reward modes are not comparable.
+
+**Fig. 7-8 combined (supplementary, one-page version).** Figs. 7 and 8 on one page with panels (a)-(g): (a)-(c)
+as Fig. 7(a)-(c); (d) shaped and (e) Lagrangian training reward per seed; (f) mean constraint violation and (g)
+Lagrange multiplier per constraint, averaged over the five Lagrangian seeds. Same curves and caveats as Figs. 7 and 8.

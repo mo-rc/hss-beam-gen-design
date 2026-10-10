@@ -98,6 +98,12 @@ def test_fig7_and_fig8_written_from_exported_curves(tmp_path):
     assert set(d8.panel) == {"a", "b", "c", "d"} and set(d8[d8.panel == "c"].tag) == {"utilisation", "section class", "geometry"}
     for ext in (".png", ".pdf", "_data.csv"):
         assert os.path.getsize(os.path.join(od, "fig8_reward_modes" + ext)) > 0
+    figs.fig78(rd, od)
+    dc = pd.read_csv(os.path.join(od, "fig7_8_combined_training_curves_data.csv"))
+    assert set(dc.panel) == set("abcdefg")
+    same = lambda a, b: a.sort_values(["run", "step"]).value.round(9).tolist() == b.sort_values(["run", "step"]).value.round(9).tolist()  # noqa: E731
+    assert same(dc[dc.panel == "b"], data[data.panel == "b"]) and same(dc[dc.panel == "f"], d8[d8.panel == "c"])
+    assert os.path.getsize(os.path.join(od, "fig7_8_combined_training_curves.pdf")) > 0
     for ext in (".png", ".pdf", "_data.csv"):
         assert os.path.getsize(os.path.join(od, "fig7_training_curves" + ext)) > 0
 
@@ -105,4 +111,5 @@ def test_fig7_and_fig8_written_from_exported_curves(tmp_path):
 def test_fig7_and_fig8_skip_without_curves(tmp_path, capsys):
     figs.fig7(str(tmp_path), str(tmp_path / "f"))
     figs.fig8(str(tmp_path), str(tmp_path / "f"))
-    assert capsys.readouterr().out.count("skipped") == 2 and not os.path.exists(str(tmp_path / "f"))
+    figs.fig78(str(tmp_path), str(tmp_path / "f"))
+    assert capsys.readouterr().out.count("skipped") == 3 and not os.path.exists(str(tmp_path / "f"))

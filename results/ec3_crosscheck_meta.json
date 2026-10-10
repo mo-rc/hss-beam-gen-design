@@ -5,6 +5,7 @@
     "results_dir": "results",
     "worksheet": "docs/ec3_worksheet.md",
     "sections": true,
+    "xlsx": null,
     "detail_csv": [
       "results/audit_eval/cost_seed42/detail_scale+thin.csv",
       "results/audit_eval/mass_seed42/detail_scale+thin.csv",
@@ -17,8 +18,8 @@
     "ec3_reference_audit.csv",
     "ec3_sections_fe.csv"
   ],
-  "git_commit": "c2368bb2d913192906d0e2a8c7399369d187dd2c",
-  "git_dirty": true,
+  "git_commit": "b6f030c1db260b9657636bce444ca84011661d6a",
+  "git_dirty": false,
   "numpy": "2.5.3",
   "pandas": "2.2.3"
 }

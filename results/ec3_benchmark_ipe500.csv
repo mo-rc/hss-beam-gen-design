@@ -1,0 +1,12 @@
+quantity,published,computed,rel_diff_pct,source_of_computed
+"Wpl,y (cm3)",2194.0,2212.6767600000003,0.8512652689152364,model section formulas (rolled factors)
+Iz (cm4),2142.0,2137.4720445333332,-0.21138914410208934,model section formulas (rolled factors)
+It (cm4),88.57,81.84340485333333,-7.594665402130144,model section formulas (rolled factors)
+Iw (cm6),1236000.0,1251789.1281605011,1.2774375534386029,model section formulas (rolled factors)
+"Mcr,0 uniform moment (kNm)",895.0,888.8595019720984,-0.6860891651286672,model section formulas (rolled factors)
+lambda_0 uniform moment,0.759,0.764850154310888,0.7707713189575729,model section formulas (rolled factors)
+"Mcr,0 closed form, published section constants (kNm)",895.0,895.3207848160154,0.03584187888439795,"closed form, published constants"
+lambda_LT with published Mcr,0.695,0.694810889584097,-0.027210131784600154,published chain formulas
+"phi_LT, curve b",0.825,0.8254989373716186,0.060477257165897864,published chain formulas
+"chi_LT, curve b",0.787,0.7866326705212268,-0.046674647874621424,published chain formulas
+"chi_LT of the model code at the model's own lambda_LT (C1 = 1.13), vs published formula at that lambda",0.7725769664533689,0.7725769664533689,0.0,model code (hss_env) vs published formula

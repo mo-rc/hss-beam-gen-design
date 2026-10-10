@@ -64,5 +64,7 @@ optimum − 1, over feasible contexts; the headline operator mode is `scale+thin
     resistance and a deflection limit; shear buckling, patch loading and moment gradient between restraints are not
     checked, and several inputs are assumptions rather than EC3 values (`L_cr = 0.40 L`, C1 = 1.13, serviceability load
     0.5 x the factored UDL, generic fillet factors). Checked against a published IPE 500 example, FE section properties and
-    the omitted shear-buckling check on all reference designs: `docs/ec3_verification.md`. The designs of the methods were
-    not checked against the omitted checks; no comparison with an independent software tool has been made yet.
+    the omitted shear-buckling check on all reference designs: `docs/ec3_verification.md`. The designs of the seed-42 policy of each
+    objective (all 142 contexts, `scale+thin`) were checked against the omitted shear-buckling check and none fails; other seeds, kNN
+    and search designs were not checked. The arithmetic is reproduced in a spreadsheet (`docs/ec3_worksheet.xlsx`); a calculation
+    by a second person is pending.

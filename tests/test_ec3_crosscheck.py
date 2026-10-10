@@ -96,7 +96,39 @@ def test_audit_designs_on_a_detail_file(tmp_path):
     f = tmp_path / "detail_scale+thin.csv"
     d.to_csv(f, index=False)
     a = xc.audit_designs(str(f))
+    assert a["file"] == f"{tmp_path.name}/detail_scale+thin.csv"   # the objective directory is part of the label
     assert a["n_designs"] == 3 and a["n_feasible"] == 2
     ved = 600.0 * 3.0 / 2
     u, _ = xc.shear_buckling_utilisation(520.0, 10.0, 3.0, 355.0, ved, 1.0, True)
     assert u > 1.0 and a["n_vbw_fail_rigid"] == 1 and a["max_vbw_util_rigid"] == pytest.approx(u)
+
+
+def test_workbook_structure_and_committed_values_agree_with_python(tmp_path):
+    from openpyxl import load_workbook
+    f = tmp_path / "w.xlsx"
+    xc.write_workbook(str(f), GT)
+    wb = load_workbook(str(f))
+    assert wb.sheetnames == ["Read me", "cost", "mass", "co2"]
+    n = sum(1 for ws in wb.worksheets for row in ws.iter_rows() for c in row if isinstance(c.value, str) and c.value.startswith("="))
+    assert n >= 200
+    assert any("PI()" in str(c.value) for row in wb["cost"].iter_rows() for c in row)           # M_cr is a live formula
+    committed = os.path.join(REPO, "docs", "ec3_worksheet.xlsx")
+    if os.path.exists(committed):  # recalculated file: Excel column equals the Python column
+        wv = load_workbook(committed, data_only=True)
+        for o in xc.OBJECTIVES:
+            ws, k = wv[o], 0
+            for r in range(1, ws.max_row + 1):
+                e, p = ws.cell(r, 4).value, ws.cell(r, 5).value
+                if isinstance(e, (int, float)) and isinstance(p, (int, float)) and ws.cell(r, 1).value != "Step":
+                    k += 1
+                    assert e == pytest.approx(p, rel=1e-9), (o, ws.cell(r, 1).value)
+            assert k == 34
+
+
+def test_committed_methods_audit_if_present():
+    path = os.path.join(REPO, "results", "ec3_methods_audit.csv")
+    if not os.path.exists(path):
+        pytest.skip("run 14_ec3_crosscheck.py --detail_csv ...")
+    a = pd.read_csv(path)
+    assert len(a) == 3 and (a.n_feasible == 142).all() and (a.n_vbw_fail_rigid == 0).all() and (a.n_vbw_fail_nonrigid == 0).all()
+    assert a.max_vbw_util_nonrigid.max() < 1.0

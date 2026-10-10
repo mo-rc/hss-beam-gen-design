@@ -1,8 +1,8 @@
 # EC3 model: verification and scope
 
 Script: `pipeline/14_ec3_crosscheck.py` (seconds, no training). Data: `results/ec3_reference_audit.csv`,
-`results/ec3_benchmark_ipe500.csv`, `results/ec3_sections_fe.csv`. Hand-calculation worksheet with an empty column for an
-independent tool: `docs/ec3_worksheet.md`. Tests: `tests/test_ec3_crosscheck.py`.
+`results/ec3_benchmark_ipe500.csv`, `results/ec3_sections_fe.csv`. Hand-calculation worksheet: `docs/ec3_worksheet.md`, and the same steps as an Excel workbook with live formulas,
+`docs/ec3_worksheet.xlsx` (blue cells are inputs; the column `Reviewer` is empty for an independent calculation). Tests: `tests/test_ec3_crosscheck.py`.
 
 ## Scope of the member check (`hss_env._ec3_analysis`)
 | Check | Clause | Status |
@@ -38,11 +38,17 @@ values.
    designs, up to 125, so the check would be required. The largest V_Ed / V_bw,Rd is 0.60, 0.80 and 0.68 (rigid end post) and
    0.60, 0.89, 0.76 (non-rigid); no reference design fails. A design that satisfies an added constraint stays best known for
    the stricter problem, so the reference set is unaffected.
+4. **Designs produced by the policy** (PPO, one checkpoint per objective, seed 42, `scale+thin`, all 142 contexts; detail files in
+   `results/audit_eval/`, summaries identical to the existing evaluations, same `hss_env.py` hash). All 142 designs of each
+   objective are feasible in the model. The web slenderness exceeds 72 in 56 (cost), 130 (mass) and 137 (CO2) designs, up to
+   124. The largest V_Ed / V_bw,Rd is 0.81, 0.75 and 0.57 (rigid end post) and 0.81, 0.79 and 0.59 (non-rigid); no design fails.
 
 ## Not done
-- The same check on the designs of the policy (headline checkpoints: re-evaluate with `03_evaluate_agent.py --out_detail`, whose
-  detail files now include h, b, tf, tw, then `14_ec3_crosscheck.py --detail_csv ...`), and on the kNN and search designs (not stored).
-- A value from an independent tool for the three worksheet designs (column `Tool`).
+- The same check on the other seeds of the policy and on the kNN and search designs (not stored). Only seed 42 of each objective
+  was audited.
+- An independent reviewer's calculation (calculator or any tool) of at least one worksheet design, entered in the `Reviewer` column of
+  the workbook. The workbook reproduces the Python values to rounding in a second engine (spreadsheet) from the same formulas; it
+  does not replace a calculation by a second person.
 - Section-property factors for rolled sections were checked on seven European sections only.
 
 ## Audit trail

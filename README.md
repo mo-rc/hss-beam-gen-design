@@ -56,7 +56,7 @@ Always evaluate against the `_pooled` ground-truth directories; the scripts refu
 | `11_build_paper_tables.py` | tables (`paper/tables/`) from the saved `results/` only, including the PPO-vs-search significance tests and the operator ablation; no significance test across objectives (different references) |
 | `12_time_inference.py` | wall-clock per design, policy vs search, on one machine (run locally; needs a trained checkpoint) |
 | `13_export_training_curves.py` | TensorBoard logs of complete runs -> small CSVs in `results/training_curves/` (run locally; needs `tensorboard`, not torch); feeds the supplementary figs 7-8; summary in [docs/results_training_curves.md](docs/results_training_curves.md) |
-| `14_ec3_crosscheck.py` | EC3 checks not based on the model's code: reference-design audit (incl. omitted shear buckling), published IPE 500 benchmark, FE section properties (`--sections`), hand-calculation worksheet; see [docs/ec3_verification.md](docs/ec3_verification.md) |
+| `14_ec3_crosscheck.py` | EC3 checks not based on the model's code: reference-design audit (incl. omitted shear buckling), published IPE 500 benchmark, FE section properties (`--sections`), hand-calculation worksheet (`--xlsx` also writes an Excel workbook with live formulas); see [docs/ec3_verification.md](docs/ec3_verification.md) |
 
 Example (evaluation of one checkpoint, kNN, and search baseline):
 

@@ -1,0 +1,24 @@
+{
+  "script": "pipeline/14_deflection_sensitivity.py",
+  "args": {
+    "ground_truth_dir": "data/ground_truth/main_grid_pooled",
+    "limits": [
+      250,
+      300,
+      360,
+      500
+    ],
+    "out": "results/deflection_sensitivity.csv"
+  },
+  "input_sha256": {
+    "ec3_optimal_designs_cost.csv": "68b74ba683e0232fcce172cc4683faa1f75b727a91647dabaab42be35b01e30c",
+    "ec3_optimal_designs_mass.csv": "c2cd1776c0891cf29b2b58cd857ca81d2c7c3f114a04aa8eafe074544f1d6c52",
+    "ec3_optimal_designs_co2.csv": "02f561317d90782dd02519f7c5fc8cddeb1d2feb787e0eaacade63b43ab33c32"
+  },
+  "git_commit": "771ec769f0c7c41d186c63c34a6c530c868fbfeb",
+  "git_dirty": false,
+  "generated_utc": "2026-10-10T01:37:54.937257+00:00",
+  "python": "3.12.3",
+  "numpy": "2.4.4",
+  "pandas": "3.0.2"
+}

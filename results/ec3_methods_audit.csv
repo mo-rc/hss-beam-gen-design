@@ -1,0 +1,4 @@
+file,n_designs,n_feasible,n_web_gt_72eps,max_web_slenderness_eps,max_vbw_util_rigid,n_vbw_fail_rigid,max_vbw_util_nonrigid,n_vbw_fail_nonrigid
+detail_scale+thin.csv,142,142,56,123.73403671714088,0.8062939453908572,0,0.8062939453908572,0
+detail_scale+thin.csv,142,142,130,124.20298378704292,0.7495499775556628,0,0.7889211909310905,0
+detail_scale+thin.csv,142,142,137,124.07701099819364,0.5725381073614054,0,0.5853131903247415,0

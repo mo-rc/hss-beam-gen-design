@@ -40,8 +40,8 @@ values.
    the stricter problem, so the reference set is unaffected.
 
 ## Not done
-- The same check on the designs of the policy, kNN and searches (they are not stored; only aggregates are). Re-evaluate the
-  headline checkpoints with `03_evaluate_agent.py --out_detail`, then the audit can be applied to those designs.
+- The same check on the designs of the policy (headline checkpoints: re-evaluate with `03_evaluate_agent.py --out_detail`, whose
+  detail files now include h, b, tf, tw, then `14_ec3_crosscheck.py --detail_csv ...`), and on the kNN and search designs (not stored).
 - A value from an independent tool for the three worksheet designs (column `Tool`).
 - Section-property factors for rolled sections were checked on seven European sections only.
 

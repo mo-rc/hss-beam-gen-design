@@ -20,6 +20,10 @@ No training, no search; seconds. Four parts (all written to results/ unless stat
              model's rolled-section factors (area 1.05, I_y 1.02, W_pl 1.05, I_t 1.15) stand for.
              -> ec3_sections_fe.csv
 
+  designs    (needs per-design detail files from `03_evaluate_agent.py --out_detail`, which now include h, b, tf, tw)
+             The same shear-buckling check on the designs a method actually produced, per file.
+             -> ec3_methods_audit.csv
+
   worksheet  Step-by-step hand calculation of three reference designs with the model's value next to each step
              and an empty column for a value from an independent tool (commercial software, spreadsheet).
              -> docs/ec3_worksheet.md
@@ -126,6 +130,25 @@ def audit(gt_dir):
 def _chi_curve_b(lam, alpha=0.34):
     phi = 0.5 * (1 + alpha * (lam - 0.2) + lam ** 2)
     return min(1.0, 1 / (phi + math.sqrt(phi ** 2 - lam ** 2)))
+
+
+def audit_designs(detail_csv):
+    """Shear-buckling utilisation (EN 1993-1-5 5.3, end stiffeners only, eta = 1.0) of the designs in one detail file
+    of 03_evaluate_agent.py (columns span_m, load_kN_per_m, h, b, tf, tw, grade, feasible). Feasible designs only,
+    plus the count of all designs."""
+    d = pd.read_csv(detail_csv)
+    f = d[d.feasible.astype(bool)]
+    ur, un, web = [], [], []
+    for r in f.itertuples():
+        ved = r.load_kN_per_m * r.span_m / 2.0
+        ur.append(shear_buckling_utilisation(r.h, r.tf, r.tw, r.grade, ved, 1.0, True)[0])
+        un.append(shear_buckling_utilisation(r.h, r.tf, r.tw, r.grade, ved, 1.0, False)[0])
+        web.append((r.h - 2 * r.tf) / r.tw / math.sqrt(235.0 / r.grade))
+    ur, un, web = np.array(ur), np.array(un), np.array(web)
+    return dict(file=os.path.basename(detail_csv), n_designs=len(d), n_feasible=len(f),
+                n_web_gt_72eps=int((web > 72).sum()), max_web_slenderness_eps=float(web.max()) if len(f) else float("nan"),
+                max_vbw_util_rigid=float(ur.max()) if len(f) else float("nan"), n_vbw_fail_rigid=int((ur > 1.0).sum()),
+                max_vbw_util_nonrigid=float(un.max()) if len(f) else float("nan"), n_vbw_fail_nonrigid=int((un > 1.0).sum()))
 
 
 def benchmark_ipe500():
@@ -308,17 +331,22 @@ def main():
     ap.add_argument("--results_dir", default=os.path.join(REPO, "results"))
     ap.add_argument("--worksheet", default=os.path.join(REPO, "docs", "ec3_worksheet.md"))
     ap.add_argument("--sections", action="store_true", help="also run the FE section check (needs sectionproperties)")
+    ap.add_argument("--detail_csv", nargs="*", default=[], help="detail_<operator>.csv files from 03_evaluate_agent.py --out_detail")
     a = ap.parse_args()
     os.makedirs(a.results_dir, exist_ok=True)
     outs = {"ec3_reference_audit.csv": audit(a.ground_truth_dir), "ec3_benchmark_ipe500.csv": benchmark_ipe500()}
     if a.sections:
         outs["ec3_sections_fe.csv"] = sections_fe()
+    if a.detail_csv:
+        outs["ec3_methods_audit.csv"] = pd.DataFrame([audit_designs(f) for f in a.detail_csv])
     for name, df in outs.items():
         df.to_csv(os.path.join(a.results_dir, name), index=False)
         print(f"== {name}\n{df.round(3).to_string(index=False)}\n")
     with open(a.worksheet, "w", encoding="utf-8") as f:
         f.write(worksheet(a.ground_truth_dir))
-    meta = dict(script="pipeline/14_ec3_crosscheck.py", args=vars(a), files=sorted(outs),
+    rel = lambda v: os.path.relpath(v, REPO) if isinstance(v, str) and os.path.isabs(v) else v
+    meta = dict(script="pipeline/14_ec3_crosscheck.py",
+                args={k: ([rel(x) for x in v] if isinstance(v, list) else rel(v)) for k, v in vars(a).items()}, files=sorted(outs),
                 git_commit=_git("rev-parse", "HEAD"), git_dirty=bool(_git("status", "--porcelain", "--untracked-files=no")),
                 numpy=np.__version__, pandas=pd.__version__)
     with open(os.path.join(a.results_dir, "ec3_crosscheck_meta.json"), "w") as f:

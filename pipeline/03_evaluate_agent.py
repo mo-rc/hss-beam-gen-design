@@ -152,6 +152,7 @@ def evaluate(model_path: str, run_meta: dict, ground_truth_dir: str, economy_met
                 achieved=res[economy_metric], gap=gap, feasible=res["feasible"],
                 rollout_reached_feasible=was_feasible,
                 grade=res["fy"], section_type=res["section_type"],
+                h=res["h"], b=res["b"], tf=res["tf"], tw=res["tw"],
                 grade_match=float(res["fy"] == r["grade"]), utilization=res["utilization"],
                 adjusted=res["adjusted"], n_ec3=n_gen + res["n_ec3"],
             ))

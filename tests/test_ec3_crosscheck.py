@@ -76,3 +76,27 @@ def test_fe_section_table_if_present():
     assert s.loc["IPE300", "A_cm2"] == pytest.approx(53.8, rel=0.003)        # catalogue value
     assert s.loc["IPE500", "Iy_cm4"] == pytest.approx(48200, rel=0.003)
     assert s.ratio_Wpl.between(1.02, 1.07).all() and (s.ratio_It > 1.1).all()
+
+
+def test_operator_result_carries_the_design_geometry():
+    """03_evaluate_agent.py writes h, b, tf, tw from this result into its detail rows."""
+    from hssbeamgen.algo.posthoc_operators import apply_operator
+    env = xc._env("cost")
+    design = dict(h=500.0, b=200.0, tf=16.0, tw=10.0, fy=355.0, section_type="rolled")
+    res = apply_operator(env, 9000.0, 50.0, design, metric="cost", storey=20, mode="scale+thin")
+    assert all(k in res for k in ("h", "b", "tf", "tw", "fy", "section_type", "feasible"))
+
+
+def test_audit_designs_on_a_detail_file(tmp_path):
+    # one design that passes and one with a very slender web that fails the shear-buckling check
+    d = pd.DataFrame([
+        dict(span_m=8.0, load_kN_per_m=40.0, h=500.0, b=200.0, tf=16.0, tw=10.0, grade=355.0, feasible=True),
+        dict(span_m=3.0, load_kN_per_m=600.0, h=520.0, b=200.0, tf=10.0, tw=3.0, grade=355.0, feasible=True),
+        dict(span_m=3.0, load_kN_per_m=600.0, h=520.0, b=200.0, tf=10.0, tw=3.0, grade=355.0, feasible=False)])
+    f = tmp_path / "detail_scale+thin.csv"
+    d.to_csv(f, index=False)
+    a = xc.audit_designs(str(f))
+    assert a["n_designs"] == 3 and a["n_feasible"] == 2
+    ved = 600.0 * 3.0 / 2
+    u, _ = xc.shear_buckling_utilisation(520.0, 10.0, 3.0, 355.0, ved, 1.0, True)
+    assert u > 1.0 and a["n_vbw_fail_rigid"] == 1 and a["max_vbw_util_rigid"] == pytest.approx(u)

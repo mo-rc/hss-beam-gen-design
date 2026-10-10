@@ -52,11 +52,17 @@ optimum − 1, over feasible contexts; the headline operator mode is `scale+thin
 8. **RL hyperparameters.** One frozen configuration is used for all arms (a seed-99 pilot found no
    effect and the configuration was kept); no per-algorithm tuning is reported, so SAC/TD3/DDPG results
    are for this configuration.
-9. **Not evaluated.** `ood_joint` has no feasible reference design; learning curves are not reported
-   (training runs are not tracked in the repository).
-10. **Context dimension.** The context is (span, effective UDL load); the serviceability limit is fixed at L/250
-    (`hss_env.py`, `delta / (L/250)`; utilisation is the maximum of moment and deflection utilisation). Storey is a
-    training-time variable that scales the load by 1 to 1.5 and is part of the observation; in every evaluation and in
-    all ground truth the load is used directly and storey is fixed at 20. `pipeline/14_deflection_sensitivity.py` (t12)
-    shows that a tighter limit would move the reference: at L/360, 75 of 142 cost optima and all 142 mass and CO2
-    optima violate. This is a re-check of stored designs, not a result for a policy trained over limits.
+9. **Not evaluated; training budget.** `ood_joint` has no feasible reference design. Training curves are in the supplement
+   (Figs. 7-8, t13, `results_training_curves.md`): all arms use one fixed 1M-step budget and the final checkpoint; PPO is
+   still improving slowly at 1M, and 4 of 10 SAC / TD3 seeds end with a reward at least twice as negative as at mid-training.
+   Longer training and checkpoint selection were not tried, so the algorithm comparison (2b) is at this budget only.
+10. **Context definition.** The context is (span, effective factored UDL); the serviceability limit is fixed at L/250
+    (`hss_env.py`; utilisation is the maximum of moment and deflection utilisation). Storey is a training-time variable
+    that scales the load by 1 to 1.5 and is part of the observation; in every evaluation and in all ground truth the load
+    is used directly and storey is fixed at 20.
+11. **EC3 model scope.** The member check covers section class, moment resistance, LTB (general method), plastic shear
+    resistance and a deflection limit; shear buckling, patch loading and moment gradient between restraints are not
+    checked, and several inputs are assumptions rather than EC3 values (`L_cr = 0.40 L`, C1 = 1.13, serviceability load
+    0.5 x the factored UDL, generic fillet factors). Checked against a published IPE 500 example, FE section properties and
+    the omitted shear-buckling check on all reference designs: `docs/ec3_verification.md`. The designs of the methods were
+    not checked against the omitted checks; no comparison with an independent software tool has been made yet.

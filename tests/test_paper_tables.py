@@ -79,3 +79,11 @@ def test_timing_table_joins_time_and_gap():
     de = d[(d.objective == "cost") & (d.method == "de") & (d.budget == 400)].iloc[0]
     assert round(de.gap, 1) == 8.3 and de.evals > 400
     assert (d.ms_per_design > 0).all() and len(d) == 3 * 13
+
+def test_training_summary_matches_the_exported_curves():
+    g = t.table_training_summary(RES).set_index("arm")
+    assert (g.n_seeds == 5).all() and len(g) == 8
+    assert g.loc["sac", "n_seeds_end_worse_2x"] == 1 and g.loc["td3", "n_seeds_end_worse_2x"] == 3
+    assert g[["n_seeds_end_worse_2x"]].drop(["sac", "td3"]).sum().iloc[0] == 0
+    assert round(g.loc["sac", "ep_len_end"], 1) == 12.2 and round(g.loc["td3", "ep_len_end"], 1) == 20.2
+    assert round(g.loc["feasibility_gated", "reward_end"], 1) == -44.1

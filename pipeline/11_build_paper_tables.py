@@ -299,6 +299,29 @@ def table_timing(res, budgets=(40, 112, 400, 1000)):
     return pd.DataFrame(rows)
 
 
+def table_training_summary(res, mid=(4e5, 6e5), end=(9e5, 1.01e6), worse=2.0):
+    """Per arm, from results/training_curves/*.csv (pipeline/13_export_training_curves.py): mean training-episode
+    reward and episode length over two step windows, and the number of seeds whose reward in the last window is
+    at least `worse` times more negative than in the middle window. Descriptive only (the factor is not a test)."""
+    d = os.path.join(res, "training_curves")
+    rows = []
+    for f in sorted(glob.glob(os.path.join(d, "2[abc]_*__seed*.csv"))):
+        exp, arm, seed = os.path.basename(f)[:-4].split("__")
+        c = pd.read_csv(f)
+
+        def w(tag, lo, hi):
+            return c[(c.tag == tag) & (c.step >= lo) & (c.step < hi)].value.mean()
+        rows.append(dict(experiment=exp, arm=arm, seed=seed,
+                         rew_mid=w("rollout/ep_rew_mean", *mid), rew_end=w("rollout/ep_rew_mean", *end),
+                         len_mid=w("rollout/ep_len_mean", *mid), len_end=w("rollout/ep_len_mean", *end)))
+    r = pd.DataFrame(rows)
+    r["worse"] = r.rew_end <= worse * r.rew_mid
+    g = r.groupby(["experiment", "arm"]).agg(n_seeds=("seed", "size"), reward_mid=("rew_mid", "mean"), reward_end=("rew_end", "mean"),
+                                           ep_len_mid=("len_mid", "mean"), ep_len_end=("len_end", "mean"),
+                                           n_seeds_end_worse_2x=("worse", "sum")).reset_index()
+    return g
+
+
 def table_knn_cheap(res):
     """kNN with search labels vs label budget, in distribution (n = 36 and LOO) and on the OOD sets."""
     rows = []
@@ -431,19 +454,15 @@ def build_tables(res, outdir):
            "Milliseconds per design including the scale+thin operator, single process, one thread, 20 contexts x 3 repeats "
            "(± = sd over repeats), one PPO checkpoint (seed 42) per objective; gap and feasibility from the main-grid "
            "evaluations (PPO: mean of 5 seeds). The kNN was not timed.")
-    ds = os.path.join(res, "deflection_sensitivity.csv")
-    if os.path.exists(ds):  # produced by pipeline/14_deflection_sensitivity.py (seconds, no training)
-        dd = pd.read_csv(ds)
-        f = dd.copy()
-        for c in ("frac_ref_violating", "frac_stored_violating"):
-            f[c] = (f[c] * 100).map("{:.0f}".format)
-        f["n_ref_deflection_governs_at_250"] = f.n_ref_deflection_governs_at_250.map(lambda v: "" if pd.isna(v) else f"{v:.0f}")
-        for c in ("scale_lb_median", "scale_lb_max"):
-            f[c] = f[c].map(lambda v: "" if pd.isna(v) else f"{v:.2f}")
-        _write(t, "t12_deflection_sensitivity", dd, f,
-               "Stored reference optima (one per (span, load) context, 142 contexts) and all stored (grade, section type) optima "
-               "re-checked against a tighter deflection limit L/n; no search. frac_* in %. scale_lb_*: lower bound on the uniform scale "
-               "factor the scale operator would need to repair a violating reference design (deflection ~ s^-4; other checks ignored).")
+    if os.path.isdir(os.path.join(res, "training_curves")):
+        ts = table_training_summary(res)
+        f = ts.copy()
+        for c in ("reward_mid", "reward_end", "ep_len_mid", "ep_len_end"):
+            f[c] = f[c].map("{:.1f}".format)
+        _write(t, "t13_training_summary", ts, f,
+               "Training-episode reward and episode length (mean over seeds) in the step windows 0.4-0.6M and 0.9-1.0M, and the number of "
+               "seeds whose end reward is at least 2x more negative than the mid reward. Rewards are sums over the episode: they are not "
+               "comparable between algorithms with different episode lengths, nor between reward modes.")
     return {"ood": ood, "search": sb, "matched": mt, "knn_cheap": kc}
 
 

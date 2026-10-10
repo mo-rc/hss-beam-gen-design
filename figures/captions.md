@@ -52,7 +52,7 @@ joint-extrapolation grid has no feasible design.
 seed (thin lines) of PPO for the cost, mass and CO2 objectives (a), and training reward (b) and episode length (c)
 of PPO, SAC, TD3 and DDPG in the algorithm comparison (five seeds each). Rewards are on the scale of their reward
 mode; the comparison metric of the paper is the gap of Figs. 1-3. The off-policy seeds end with different episode
-lengths (SAC about 8 steps in two seeds and 17-18 in two others), PPO stays near 35-39.
+lengths (SAC 8-10 steps in three seeds and 17-18 in the other two), PPO stays near 35-39.
 
 **Fig. 8 (supplementary). Training curves: reward modes.** Training reward of every seed of the shaped (a) and
 Lagrangian (b) reward modes, and mean constraint violation (c) and Lagrange multiplier (d) per constraint, averaged
